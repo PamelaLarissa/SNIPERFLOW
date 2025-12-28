@@ -30,10 +30,10 @@ export const ScoreDistributionChart = ({ data }: ScoreChartProps) => {
         <CardHeader>
           <CardTitle className="text-lg font-semibold">Distribuição de Score</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="h-[280px]">
+        <CardContent className="p-3 sm:p-6">
+          <div className="h-[220px] sm:h-[280px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <BarChart data={data} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis 
                   dataKey="range" 
@@ -82,10 +82,10 @@ export const LeadsTrendChart = ({ data }: TrendChartProps) => {
         <CardHeader>
           <CardTitle className="text-lg font-semibold">Leads nos Últimos 14 Dias</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="h-[280px]">
+        <CardContent className="p-3 sm:p-6">
+          <div className="h-[220px] sm:h-[280px]">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <AreaChart data={data} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
                 <defs>
                   <linearGradient id="leadGradient" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
@@ -150,16 +150,16 @@ export const LeadsBySourceChart = ({ data }: SourceChartProps) => {
         <CardHeader>
           <CardTitle className="text-lg font-semibold">Leads por Fonte</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="h-[280px] flex items-center justify-center">
+        <CardContent className="p-3 sm:p-6">
+          <div className="h-[220px] sm:h-[280px] flex items-center justify-center">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={data}
                   cx="50%"
                   cy="50%"
-                  innerRadius={60}
-                  outerRadius={100}
+                  innerRadius={45}
+                  outerRadius={75}
                   paddingAngle={2}
                   dataKey="count"
                   nameKey="source"

@@ -40,23 +40,27 @@ export const SettingsPage = () => {
         subtitle="Personalize sua experiência no LeadScan 365" 
       />
 
-      <Tabs defaultValue="workspace" className="space-y-6">
-        <TabsList className="bg-secondary/50 border border-border p-1">
-          <TabsTrigger value="workspace" className="gap-2">
-            <Building className="h-4 w-4" />
-            Workspace
+      <Tabs defaultValue="workspace" className="space-y-4 sm:space-y-6">
+        <TabsList className="bg-secondary/50 border border-border p-1 flex-wrap h-auto gap-1">
+          <TabsTrigger value="workspace" className="gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3">
+            <Building className="h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="hidden xs:inline">Workspace</span>
+            <span className="xs:hidden">WS</span>
           </TabsTrigger>
-          <TabsTrigger value="whitelabel" className="gap-2">
-            <Palette className="h-4 w-4" />
-            White-Label
+          <TabsTrigger value="whitelabel" className="gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3">
+            <Palette className="h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="hidden xs:inline">White-Label</span>
+            <span className="xs:hidden">WL</span>
           </TabsTrigger>
-          <TabsTrigger value="integrations" className="gap-2">
-            <Zap className="h-4 w-4" />
-            Integrações
+          <TabsTrigger value="integrations" className="gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3">
+            <Zap className="h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">Integrações</span>
+            <span className="sm:hidden">Int</span>
           </TabsTrigger>
-          <TabsTrigger value="notifications" className="gap-2">
-            <Bell className="h-4 w-4" />
-            Notificações
+          <TabsTrigger value="notifications" className="gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3">
+            <Bell className="h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">Notificações</span>
+            <span className="sm:hidden">Not</span>
           </TabsTrigger>
         </TabsList>
 
@@ -108,14 +112,14 @@ export const SettingsPage = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="flex items-center justify-between p-4 rounded-lg bg-primary/10 border border-primary/20">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-lg bg-primary/10 border border-primary/20">
                   <div>
-                    <h4 className="font-semibold text-lg">Plano Pro</h4>
-                    <p className="text-sm text-muted-foreground">2.000 leads/mês • 3 nichos • 3 localidades • API</p>
+                    <h4 className="font-semibold text-base sm:text-lg">Plano Pro</h4>
+                    <p className="text-xs sm:text-sm text-muted-foreground">2.000 leads/mês • 3 nichos • 3 localidades • API</p>
                   </div>
-                  <div className="text-right">
-                    <p className="text-2xl font-bold">R$ 197<span className="text-sm font-normal text-muted-foreground">/mês</span></p>
-                    <Button variant="outline" size="sm" className="mt-2">
+                  <div className="text-left sm:text-right">
+                    <p className="text-xl sm:text-2xl font-bold">R$ 197<span className="text-xs sm:text-sm font-normal text-muted-foreground">/mês</span></p>
+                    <Button variant="outline" size="sm" className="mt-2 w-full sm:w-auto">
                       Upgrade para Agência
                     </Button>
                   </div>

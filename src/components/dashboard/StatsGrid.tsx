@@ -27,27 +27,27 @@ const StatCard = ({ title, value, change, icon, delay = 0 }: StatCardProps) => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay }}
     >
-      <Card variant="stat" className="group cursor-pointer">
-        <CardContent className="p-6">
-          <div className="flex items-start justify-between">
-            <div className="space-y-2">
-              <p className="text-sm text-muted-foreground font-medium">{title}</p>
-              <p className="text-3xl font-bold tracking-tight">{value}</p>
+      <Card variant="stat" className="group cursor-pointer h-full">
+        <CardContent className="p-4 sm:p-6">
+          <div className="flex items-start justify-between gap-2">
+            <div className="space-y-1 sm:space-y-2 min-w-0 flex-1">
+              <p className="text-xs sm:text-sm text-muted-foreground font-medium truncate">{title}</p>
+              <p className="text-2xl sm:text-3xl font-bold tracking-tight">{value}</p>
               {change !== undefined && (
                 <div className={cn(
-                  "flex items-center gap-1 text-sm font-medium",
+                  "flex items-center gap-1 text-xs sm:text-sm font-medium",
                   isPositive ? "text-accent" : "text-destructive"
                 )}>
                   {isPositive ? (
-                    <ArrowUpRight className="h-4 w-4" />
+                    <ArrowUpRight className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
                   ) : (
-                    <ArrowDownRight className="h-4 w-4" />
+                    <ArrowDownRight className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
                   )}
-                  <span>{Math.abs(change)}% vs semana passada</span>
+                  <span className="truncate">{Math.abs(change)}% vs semana passada</span>
                 </div>
               )}
             </div>
-            <div className="p-3 rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
+            <div className="p-2 sm:p-3 rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300 shrink-0">
               {icon}
             </div>
           </div>
@@ -66,7 +66,7 @@ interface StatsGridProps {
 
 export const StatsGrid = ({ totalLeads, verifiedLeads, avgScore, activeCampaigns }: StatsGridProps) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
       <StatCard
         title="Total de Leads"
         value={totalLeads.toLocaleString('pt-BR')}

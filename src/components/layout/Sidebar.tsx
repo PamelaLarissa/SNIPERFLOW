@@ -262,14 +262,12 @@ export const Header = ({ title, subtitle }: HeaderProps) => {
   const isMobile = useIsMobile();
   
   return (
-    <header className={cn(
-      "flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8",
-    )}>
-      <div>
+    <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-6 md:mb-8">
+      <div className="min-w-0">
         <motion.h1
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-2xl sm:text-3xl font-bold text-foreground"
+          className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground truncate"
         >
           {title}
         </motion.h1>
@@ -278,14 +276,14 @@ export const Header = ({ title, subtitle }: HeaderProps) => {
             initial={{ opacity: 0, y: -5 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-sm sm:text-base text-muted-foreground mt-1"
+            className="text-xs sm:text-sm md:text-base text-muted-foreground mt-0.5 sm:mt-1 truncate"
           >
             {subtitle}
           </motion.p>
         )}
       </div>
       {!isMobile && (
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 shrink-0">
           <Button variant="ghost" size="icon" className="relative">
             <Bell className="h-5 w-5" />
             <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-primary animate-pulse" />

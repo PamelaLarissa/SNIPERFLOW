@@ -28,7 +28,7 @@ export const DashboardPage = () => {
         subtitle="Visão geral da sua prospecção automática" 
       />
 
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* Stats Grid */}
         <StatsGrid
           totalLeads={mockDashboardStats.totalLeads}
@@ -38,14 +38,14 @@ export const DashboardPage = () => {
         />
 
         {/* Charts Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
           <LeadsTrendChart data={mockLeadsTrend} />
           <ScoreDistributionChart data={mockScoreDistribution} />
           <LeadsBySourceChart data={mockLeadsBySource} />
         </div>
 
         {/* Leads Table & Campaigns */}
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6">
           <div className="xl:col-span-2">
             <LeadsTable 
               leads={mockLeads.slice(0, 5)} 
