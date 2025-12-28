@@ -30,8 +30,8 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
       <main
         className={cn(
           "min-h-screen transition-all duration-300",
-          "p-4 sm:p-6 lg:p-8",
-          "pt-20 md:pt-6 lg:pt-8", // Extra top padding on mobile for header
+          "p-3 sm:p-4 md:p-6 lg:p-8",
+          "pt-20 md:pt-4 lg:pt-8", // Extra top padding on mobile for header
           isMobile ? "ml-0" : (sidebarCollapsed ? "ml-20" : "ml-64")
         )}
       >
