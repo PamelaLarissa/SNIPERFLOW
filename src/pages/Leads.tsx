@@ -47,7 +47,9 @@ export const LeadsPage = () => {
   const [filterOpen, setFilterOpen] = useState(false);
   const [editingLead, setEditingLead] = useState<Lead | null>(null);
   const [viewingLead, setViewingLead] = useState<Lead | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
   const { toast } = useToast();
+  const LEADS_PER_PAGE = 15;
 
   const [formData, setFormData] = useState({
     name: '',
@@ -65,6 +67,18 @@ export const LeadsPage = () => {
     lead.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
     lead.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const totalPages = Math.ceil(filteredLeads.length / LEADS_PER_PAGE);
+  const paginatedLeads = filteredLeads.slice(
+    (currentPage - 1) * LEADS_PER_PAGE,
+    currentPage * LEADS_PER_PAGE
+  );
+
+  // Reset to page 1 when search changes
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+    setCurrentPage(1);
+  };
 
   const handleExportCSV = () => {
     toast({
@@ -146,7 +160,7 @@ export const LeadsPage = () => {
                 <Input
                   placeholder="Buscar leads..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e) => handleSearchChange(e.target.value)}
                   className="pl-10 bg-secondary/50"
                 />
               </div>
@@ -389,7 +403,7 @@ export const LeadsPage = () => {
 
         {/* Leads Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
-          {filteredLeads.map((lead, index) => (
+          {paginatedLeads.map((lead, index) => (
             <motion.div
               key={lead.id}
               initial={{ opacity: 0, y: 20 }}
@@ -480,9 +494,44 @@ export const LeadsPage = () => {
           ))}
         </div>
 
-        {filteredLeads.length === 0 && (
+        {paginatedLeads.length === 0 && (
           <div className="text-center py-12 text-muted-foreground">
             Nenhum lead encontrado
+          </div>
+        )}
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-2 pt-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+            >
+              Anterior
+            </Button>
+            <div className="flex items-center gap-1">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                <Button
+                  key={page}
+                  variant={currentPage === page ? "default" : "outline"}
+                  size="sm"
+                  className="w-8 h-8"
+                  onClick={() => setCurrentPage(page)}
+                >
+                  {page}
+                </Button>
+              ))}
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+            >
+              Próximo
+            </Button>
           </div>
         )}
       </div>
