@@ -293,9 +293,94 @@ app.get('/api/stats/score-distribution', (req, res) => {
   }
 });
 
+// ==================== WEBHOOK ROUTES ====================
+app.post('/api/webhooks/leads', (req, res) => {
+  try {
+    const { name, company, email, phone, source, score, campaignId } = req.body;
+    
+    // Validate required fields
+    if (!name || !email) {
+      return res.status(400).json({ error: 'Name and email are required' });
+    }
+    
+    const lead = createLead({
+      name,
+      company: company || '',
+      email,
+      phone: phone || '',
+      whatsapp: !!phone,
+      score: score || Math.floor(Math.random() * 40) + 60, // Random 60-100 if not provided
+      isVerified: false,
+      source: source || 'webhook',
+      campaignId: campaignId || null,
+      status: 'new',
+      createdAt: new Date().toISOString(),
+    });
+    
+    console.log(`📥 Webhook: New lead received - ${lead.name} (${lead.email})`);
+    res.status(201).json({ success: true, lead });
+  } catch (error) {
+    console.error('Webhook error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Bulk webhook for multiple leads
+app.post('/api/webhooks/leads/bulk', (req, res) => {
+  try {
+    const { leads: leadsData } = req.body;
+    
+    if (!Array.isArray(leadsData) || leadsData.length === 0) {
+      return res.status(400).json({ error: 'leads array is required' });
+    }
+    
+    const createdLeads = [];
+    const errors = [];
+    
+    for (const leadData of leadsData) {
+      try {
+        if (!leadData.name || !leadData.email) {
+          errors.push({ data: leadData, error: 'Name and email are required' });
+          continue;
+        }
+        
+        const lead = createLead({
+          name: leadData.name,
+          company: leadData.company || '',
+          email: leadData.email,
+          phone: leadData.phone || '',
+          whatsapp: !!leadData.phone,
+          score: leadData.score || Math.floor(Math.random() * 40) + 60,
+          isVerified: false,
+          source: leadData.source || 'webhook',
+          campaignId: leadData.campaignId || null,
+          status: 'new',
+          createdAt: new Date().toISOString(),
+        });
+        createdLeads.push(lead);
+      } catch (err) {
+        errors.push({ data: leadData, error: err.message });
+      }
+    }
+    
+    console.log(`📥 Bulk Webhook: ${createdLeads.length} leads created, ${errors.length} errors`);
+    res.status(201).json({ 
+      success: true, 
+      created: createdLeads.length,
+      errors: errors.length,
+      leads: createdLeads,
+      errorDetails: errors
+    });
+  } catch (error) {
+    console.error('Bulk webhook error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Start server
 app.listen(PORT, () => {
   console.log(`🚀 LeadScan365 Backend running on http://localhost:${PORT}`);
   console.log(`📊 Health check: http://localhost:${PORT}/health`);
+  console.log(`📥 Webhook: POST http://localhost:${PORT}/api/webhooks/leads`);
   console.log(`💾 Database: SQLite (local, free, unlimited)`);
 });
