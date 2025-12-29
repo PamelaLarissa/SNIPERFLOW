@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { 
+import {
   Plus,
   Play,
   Pause,
@@ -13,7 +13,6 @@ import {
   Search,
   CheckCircle,
   Edit,
-  ChevronDown
 } from "lucide-react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Header } from "@/components/layout/Sidebar";
@@ -21,14 +20,26 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { mockCampaigns, type Campaign } from "@/lib/mockData";
 import { useToast } from "@/hooks/use-toast";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { AdvancedFilters, AdvancedFiltersData, defaultAdvancedFilters } from "@/components/campaigns/AdvancedFilters";
-import { freelanceSources } from "@/components/campaigns/FreelancePlatformSources";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  AdvancedFilters,
+  type AdvancedFiltersData,
+  defaultAdvancedFilters,
+} from "@/components/campaigns/AdvancedFilters";
 
 const getStatusBadge = (status: Campaign['status']) => {
   switch (status) {
@@ -49,33 +60,33 @@ export const CampaignsPage = () => {
   const [editingCampaign, setEditingCampaign] = useState<Campaign | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
-  
+
   // Form state
   const [formData, setFormData] = useState({
-    name: '',
-    niche: '',
-    location: '',
-    sources: ['Google', 'LinkedIn'] as string[],
+    name: "",
+    niche: "",
+    location: "",
+    sources: ["Google", "LinkedIn"] as string[],
     minScore: 50,
     verifiedOnly: false,
   });
 
-  const [advancedFilters, setAdvancedFilters] = useState<AdvancedFiltersData>(defaultAdvancedFilters);
-  
+  const [advancedFilters, setAdvancedFilters] = useState<AdvancedFiltersData>(
+    defaultAdvancedFilters,
+  );
+
   const { toast } = useToast();
 
   const resetForm = () => {
     setFormData({
-      name: '',
-      niche: '',
-      location: '',
-      sources: ['Google', 'LinkedIn'],
+      name: "",
+      niche: "",
+      location: "",
+      sources: ["Google", "LinkedIn"],
       minScore: 50,
       verifiedOnly: false,
     });
     setAdvancedFilters(defaultAdvancedFilters);
-    setShowAdvancedFilters(false);
   };
 
   const handleCreateCampaign = () => {
@@ -207,107 +218,128 @@ export const CampaignsPage = () => {
             <DialogContent className="max-w-2xl max-h-[90vh]">
               <DialogHeader>
                 <DialogTitle>Criar Nova Campanha</DialogTitle>
-                <DialogDescription>Configure os parâmetros da sua campanha de prospecção</DialogDescription>
+                <DialogDescription>
+                  Configure os parâmetros da sua campanha de prospecção
+                </DialogDescription>
               </DialogHeader>
-              <ScrollArea className="max-h-[calc(90vh-180px)] pr-4">
-                <div className="space-y-4">
-                  <div>
-                    <Label className="text-sm font-medium mb-2 block">Nome da Campanha</Label>
-                    <Input 
-                      placeholder="Ex: Agências de Marketing SP" 
-                      className="bg-secondary/50"
-                      value={formData.name}
-                      onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium mb-2 block">Nicho/Segmento</Label>
-                    <Input 
-                      placeholder="Ex: Agências de Marketing Digital" 
-                      className="bg-secondary/50"
-                      value={formData.niche}
-                      onChange={(e) => setFormData(prev => ({ ...prev, niche: e.target.value }))}
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium mb-2 block">Localização</Label>
-                    <Input 
-                      placeholder="Ex: São Paulo, SP" 
-                      className="bg-secondary/50"
-                      value={formData.location}
-                      onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium mb-2 block">Fontes de Dados</Label>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                      {availableSources.map(source => (
-                        <label 
-                          key={source} 
-                          className={`flex items-center gap-2 p-2 rounded-lg border cursor-pointer transition-all ${
-                            formData.sources.includes(source) 
-                              ? 'border-primary bg-primary/10' 
-                              : 'border-border hover:bg-secondary/50'
-                          }`}
-                        >
-                          <input 
-                            type="checkbox" 
-                            checked={formData.sources.includes(source)}
-                            onChange={() => toggleSource(source)}
-                            className="rounded border-border"
+
+              <Tabs defaultValue="basic" className="w-full">
+                <TabsList className="w-full grid grid-cols-2">
+                  <TabsTrigger value="basic">Básico</TabsTrigger>
+                  <TabsTrigger value="advanced">Avançado</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="basic">
+                  <ScrollArea className="max-h-[calc(90vh-240px)] pr-4">
+                    <div className="space-y-4">
+                      <div>
+                        <Label className="text-sm font-medium mb-2 block">Nome da Campanha</Label>
+                        <Input
+                          placeholder="Ex: Agências de Marketing SP"
+                          className="bg-secondary/50"
+                          value={formData.name}
+                          onChange={(e) =>
+                            setFormData((prev) => ({ ...prev, name: e.target.value }))
+                          }
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium mb-2 block">Nicho/Segmento</Label>
+                        <Input
+                          placeholder="Ex: Agências de Marketing Digital"
+                          className="bg-secondary/50"
+                          value={formData.niche}
+                          onChange={(e) =>
+                            setFormData((prev) => ({ ...prev, niche: e.target.value }))
+                          }
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium mb-2 block">Localização</Label>
+                        <Input
+                          placeholder="Ex: São Paulo, SP"
+                          className="bg-secondary/50"
+                          value={formData.location}
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              location: e.target.value,
+                            }))
+                          }
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium mb-2 block">Fontes de Dados</Label>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                          {availableSources.map((source) => (
+                            <label
+                              key={source}
+                              className={`flex items-center gap-2 p-2 rounded-lg border cursor-pointer transition-all ${
+                                formData.sources.includes(source)
+                                  ? "border-primary bg-primary/10"
+                                  : "border-border hover:bg-secondary/50"
+                              }`}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={formData.sources.includes(source)}
+                                onChange={() => toggleSource(source)}
+                                className="rounded border-border"
+                              />
+                              <span className="text-sm">{source}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <Label className="text-sm font-medium mb-2 block">Score Mínimo</Label>
+                          <Input
+                            type="number"
+                            min="0"
+                            max="100"
+                            className="bg-secondary/50"
+                            value={formData.minScore}
+                            onChange={(e) =>
+                              setFormData((prev) => ({
+                                ...prev,
+                                minScore: parseInt(e.target.value) || 0,
+                              }))
+                            }
                           />
-                          <span className="text-sm">{source}</span>
-                        </label>
-                      ))}
+                        </div>
+                        <div className="flex items-center justify-between p-3 rounded-lg border border-border">
+                          <Label className="text-sm font-medium">Apenas Verificados</Label>
+                          <Switch
+                            checked={formData.verifiedOnly}
+                            onCheckedChange={(checked) =>
+                              setFormData((prev) => ({ ...prev, verifiedOnly: checked }))
+                            }
+                          />
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <Label className="text-sm font-medium mb-2 block">Score Mínimo</Label>
-                      <Input 
-                        type="number" 
-                        min="0" 
-                        max="100"
-                        className="bg-secondary/50"
-                        value={formData.minScore}
-                        onChange={(e) => setFormData(prev => ({ ...prev, minScore: parseInt(e.target.value) || 0 }))}
-                      />
-                    </div>
-                    <div className="flex items-center justify-between p-3 rounded-lg border border-border">
-                      <Label className="text-sm font-medium">Apenas Verificados</Label>
-                      <Switch 
-                        checked={formData.verifiedOnly}
-                        onCheckedChange={(checked) => setFormData(prev => ({ ...prev, verifiedOnly: checked }))}
-                      />
-                    </div>
-                  </div>
+                  </ScrollArea>
+                </TabsContent>
 
-                  {/* Toggle Advanced Filters */}
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    className="w-full justify-between"
-                    onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-                  >
-                    <span className="text-sm font-medium">Filtros Avançados</span>
-                    <ChevronDown className={`h-4 w-4 transition-transform ${showAdvancedFilters ? 'rotate-180' : ''}`} />
-                  </Button>
+                <TabsContent value="advanced">
+                  <ScrollArea className="max-h-[calc(90vh-240px)] pr-4">
+                    <AdvancedFilters data={advancedFilters} onChange={setAdvancedFilters} />
+                  </ScrollArea>
+                </TabsContent>
+              </Tabs>
 
-                  {showAdvancedFilters && (
-                    <AdvancedFilters 
-                      data={advancedFilters} 
-                      onChange={setAdvancedFilters} 
-                    />
-                  )}
-                </div>
-              </ScrollArea>
               <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 pt-4">
-                <Button variant="outline" onClick={() => { setIsCreateOpen(false); resetForm(); }}>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setIsCreateOpen(false);
+                    resetForm();
+                  }}
+                >
                   Cancelar
                 </Button>
-                <Button onClick={handleCreateCampaign}>
-                  Criar Campanha
-                </Button>
+                <Button onClick={handleCreateCampaign}>Criar Campanha</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
