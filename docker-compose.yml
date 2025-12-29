@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  # Frontend - React/Vite
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:3001
+    depends_on:
+      - backend
+    volumes:
+      - ./src:/app/src
+      - ./public:/app/public
+    command: npm run dev -- --host
+
+  # Backend - Express + SQLite
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - DATABASE_PATH=/app/data/leadscan.db
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+
+volumes:
+  leadscan-data:
