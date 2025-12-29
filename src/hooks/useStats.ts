@@ -10,7 +10,7 @@ export const statsKeys = {
 };
 
 // Hooks
-export function useDashboardStats() {
+export function useStats() {
   return useQuery({
     queryKey: statsKeys.dashboard(),
     queryFn: () => statsApi.dashboard(),

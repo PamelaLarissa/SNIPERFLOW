@@ -2,6 +2,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { leadsApi, Lead, LeadFilters } from '@/lib/api';
 import { toast } from 'sonner';
 
+export type { Lead, LeadFilters };
+
 // Query keys
 export const leadKeys = {
   all: ['leads'] as const,

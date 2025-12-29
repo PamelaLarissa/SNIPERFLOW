@@ -29,17 +29,18 @@ import {
   DialogFooter,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { mockCampaigns, type Campaign } from "@/lib/mockData";
 import { useToast } from "@/hooks/use-toast";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   AdvancedFilters,
   type AdvancedFiltersData,
   defaultAdvancedFilters,
 } from "@/components/campaigns/AdvancedFilters";
+import { useCampaigns, useCreateCampaign, useUpdateCampaign, useDeleteCampaign, type Campaign } from "@/hooks/useCampaigns";
 
 const getStatusBadge = (status: Campaign['status']) => {
   switch (status) {
@@ -55,13 +56,16 @@ const getStatusBadge = (status: Campaign['status']) => {
 const availableSources = ['Google', 'LinkedIn', 'Maps', 'Instagram', 'TikTok', 'YouTube'];
 
 export const CampaignsPage = () => {
-  const [campaigns, setCampaigns] = useState<Campaign[]>(mockCampaigns);
+  const { data: campaigns = [], isLoading } = useCampaigns();
+  const createCampaign = useCreateCampaign();
+  const updateCampaign = useUpdateCampaign();
+  const deleteCampaign = useDeleteCampaign();
+  
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingCampaign, setEditingCampaign] = useState<Campaign | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Form state
   const [formData, setFormData] = useState({
     name: "",
     niche: "",
@@ -90,25 +94,16 @@ export const CampaignsPage = () => {
   };
 
   const handleCreateCampaign = () => {
-    const newCampaign: Campaign = {
-      id: Date.now().toString(),
+    createCampaign.mutate({
       name: formData.name || 'Nova Campanha',
       niche: formData.niche || 'Não definido',
       location: formData.location || 'Brasil',
       status: 'active',
-      leadsFound: 0,
-      leadsVerified: 0,
-      createdAt: new Date().toISOString(),
       sources: formData.sources,
       filters: {
         minScore: formData.minScore,
         verifiedOnly: formData.verifiedOnly,
       },
-    };
-    setCampaigns([newCampaign, ...campaigns]);
-    toast({
-      title: "Campanha criada!",
-      description: "Sua nova campanha foi criada com sucesso.",
     });
     setIsCreateOpen(false);
     resetForm();
@@ -117,44 +112,35 @@ export const CampaignsPage = () => {
   const handleEditCampaign = () => {
     if (!editingCampaign) return;
     
-    setCampaigns(campaigns.map(c => 
-      c.id === editingCampaign.id 
-        ? {
-            ...c,
-            name: formData.name || c.name,
-            niche: formData.niche || c.niche,
-            location: formData.location || c.location,
-            sources: formData.sources,
-            filters: {
-              minScore: formData.minScore,
-              verifiedOnly: formData.verifiedOnly,
-            },
-          }
-        : c
-    ));
-    toast({
-      title: "Campanha atualizada!",
-      description: "As alterações foram salvas.",
+    updateCampaign.mutate({
+      id: editingCampaign.id,
+      updates: {
+        name: formData.name || editingCampaign.name,
+        niche: formData.niche || editingCampaign.niche,
+        location: formData.location || editingCampaign.location,
+        sources: formData.sources,
+        filters: {
+          minScore: formData.minScore,
+          verifiedOnly: formData.verifiedOnly,
+        },
+      }
     });
     setEditingCampaign(null);
     resetForm();
   };
 
   const handleDeleteCampaign = (id: string) => {
-    setCampaigns(campaigns.filter(c => c.id !== id));
-    toast({
-      title: "Campanha excluída",
-      description: "A campanha foi removida com sucesso.",
-    });
+    deleteCampaign.mutate(id);
     setDeleteConfirm(null);
   };
 
-  const toggleCampaignStatus = (id: string) => {
-    setCampaigns(campaigns.map(c => 
-      c.id === id 
-        ? { ...c, status: c.status === 'active' ? 'paused' : 'active' }
-        : c
-    ));
+  const toggleCampaignStatus = (campaign: Campaign) => {
+    updateCampaign.mutate({
+      id: campaign.id,
+      updates: {
+        status: campaign.status === 'active' ? 'paused' : 'active'
+      }
+    });
   };
 
   const openEditModal = (campaign: Campaign) => {
@@ -183,7 +169,16 @@ export const CampaignsPage = () => {
     campaign.niche.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Form fields directly inline to prevent focus loss
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <Header title="Campanhas" subtitle="Carregando..." />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-48" />)}
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
@@ -339,7 +334,9 @@ export const CampaignsPage = () => {
                 >
                   Cancelar
                 </Button>
-                <Button onClick={handleCreateCampaign}>Criar Campanha</Button>
+                <Button onClick={handleCreateCampaign} disabled={createCampaign.isPending}>
+                  {createCampaign.isPending ? "Criando..." : "Criar Campanha"}
+                </Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
@@ -427,8 +424,8 @@ export const CampaignsPage = () => {
                 <Button variant="outline" onClick={() => { setEditingCampaign(null); resetForm(); }}>
                   Cancelar
                 </Button>
-                <Button onClick={handleEditCampaign}>
-                  Salvar Alterações
+                <Button onClick={handleEditCampaign} disabled={updateCampaign.isPending}>
+                  {updateCampaign.isPending ? "Salvando..." : "Salvar Alterações"}
                 </Button>
               </DialogFooter>
             </div>
@@ -444,172 +441,154 @@ export const CampaignsPage = () => {
             </DialogHeader>
             <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2">
               <Button variant="outline" onClick={() => setDeleteConfirm(null)}>Cancelar</Button>
-              <Button variant="destructive" onClick={() => deleteConfirm && handleDeleteCampaign(deleteConfirm)}>Excluir</Button>
+              <Button variant="destructive" onClick={() => deleteConfirm && handleDeleteCampaign(deleteConfirm)} disabled={deleteCampaign.isPending}>
+                {deleteCampaign.isPending ? "Excluindo..." : "Excluir"}
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-            <Card variant="stat">
-              <CardContent className="p-4 sm:p-5">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs sm:text-sm text-muted-foreground">Campanhas Ativas</p>
-                    <p className="text-2xl sm:text-3xl font-bold mt-1">
-                      {campaigns.filter(c => c.status === 'active').length}
-                    </p>
-                  </div>
-                  <div className="p-2 sm:p-3 rounded-xl bg-accent/10">
-                    <Play className="h-4 w-4 sm:h-5 sm:w-5 text-accent" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-            <Card variant="stat">
-              <CardContent className="p-4 sm:p-5">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs sm:text-sm text-muted-foreground">Leads Este Mês</p>
-                    <p className="text-2xl sm:text-3xl font-bold mt-1">
-                      {campaigns.reduce((acc, c) => acc + c.leadsFound, 0).toLocaleString()}
-                    </p>
-                  </div>
-                  <div className="p-2 sm:p-3 rounded-xl bg-primary/10">
-                    <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-            <Card variant="stat">
-              <CardContent className="p-4 sm:p-5">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs sm:text-sm text-muted-foreground">Taxa de Verificação</p>
-                    <p className="text-2xl sm:text-3xl font-bold mt-1">
-                      {campaigns.length > 0 
-                        ? Math.round((campaigns.reduce((acc, c) => acc + c.leadsVerified, 0) / campaigns.reduce((acc, c) => acc + c.leadsFound, 0)) * 100)
-                        : 0}%
-                    </p>
-                  </div>
-                  <div className="p-2 sm:p-3 rounded-xl bg-accent/10">
-                    <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-accent" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+          <Card variant="glass">
+            <CardContent className="p-4 flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                <Target className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Total de Campanhas</p>
+                <p className="text-2xl font-bold">{campaigns.length}</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card variant="glass">
+            <CardContent className="p-4 flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+                <CheckCircle className="h-6 w-6 text-emerald-500" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Campanhas Ativas</p>
+                <p className="text-2xl font-bold">{campaigns.filter(c => c.status === 'active').length}</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card variant="glass">
+            <CardContent className="p-4 flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center">
+                <TrendingUp className="h-6 w-6 text-accent" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Total de Leads</p>
+                <p className="text-2xl font-bold">{campaigns.reduce((acc, c) => acc + (c.leadsFound || 0), 0)}</p>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Campaigns List */}
-        <div className="space-y-3 sm:space-y-4">
+        {/* Campaigns Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           {filteredCampaigns.map((campaign, index) => (
             <motion.div
               key={campaign.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: 0.1 + index * 0.1 }}
+              transition={{ duration: 0.3, delay: index * 0.1 }}
             >
-              <Card variant="glass" className="hover:border-primary/30 transition-all">
-                <CardContent className="p-4 sm:p-6">
-                  <div className="flex flex-col gap-4">
-                    {/* Header */}
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                      <div className="space-y-2">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <h3 className="text-lg sm:text-xl font-semibold">{campaign.name}</h3>
-                          {getStatusBadge(campaign.status)}
-                        </div>
-                        <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
-                          <div className="flex items-center gap-1.5">
-                            <Target className="h-3 w-3 sm:h-4 sm:w-4" />
-                            <span>{campaign.niche}</span>
-                          </div>
-                          <div className="flex items-center gap-1.5">
-                            <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
-                            <span>{campaign.location}</span>
-                          </div>
-                          {campaign.lastRun && (
-                            <div className="flex items-center gap-1.5">
-                              <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
-                              <span className="hidden sm:inline">Última execução: </span>
-                              <span>{new Date(campaign.lastRun).toLocaleDateString('pt-BR')}</span>
-                            </div>
-                          )}
-                        </div>
+              <Card variant="glass" className="overflow-hidden">
+                <CardContent className="p-0">
+                  <div className="p-4 sm:p-5 space-y-4">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h3 className="font-semibold text-base sm:text-lg">{campaign.name}</h3>
+                        <p className="text-xs sm:text-sm text-muted-foreground">{campaign.niche}</p>
                       </div>
+                      {getStatusBadge(campaign.status)}
+                    </div>
 
-                      {/* Actions */}
-                      <div className="flex items-center gap-2 sm:gap-3">
-                        <div className="flex gap-4 sm:gap-6 mr-2 sm:mr-4">
-                          <div className="text-center">
-                            <p className="text-xl sm:text-2xl font-bold text-primary">{campaign.leadsFound}</p>
-                            <p className="text-[10px] sm:text-xs text-muted-foreground">Encontrados</p>
-                          </div>
-                          <div className="text-center">
-                            <p className="text-xl sm:text-2xl font-bold text-accent">{campaign.leadsVerified}</p>
-                            <p className="text-[10px] sm:text-xs text-muted-foreground">Verificados</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-1 sm:gap-2">
-                          {campaign.status !== 'completed' && (
-                            <Button 
-                              variant="outline" 
-                              size="icon" 
-                              className="h-8 w-8 sm:h-10 sm:w-10"
-                              onClick={() => toggleCampaignStatus(campaign.id)}
-                            >
-                              {campaign.status === 'active' ? <Pause className="h-3 w-3 sm:h-4 sm:w-4" /> : <Play className="h-3 w-3 sm:h-4 sm:w-4" />}
-                            </Button>
-                          )}
-                          <Button 
-                            variant="outline" 
-                            size="icon"
-                            className="h-8 w-8 sm:h-10 sm:w-10"
-                            onClick={() => openEditModal(campaign)}
-                          >
-                            <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
-                          </Button>
-                          <Button 
-                            variant="outline" 
-                            size="icon" 
-                            className="h-8 w-8 sm:h-10 sm:w-10 text-destructive hover:text-destructive"
-                            onClick={() => setDeleteConfirm(campaign.id)}
-                          >
-                            <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
-                          </Button>
-                        </div>
+                    <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                      <div className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-muted-foreground shrink-0" />
+                        <span className="text-xs sm:text-sm truncate">{campaign.location}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4 text-muted-foreground shrink-0" />
+                        <span className="text-xs sm:text-sm">
+                          {new Date(campaign.createdAt).toLocaleDateString('pt-BR')}
+                        </span>
                       </div>
                     </div>
 
-                    {/* Sources */}
-                    {campaign.sources && campaign.sources.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5">
-                        {campaign.sources.map(source => (
-                          <Badge key={source} variant="secondary" className="text-xs">
-                            {source}
-                          </Badge>
-                        ))}
+                    <div className="flex flex-wrap gap-1.5">
+                      {(campaign.sources || []).slice(0, 4).map(source => (
+                        <Badge key={source} variant="secondary" className="text-xs">
+                          {source}
+                        </Badge>
+                      ))}
+                      {(campaign.sources || []).length > 4 && (
+                        <Badge variant="secondary" className="text-xs">
+                          +{(campaign.sources || []).length - 4}
+                        </Badge>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3 pt-3 border-t border-border/50">
+                      <div className="text-center p-2 rounded-lg bg-secondary/50">
+                        <p className="text-xl sm:text-2xl font-bold text-primary">{campaign.leadsFound || 0}</p>
+                        <p className="text-xs text-muted-foreground">Leads Encontrados</p>
                       </div>
-                    )}
+                      <div className="text-center p-2 rounded-lg bg-secondary/50">
+                        <p className="text-xl sm:text-2xl font-bold text-emerald-500">{campaign.leadsVerified || 0}</p>
+                        <p className="text-xs text-muted-foreground">Leads Verificados</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex border-t border-border/50 divide-x divide-border/50">
+                    <Button 
+                      variant="ghost" 
+                      className="flex-1 rounded-none h-10 sm:h-12 text-xs sm:text-sm"
+                      onClick={() => toggleCampaignStatus(campaign)}
+                    >
+                      {campaign.status === 'active' ? (
+                        <>
+                          <Pause className="h-4 w-4 mr-1.5" />
+                          Pausar
+                        </>
+                      ) : (
+                        <>
+                          <Play className="h-4 w-4 mr-1.5" />
+                          Iniciar
+                        </>
+                      )}
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="flex-1 rounded-none h-10 sm:h-12 text-xs sm:text-sm"
+                      onClick={() => openEditModal(campaign)}
+                    >
+                      <Edit className="h-4 w-4 mr-1.5" />
+                      Editar
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="flex-1 rounded-none h-10 sm:h-12 text-destructive hover:text-destructive text-xs sm:text-sm"
+                      onClick={() => setDeleteConfirm(campaign.id)}
+                    >
+                      <Trash2 className="h-4 w-4 mr-1.5" />
+                      Excluir
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
             </motion.div>
           ))}
-
-          {filteredCampaigns.length === 0 && (
-            <div className="text-center py-12 text-muted-foreground">
-              <Target className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>Nenhuma campanha encontrada</p>
-            </div>
-          )}
         </div>
+
+        {filteredCampaigns.length === 0 && (
+          <div className="text-center py-12 text-muted-foreground">
+            Nenhuma campanha encontrada
+          </div>
+        )}
       </div>
     </DashboardLayout>
   );

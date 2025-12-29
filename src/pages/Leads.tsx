@@ -24,11 +24,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
-import { mockLeads, type Lead, kanbanColumnLabels } from "@/lib/mockData";
+import { kanbanColumnLabels } from "@/lib/mockData";
 import { useToast } from "@/hooks/use-toast";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useLeads, useUpdateLead, type Lead } from "@/hooks/useLeads";
 
 const getScoreVariant = (score: number) => {
   if (score >= 80) return "score_high";
@@ -37,7 +39,9 @@ const getScoreVariant = (score: number) => {
 };
 
 export const LeadsPage = () => {
-  const [leads, setLeads] = useState<Lead[]>(mockLeads);
+  const { data: leads = [], isLoading, refetch } = useLeads();
+  const updateLead = useUpdateLead();
+  
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
   const [filterOpen, setFilterOpen] = useState(false);
@@ -45,7 +49,6 @@ export const LeadsPage = () => {
   const [viewingLead, setViewingLead] = useState<Lead | null>(null);
   const { toast } = useToast();
 
-  // Form state
   const [formData, setFormData] = useState({
     name: '',
     company: '',
@@ -84,7 +87,7 @@ export const LeadsPage = () => {
       company: lead.company,
       email: lead.email,
       phone: lead.phone,
-      whatsapp: lead.whatsapp,
+      whatsapp: lead.whatsapp ?? false,
       score: lead.score,
       status: lead.status || 'new',
       website: lead.website || '',
@@ -95,27 +98,32 @@ export const LeadsPage = () => {
   const handleEditLead = () => {
     if (!editingLead) return;
     
-    setLeads(leads.map(l => 
-      l.id === editingLead.id 
-        ? {
-            ...l,
-            name: formData.name,
-            company: formData.company,
-            email: formData.email,
-            phone: formData.phone,
-            whatsapp: formData.whatsapp,
-            score: formData.score,
-            status: formData.status,
-            website: formData.website,
-          }
-        : l
-    ));
-    toast({
-      title: "Lead atualizado!",
-      description: "As alterações foram salvas.",
+    updateLead.mutate({
+      id: editingLead.id,
+      updates: {
+        name: formData.name,
+        company: formData.company,
+        email: formData.email,
+        phone: formData.phone,
+        whatsapp: formData.whatsapp,
+        score: formData.score,
+        status: formData.status,
+        website: formData.website,
+      }
     });
     setEditingLead(null);
   };
+
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <Header title="Leads" subtitle="Carregando..." />
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {[1, 2, 3, 4, 5, 6].map(i => <Skeleton key={i} className="h-48" />)}
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
@@ -149,7 +157,7 @@ export const LeadsPage = () => {
               </Button>
             </div>
             <div className="flex gap-2 sm:gap-3">
-              <Button variant="outline" className="flex-1 sm:flex-none">
+              <Button variant="outline" className="flex-1 sm:flex-none" onClick={() => refetch()}>
                 <RefreshCw className="h-4 w-4 sm:mr-2" />
                 <span className="hidden sm:inline">Atualizar</span>
               </Button>
@@ -324,7 +332,9 @@ export const LeadsPage = () => {
             </div>
             <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 pt-4">
               <Button variant="outline" onClick={() => setEditingLead(null)}>Cancelar</Button>
-              <Button onClick={handleEditLead}>Salvar Alterações</Button>
+              <Button onClick={handleEditLead} disabled={updateLead.isPending}>
+                {updateLead.isPending ? "Salvando..." : "Salvar Alterações"}
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -368,17 +378,6 @@ export const LeadsPage = () => {
                     <p className="text-sm">{kanbanColumnLabels[viewingLead.status || 'new']}</p>
                   </div>
                 </div>
-
-                {viewingLead.techStack && viewingLead.techStack.length > 0 && (
-                  <div className="pt-4 border-t border-border">
-                    <p className="text-xs text-muted-foreground mb-2">Tecnologias</p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {viewingLead.techStack.map(tech => (
-                        <Badge key={tech} variant="secondary" className="text-xs">{tech}</Badge>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
             )}
             <DialogFooter>
@@ -424,82 +423,68 @@ export const LeadsPage = () => {
                       <Badge variant={getScoreVariant(lead.score)}>
                         {lead.score}
                       </Badge>
-                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setViewingLead(lead)}>
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEditModal(lead)}>
-                        <Edit className="h-4 w-4" />
-                      </Button>
+                      {lead.isVerified ? (
+                        <CheckCircle className="h-4 w-4 text-emerald-500" />
+                      ) : (
+                        <XCircle className="h-4 w-4 text-muted-foreground" />
+                      )}
                     </div>
                   </div>
 
-                  <div className="space-y-1.5 sm:space-y-2 mb-3 sm:mb-4">
-                    <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
-                      <Mail className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0" />
+                  <div className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm text-muted-foreground">
+                    <div className="flex items-center gap-2">
+                      <Mail className="h-3.5 w-3.5 shrink-0" />
                       <span className="truncate">{lead.email}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
-                      <Phone className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0" />
+                    <div className="flex items-center gap-2">
+                      <Phone className="h-3.5 w-3.5 shrink-0" />
                       <span>{lead.phone}</span>
                       {lead.whatsapp && (
-                        <MessageCircle className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-accent" />
+                        <MessageCircle className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
                       )}
                     </div>
                     {lead.website && (
-                      <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
-                        <Globe className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0" />
+                      <div className="flex items-center gap-2">
+                        <Globe className="h-3.5 w-3.5 shrink-0" />
                         <span className="truncate">{lead.website}</span>
                       </div>
                     )}
                   </div>
 
-                  <div className="flex items-center justify-between pt-3 border-t border-border/50">
-                    <div className="flex items-center gap-2">
-                      {lead.isVerified ? (
-                        <div className="flex items-center gap-1 text-accent text-xs sm:text-sm">
-                          <CheckCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                          <span className="hidden sm:inline">Verificado</span>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-1 text-pending text-xs sm:text-sm">
-                          <XCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                          <span className="hidden sm:inline">Pendente</span>
-                        </div>
-                      )}
-                    </div>
-                    <Badge variant="outline" className="text-[10px] sm:text-xs">
+                  <div className="flex items-center justify-between mt-3 sm:mt-4 pt-3 border-t border-border/50">
+                    <Badge variant="outline" className="text-xs">
                       {lead.source}
                     </Badge>
-                  </div>
-
-                  {lead.techStack && lead.techStack.length > 0 && (
-                    <div className="flex flex-wrap gap-1 sm:gap-1.5 mt-3">
-                      {lead.techStack.slice(0, 3).map(tech => (
-                        <Badge key={tech} variant="secondary" className="text-[10px] sm:text-xs">
-                          {tech}
-                        </Badge>
-                      ))}
-                      {lead.techStack.length > 3 && (
-                        <Badge variant="secondary" className="text-[10px] sm:text-xs">
-                          +{lead.techStack.length - 3}
-                        </Badge>
-                      )}
+                    <div className="flex gap-1">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-7 w-7 sm:h-8 sm:w-8"
+                        onClick={() => setViewingLead(lead)}
+                      >
+                        <Eye className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-7 w-7 sm:h-8 sm:w-8"
+                        onClick={() => openEditModal(lead)}
+                      >
+                        <Edit className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                      </Button>
                     </div>
-                  )}
+                  </div>
                 </CardContent>
               </Card>
             </motion.div>
           ))}
         </div>
 
-        {/* Pagination */}
-        <div className="flex items-center justify-center gap-1 sm:gap-2 pt-4">
-          <Button variant="outline" size="sm" disabled className="text-xs sm:text-sm">Anterior</Button>
-          <Button variant="secondary" size="sm" className="text-xs sm:text-sm">1</Button>
-          <Button variant="ghost" size="sm" className="text-xs sm:text-sm">2</Button>
-          <Button variant="ghost" size="sm" className="text-xs sm:text-sm">3</Button>
-          <Button variant="outline" size="sm" className="text-xs sm:text-sm">Próximo</Button>
-        </div>
+        {filteredLeads.length === 0 && (
+          <div className="text-center py-12 text-muted-foreground">
+            Nenhum lead encontrado
+          </div>
+        )}
       </div>
     </DashboardLayout>
   );

@@ -2,6 +2,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { campaignsApi, Campaign, CampaignFilters } from '@/lib/api';
 import { toast } from 'sonner';
 
+export type { Campaign, CampaignFilters };
+
 // Query keys
 export const campaignKeys = {
   all: ['campaigns'] as const,

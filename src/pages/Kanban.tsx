@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { motion, Reorder } from "framer-motion";
+import { motion } from "framer-motion";
 import { 
   GripVertical, 
   Phone, 
@@ -18,10 +18,10 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
+import { useLeads, useUpdateLead, type Lead } from "@/hooks/useLeads";
 import { 
-  mockLeads, 
-  type Lead, 
   kanbanColumns, 
   kanbanColumnLabels, 
   kanbanColumnColors,
@@ -49,7 +49,9 @@ const aiKeywords: Record<string, KanbanColumn> = {
 };
 
 export const KanbanPage = () => {
-  const [leads, setLeads] = useState<Lead[]>(mockLeads);
+  const { data: leads = [], isLoading } = useLeads();
+  const updateLead = useUpdateLead();
+  
   const [viewingLead, setViewingLead] = useState<Lead | null>(null);
   const [editingLead, setEditingLead] = useState<Lead | null>(null);
   const [aiInput, setAiInput] = useState("");
@@ -66,13 +68,17 @@ export const KanbanPage = () => {
     leads.filter(l => (l.status || 'new') === column);
 
   const moveLeadToColumn = (leadId: string, newColumn: KanbanColumn) => {
-    setLeads(leads.map(l => 
-      l.id === leadId ? { ...l, status: newColumn } : l
-    ));
     const lead = leads.find(l => l.id === leadId);
+    if (!lead) return;
+    
+    updateLead.mutate({
+      id: leadId,
+      updates: { status: newColumn }
+    });
+    
     toast({
       title: "Lead movido!",
-      description: `${lead?.name} → ${kanbanColumnLabels[newColumn]}`,
+      description: `${lead.name} → ${kanbanColumnLabels[newColumn]}`,
     });
   };
 
@@ -118,14 +124,23 @@ export const KanbanPage = () => {
 
   const handleEdit = () => {
     if (!editingLead) return;
-    setLeads(leads.map(l => 
-      l.id === editingLead.id
-        ? { ...l, name: formData.name, company: formData.company, status: formData.status }
-        : l
-    ));
-    toast({ title: "Lead atualizado!" });
+    updateLead.mutate({
+      id: editingLead.id,
+      updates: { name: formData.name, company: formData.company, status: formData.status }
+    });
     setEditingLead(null);
   };
+
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <Header title="Kanban AI" subtitle="Carregando..." />
+        <div className="flex gap-4">
+          {[1, 2, 3, 4, 5].map(i => <Skeleton key={i} className="h-96 w-72" />)}
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
@@ -373,7 +388,9 @@ export const KanbanPage = () => {
           </div>
           <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 pt-4">
             <Button variant="outline" onClick={() => setEditingLead(null)}>Cancelar</Button>
-            <Button onClick={handleEdit}>Salvar Alterações</Button>
+            <Button onClick={handleEdit} disabled={updateLead.isPending}>
+              {updateLead.isPending ? "Salvando..." : "Salvar Alterações"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
