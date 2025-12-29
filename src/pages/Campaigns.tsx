@@ -12,7 +12,8 @@ import {
   TrendingUp,
   Search,
   CheckCircle,
-  Edit
+  Edit,
+  ChevronDown
 } from "lucide-react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Header } from "@/components/layout/Sidebar";
@@ -25,6 +26,9 @@ import { mockCampaigns, type Campaign } from "@/lib/mockData";
 import { useToast } from "@/hooks/use-toast";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { AdvancedFilters, AdvancedFiltersData, defaultAdvancedFilters } from "@/components/campaigns/AdvancedFilters";
+import { freelanceSources } from "@/components/campaigns/FreelancePlatformSources";
 
 const getStatusBadge = (status: Campaign['status']) => {
   switch (status) {
@@ -45,6 +49,7 @@ export const CampaignsPage = () => {
   const [editingCampaign, setEditingCampaign] = useState<Campaign | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   
   // Form state
   const [formData, setFormData] = useState({
@@ -55,6 +60,8 @@ export const CampaignsPage = () => {
     minScore: 50,
     verifiedOnly: false,
   });
+
+  const [advancedFilters, setAdvancedFilters] = useState<AdvancedFiltersData>(defaultAdvancedFilters);
   
   const { toast } = useToast();
 
@@ -67,6 +74,8 @@ export const CampaignsPage = () => {
       minScore: 50,
       verifiedOnly: false,
     });
+    setAdvancedFilters(defaultAdvancedFilters);
+    setShowAdvancedFilters(false);
   };
 
   const handleCreateCampaign = () => {
@@ -195,91 +204,111 @@ export const CampaignsPage = () => {
                 Nova Campanha
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="max-w-2xl max-h-[90vh]">
               <DialogHeader>
                 <DialogTitle>Criar Nova Campanha</DialogTitle>
                 <DialogDescription>Configure os parâmetros da sua campanha de prospecção</DialogDescription>
               </DialogHeader>
-              <div className="space-y-4">
-                <div>
-                  <Label className="text-sm font-medium mb-2 block">Nome da Campanha</Label>
-                  <Input 
-                    placeholder="Ex: Agências de Marketing SP" 
-                    className="bg-secondary/50"
-                    value={formData.name}
-                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                  />
-                </div>
-                <div>
-                  <Label className="text-sm font-medium mb-2 block">Nicho/Segmento</Label>
-                  <Input 
-                    placeholder="Ex: Agências de Marketing Digital" 
-                    className="bg-secondary/50"
-                    value={formData.niche}
-                    onChange={(e) => setFormData(prev => ({ ...prev, niche: e.target.value }))}
-                  />
-                </div>
-                <div>
-                  <Label className="text-sm font-medium mb-2 block">Localização</Label>
-                  <Input 
-                    placeholder="Ex: São Paulo, SP" 
-                    className="bg-secondary/50"
-                    value={formData.location}
-                    onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
-                  />
-                </div>
-                <div>
-                  <Label className="text-sm font-medium mb-2 block">Fontes de Dados</Label>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                    {availableSources.map(source => (
-                      <label 
-                        key={source} 
-                        className={`flex items-center gap-2 p-2 rounded-lg border cursor-pointer transition-all ${
-                          formData.sources.includes(source) 
-                            ? 'border-primary bg-primary/10' 
-                            : 'border-border hover:bg-secondary/50'
-                        }`}
-                      >
-                        <input 
-                          type="checkbox" 
-                          checked={formData.sources.includes(source)}
-                          onChange={() => toggleSource(source)}
-                          className="rounded border-border"
-                        />
-                        <span className="text-sm">{source}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <ScrollArea className="max-h-[calc(90vh-180px)] pr-4">
+                <div className="space-y-4">
                   <div>
-                    <Label className="text-sm font-medium mb-2 block">Score Mínimo</Label>
+                    <Label className="text-sm font-medium mb-2 block">Nome da Campanha</Label>
                     <Input 
-                      type="number" 
-                      min="0" 
-                      max="100"
+                      placeholder="Ex: Agências de Marketing SP" 
                       className="bg-secondary/50"
-                      value={formData.minScore}
-                      onChange={(e) => setFormData(prev => ({ ...prev, minScore: parseInt(e.target.value) || 0 }))}
+                      value={formData.name}
+                      onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                     />
                   </div>
-                  <div className="flex items-center justify-between p-3 rounded-lg border border-border">
-                    <Label className="text-sm font-medium">Apenas Verificados</Label>
-                    <Switch 
-                      checked={formData.verifiedOnly}
-                      onCheckedChange={(checked) => setFormData(prev => ({ ...prev, verifiedOnly: checked }))}
+                  <div>
+                    <Label className="text-sm font-medium mb-2 block">Nicho/Segmento</Label>
+                    <Input 
+                      placeholder="Ex: Agências de Marketing Digital" 
+                      className="bg-secondary/50"
+                      value={formData.niche}
+                      onChange={(e) => setFormData(prev => ({ ...prev, niche: e.target.value }))}
                     />
                   </div>
+                  <div>
+                    <Label className="text-sm font-medium mb-2 block">Localização</Label>
+                    <Input 
+                      placeholder="Ex: São Paulo, SP" 
+                      className="bg-secondary/50"
+                      value={formData.location}
+                      onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium mb-2 block">Fontes de Dados</Label>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                      {availableSources.map(source => (
+                        <label 
+                          key={source} 
+                          className={`flex items-center gap-2 p-2 rounded-lg border cursor-pointer transition-all ${
+                            formData.sources.includes(source) 
+                              ? 'border-primary bg-primary/10' 
+                              : 'border-border hover:bg-secondary/50'
+                          }`}
+                        >
+                          <input 
+                            type="checkbox" 
+                            checked={formData.sources.includes(source)}
+                            onChange={() => toggleSource(source)}
+                            className="rounded border-border"
+                          />
+                          <span className="text-sm">{source}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-sm font-medium mb-2 block">Score Mínimo</Label>
+                      <Input 
+                        type="number" 
+                        min="0" 
+                        max="100"
+                        className="bg-secondary/50"
+                        value={formData.minScore}
+                        onChange={(e) => setFormData(prev => ({ ...prev, minScore: parseInt(e.target.value) || 0 }))}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between p-3 rounded-lg border border-border">
+                      <Label className="text-sm font-medium">Apenas Verificados</Label>
+                      <Switch 
+                        checked={formData.verifiedOnly}
+                        onCheckedChange={(checked) => setFormData(prev => ({ ...prev, verifiedOnly: checked }))}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Toggle Advanced Filters */}
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="w-full justify-between"
+                    onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+                  >
+                    <span className="text-sm font-medium">Filtros Avançados</span>
+                    <ChevronDown className={`h-4 w-4 transition-transform ${showAdvancedFilters ? 'rotate-180' : ''}`} />
+                  </Button>
+
+                  {showAdvancedFilters && (
+                    <AdvancedFilters 
+                      data={advancedFilters} 
+                      onChange={setAdvancedFilters} 
+                    />
+                  )}
                 </div>
-                <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 pt-4">
-                  <Button variant="outline" onClick={() => { setIsCreateOpen(false); resetForm(); }}>
-                    Cancelar
-                  </Button>
-                  <Button onClick={handleCreateCampaign}>
-                    Criar Campanha
-                  </Button>
-                </DialogFooter>
-              </div>
+              </ScrollArea>
+              <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 pt-4">
+                <Button variant="outline" onClick={() => { setIsCreateOpen(false); resetForm(); }}>
+                  Cancelar
+                </Button>
+                <Button onClick={handleCreateCampaign}>
+                  Criar Campanha
+                </Button>
+              </DialogFooter>
             </DialogContent>
           </Dialog>
         </motion.div>

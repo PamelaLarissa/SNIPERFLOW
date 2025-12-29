@@ -139,7 +139,26 @@ const COLORS = [
   'hsl(200 70% 50%)',
 ];
 
+const FREELANCE_COLOR = 'hsl(25 95% 53%)'; // Orange for freelance grouped
+
+const freelancePlatforms = ['Workana', '99Freelas', 'GetNinjas', 'Fiverr BR', 'Upwork BR', 'Freelancer BR'];
+
+const groupFreelanceSources = (data: { source: string; count: number }[]) => {
+  const freelanceTotal = data
+    .filter(item => freelancePlatforms.includes(item.source))
+    .reduce((acc, item) => acc + item.count, 0);
+  
+  const otherSources = data.filter(item => !freelancePlatforms.includes(item.source));
+  
+  if (freelanceTotal > 0) {
+    return [...otherSources, { source: 'Freelance', count: freelanceTotal }];
+  }
+  return otherSources;
+};
+
 export const LeadsBySourceChart = ({ data }: SourceChartProps) => {
+  const groupedData = groupFreelanceSources(data);
+  
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -155,7 +174,7 @@ export const LeadsBySourceChart = ({ data }: SourceChartProps) => {
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={data}
+                  data={groupedData}
                   cx="50%"
                   cy="50%"
                   innerRadius={45}
@@ -164,8 +183,11 @@ export const LeadsBySourceChart = ({ data }: SourceChartProps) => {
                   dataKey="count"
                   nameKey="source"
                 >
-                  {data.map((_, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  {groupedData.map((item, index) => (
+                    <Cell 
+                      key={`cell-${index}`} 
+                      fill={item.source === 'Freelance' ? FREELANCE_COLOR : COLORS[index % COLORS.length]} 
+                    />
                   ))}
                 </Pie>
                 <Tooltip
@@ -180,11 +202,11 @@ export const LeadsBySourceChart = ({ data }: SourceChartProps) => {
             </ResponsiveContainer>
           </div>
           <div className="flex flex-wrap justify-center gap-3 mt-4">
-            {data.map((item, index) => (
+            {groupedData.map((item, index) => (
               <div key={item.source} className="flex items-center gap-2 text-sm">
                 <div 
                   className="w-3 h-3 rounded-full" 
-                  style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                  style={{ backgroundColor: item.source === 'Freelance' ? FREELANCE_COLOR : COLORS[index % COLORS.length] }}
                 />
                 <span className="text-muted-foreground">{item.source}</span>
               </div>
