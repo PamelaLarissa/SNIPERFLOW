@@ -8,7 +8,8 @@ import {
   Clock,
   User,
   BarChart3,
-  RefreshCw
+  RefreshCw,
+  Loader2
 } from "lucide-react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Header } from "@/components/layout/Sidebar";
@@ -18,7 +19,8 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { mockLeads } from "@/lib/mockData";
+import { useLeads } from "@/hooks/useLeads";
+import { Lead } from "@/lib/api";
 import { format } from "date-fns";
 
 interface Message {
@@ -31,34 +33,28 @@ interface Message {
   status: 'sent' | 'delivered' | 'read';
 }
 
-const mockMessages: Message[] = [
-  { id: '1', leadId: '1', leadName: 'Carlos Silva', text: 'Olá! Vi seu interesse em nossos serviços.', direction: 'sent', timestamp: '2024-01-15T10:00:00Z', status: 'read' },
-  { id: '2', leadId: '1', leadName: 'Carlos Silva', text: 'Sim, gostaria de saber mais sobre o plano Pro.', direction: 'received', timestamp: '2024-01-15T10:05:00Z', status: 'read' },
-  { id: '3', leadId: '2', leadName: 'Ana Rodrigues', text: 'Bom dia! Podemos agendar uma demonstração?', direction: 'sent', timestamp: '2024-01-15T09:00:00Z', status: 'delivered' },
-  { id: '4', leadId: '3', leadName: 'Roberto Almeida', text: 'Proposta enviada! Aguardo seu retorno.', direction: 'sent', timestamp: '2024-01-14T16:00:00Z', status: 'sent' },
-];
-
-const mockStats = {
-  totalSent: 156,
-  totalDelivered: 148,
-  totalRead: 89,
-  responseRate: 42,
-};
-
 export const WhatsAppPage = () => {
-  const [messages, setMessages] = useState<Message[]>(mockMessages);
+  const { data: leads = [], isLoading } = useLeads();
+  const [messages, setMessages] = useState<Message[]>([]);
   const [selectedLead, setSelectedLead] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState("");
   const [commandInput, setCommandInput] = useState("");
   const { toast } = useToast();
 
-  const leadsWithWhatsapp = mockLeads.filter(l => l.whatsapp);
+  const leadsWithWhatsapp = leads.filter(l => l.whatsapp);
   const selectedMessages = messages.filter(m => m.leadId === selectedLead);
+
+  const mockStats = {
+    totalSent: messages.filter(m => m.direction === 'sent').length,
+    totalDelivered: messages.filter(m => m.status === 'delivered' || m.status === 'read').length,
+    totalRead: messages.filter(m => m.status === 'read').length,
+    responseRate: messages.length > 0 ? Math.round((messages.filter(m => m.direction === 'received').length / messages.filter(m => m.direction === 'sent').length) * 100) || 0 : 0,
+  };
 
   const handleSendMessage = () => {
     if (!selectedLead || !newMessage.trim()) return;
 
-    const lead = mockLeads.find(l => l.id === selectedLead);
+    const lead = leads.find(l => l.id === selectedLead);
     const message: Message = {
       id: Date.now().toString(),
       leadId: selectedLead,
@@ -107,6 +103,17 @@ export const WhatsAppPage = () => {
         return <Clock className="h-3 w-3 text-muted-foreground" />;
     }
   };
+
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <Header title="WhatsApp" subtitle="Gerencie conversas e veja relatórios" />
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
@@ -232,6 +239,12 @@ export const WhatsAppPage = () => {
                     </motion.div>
                   );
                 })}
+                {leadsWithWhatsapp.length === 0 && (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Phone className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">Nenhum lead com WhatsApp</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </motion.div>
@@ -248,14 +261,14 @@ export const WhatsAppPage = () => {
                 {selectedLead ? (
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500/20 to-green-600/20 flex items-center justify-center text-green-500 font-bold">
-                      {mockLeads.find(l => l.id === selectedLead)?.name.charAt(0)}
+                      {leads.find(l => l.id === selectedLead)?.name.charAt(0)}
                     </div>
                     <div>
                       <CardTitle className="text-base">
-                        {mockLeads.find(l => l.id === selectedLead)?.name}
+                        {leads.find(l => l.id === selectedLead)?.name}
                       </CardTitle>
                       <p className="text-xs text-muted-foreground">
-                        {mockLeads.find(l => l.id === selectedLead)?.phone}
+                        {leads.find(l => l.id === selectedLead)?.phone}
                       </p>
                     </div>
                   </div>

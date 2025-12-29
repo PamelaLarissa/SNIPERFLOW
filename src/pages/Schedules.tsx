@@ -7,7 +7,8 @@ import {
   Edit, 
   Trash2, 
   CheckCircle,
-  X as XIcon
+  X as XIcon,
+  Loader2
 } from "lucide-react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Header } from "@/components/layout/Sidebar";
@@ -20,8 +21,9 @@ import { Calendar } from "@/components/ui/calendar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
-import { mockSchedules, mockLeads, type Schedule } from "@/lib/mockData";
+import { useSchedules, useCreateSchedule, useUpdateSchedule, useDeleteSchedule } from "@/hooks/useSchedules";
+import { useLeads } from "@/hooks/useLeads";
+import { Schedule } from "@/lib/api";
 import { format, isSameDay, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -31,12 +33,16 @@ const timeSlots = [
 ];
 
 export const SchedulesPage = () => {
-  const [schedules, setSchedules] = useState<Schedule[]>(mockSchedules);
+  const { data: schedules = [], isLoading } = useSchedules();
+  const { data: leads = [] } = useLeads();
+  const createSchedule = useCreateSchedule();
+  const updateSchedule = useUpdateSchedule();
+  const deleteSchedule = useDeleteSchedule();
+
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingSchedule, setEditingSchedule] = useState<Schedule | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
-  const { toast } = useToast();
 
   const [formData, setFormData] = useState({
     leadId: '',
@@ -68,78 +74,60 @@ export const SchedulesPage = () => {
   };
 
   const handleCreate = () => {
-    if (!formData.leadId) {
-      toast({ title: "Erro", description: "Selecione um lead", variant: "destructive" });
-      return;
-    }
+    if (!formData.leadId) return;
 
-    if (checkConflict(formData.date, formData.hour)) {
-      toast({ 
-        title: "Conflito de horário", 
-        description: "Já existe um agendamento neste horário", 
-        variant: "destructive" 
-      });
-      return;
-    }
+    if (checkConflict(formData.date, formData.hour)) return;
 
-    const lead = mockLeads.find(l => l.id === formData.leadId);
-    const newSchedule: Schedule = {
-      id: Date.now().toString(),
+    const lead = leads.find(l => l.id === formData.leadId);
+    createSchedule.mutate({
       leadId: formData.leadId,
       leadName: lead?.name || 'Lead',
       date: formData.date,
       hour: formData.hour,
       status: 'pending',
       notes: formData.notes,
-    };
-
-    setSchedules([...schedules, newSchedule]);
-    toast({ title: "Agendamento criado!", description: `${newSchedule.leadName} - ${formData.date} às ${formData.hour}` });
-    setIsCreateOpen(false);
-    resetForm();
+    }, {
+      onSuccess: () => {
+        setIsCreateOpen(false);
+        resetForm();
+      }
+    });
   };
 
   const handleEdit = () => {
     if (!editingSchedule) return;
 
-    if (checkConflict(formData.date, formData.hour, editingSchedule.id)) {
-      toast({ 
-        title: "Conflito de horário", 
-        description: "Já existe um agendamento neste horário", 
-        variant: "destructive" 
-      });
-      return;
-    }
+    if (checkConflict(formData.date, formData.hour, editingSchedule.id)) return;
 
-    const lead = mockLeads.find(l => l.id === formData.leadId);
-    setSchedules(schedules.map(s => 
-      s.id === editingSchedule.id
-        ? {
-            ...s,
-            leadId: formData.leadId,
-            leadName: lead?.name || s.leadName,
-            date: formData.date,
-            hour: formData.hour,
-            notes: formData.notes,
-          }
-        : s
-    ));
-    toast({ title: "Agendamento atualizado!" });
-    setEditingSchedule(null);
-    resetForm();
+    const lead = leads.find(l => l.id === formData.leadId);
+    updateSchedule.mutate({
+      id: editingSchedule.id,
+      updates: {
+        leadId: formData.leadId,
+        leadName: lead?.name || editingSchedule.leadName,
+        date: formData.date,
+        hour: formData.hour,
+        notes: formData.notes,
+      }
+    }, {
+      onSuccess: () => {
+        setEditingSchedule(null);
+        resetForm();
+      }
+    });
   };
 
   const handleDelete = (id: string) => {
-    setSchedules(schedules.filter(s => s.id !== id));
-    toast({ title: "Agendamento excluído" });
-    setDeleteConfirm(null);
+    deleteSchedule.mutate(id, {
+      onSuccess: () => setDeleteConfirm(null)
+    });
   };
 
   const handleComplete = (id: string) => {
-    setSchedules(schedules.map(s => 
-      s.id === id ? { ...s, status: 'completed' as const } : s
-    ));
-    toast({ title: "Agendamento concluído!" });
+    updateSchedule.mutate({
+      id,
+      updates: { status: 'completed' }
+    });
   };
 
   const openEditModal = (schedule: Schedule) => {
@@ -162,6 +150,17 @@ export const SchedulesPage = () => {
         return <Badge variant="pending">Pendente</Badge>;
     }
   };
+
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <Header title="Agendamentos" subtitle="Gerencie suas reuniões e compromissos" />
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
@@ -359,7 +358,7 @@ export const SchedulesPage = () => {
                   <SelectValue placeholder="Selecione um lead" />
                 </SelectTrigger>
                 <SelectContent>
-                  {mockLeads.map(lead => (
+                  {leads.map(lead => (
                     <SelectItem key={lead.id} value={lead.id}>
                       {lead.name} - {lead.company}
                     </SelectItem>
@@ -403,7 +402,10 @@ export const SchedulesPage = () => {
           </div>
           <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 pt-4">
             <Button variant="outline" onClick={() => setIsCreateOpen(false)}>Cancelar</Button>
-            <Button onClick={handleCreate}>Criar Agendamento</Button>
+            <Button onClick={handleCreate} disabled={createSchedule.isPending}>
+              {createSchedule.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              Criar Agendamento
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -423,7 +425,7 @@ export const SchedulesPage = () => {
                   <SelectValue placeholder="Selecione um lead" />
                 </SelectTrigger>
                 <SelectContent>
-                  {mockLeads.map(lead => (
+                  {leads.map(lead => (
                     <SelectItem key={lead.id} value={lead.id}>
                       {lead.name} - {lead.company}
                     </SelectItem>
@@ -459,7 +461,6 @@ export const SchedulesPage = () => {
               <Label className="text-sm font-medium mb-2 block">Observações</Label>
               <Textarea 
                 className="bg-secondary/50"
-                placeholder="Detalhes da reunião..."
                 value={formData.notes}
                 onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
               />
@@ -467,7 +468,10 @@ export const SchedulesPage = () => {
           </div>
           <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 pt-4">
             <Button variant="outline" onClick={() => setEditingSchedule(null)}>Cancelar</Button>
-            <Button onClick={handleEdit}>Salvar Alterações</Button>
+            <Button onClick={handleEdit} disabled={updateSchedule.isPending}>
+              {updateSchedule.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              Salvar Alterações
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -481,7 +485,10 @@ export const SchedulesPage = () => {
           </DialogHeader>
           <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2">
             <Button variant="outline" onClick={() => setDeleteConfirm(null)}>Cancelar</Button>
-            <Button variant="destructive" onClick={() => deleteConfirm && handleDelete(deleteConfirm)}>Excluir</Button>
+            <Button variant="destructive" onClick={() => deleteConfirm && handleDelete(deleteConfirm)}>
+              {deleteSchedule.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              Excluir
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

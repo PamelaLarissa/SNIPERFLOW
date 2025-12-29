@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { MapPin, RefreshCw, Filter, ChevronDown, ExternalLink } from "lucide-react";
+import { MapPin, RefreshCw, Filter, ChevronDown, ExternalLink, Loader2 } from "lucide-react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Header } from "@/components/layout/Sidebar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { mockLeads, type Lead } from "@/lib/mockData";
+import { useLeads } from "@/hooks/useLeads";
+import { Lead } from "@/lib/api";
 
 const getScoreColor = (score: number): string => {
   if (score <= 50) {
@@ -37,7 +38,9 @@ const getMapPosition = (lat: number, lng: number) => {
 };
 
 const RadarPage = () => {
-  const [leads] = useState<Lead[]>(mockLeads.filter(l => l.lat && l.lng));
+  const { data: allLeads = [], isLoading } = useLeads();
+  const leads = allLeads.filter(l => l.lat && l.lng);
+  
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [filterOpen, setFilterOpen] = useState(false);
   const [minScore, setMinScore] = useState(0);
@@ -49,6 +52,17 @@ const RadarPage = () => {
     if (score >= 50) return "score_medium";
     return "score_low";
   };
+
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <Header title="Mapa Radar" subtitle="Visualize seus leads geograficamente" />
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
