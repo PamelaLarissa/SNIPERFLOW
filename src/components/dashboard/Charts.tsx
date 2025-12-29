@@ -25,8 +25,9 @@ export const ScoreDistributionChart = ({ data }: ScoreChartProps) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.4 }}
+      className="h-full"
     >
-      <Card variant="glass">
+      <Card variant="glass" className="h-full">
         <CardHeader>
           <CardTitle className="text-lg font-semibold">Distribuição de Score</CardTitle>
         </CardHeader>
@@ -77,8 +78,9 @@ export const LeadsTrendChart = ({ data }: TrendChartProps) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.5 }}
+      className="h-full"
     >
-      <Card variant="glass">
+      <Card variant="glass" className="h-full">
         <CardHeader>
           <CardTitle className="text-lg font-semibold">Leads nos Últimos 14 Dias</CardTitle>
         </CardHeader>
@@ -164,12 +166,13 @@ export const LeadsBySourceChart = ({ data }: SourceChartProps) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.6 }}
+      className="h-full"
     >
-      <Card variant="glass">
+      <Card variant="glass" className="h-full flex flex-col">
         <CardHeader>
           <CardTitle className="text-lg font-semibold">Leads por Fonte</CardTitle>
         </CardHeader>
-        <CardContent className="p-3 sm:p-6">
+        <CardContent className="p-3 sm:p-6 flex-1 flex flex-col">
           <div className="h-[220px] sm:h-[280px] flex items-center justify-center">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>

@@ -35,15 +35,15 @@ const StatCard = ({ title, value, change, icon, delay = 0 }: StatCardProps) => {
               <p className="text-2xl sm:text-3xl font-bold tracking-tight">{value}</p>
               {change !== undefined && (
                 <div className={cn(
-                  "flex items-center gap-1 text-xs sm:text-sm font-medium",
+                  "flex items-center gap-1 text-xs font-medium flex-wrap",
                   isPositive ? "text-accent" : "text-destructive"
                 )}>
                   {isPositive ? (
-                    <ArrowUpRight className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
+                    <ArrowUpRight className="h-3 w-3 shrink-0" />
                   ) : (
-                    <ArrowDownRight className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
+                    <ArrowDownRight className="h-3 w-3 shrink-0" />
                   )}
-                  <span className="truncate">{Math.abs(change)}% vs semana passada</span>
+                  <span>{Math.abs(change)}% vs semana passada</span>
                 </div>
               )}
             </div>
