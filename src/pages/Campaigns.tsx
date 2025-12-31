@@ -27,6 +27,10 @@ import {
   Palette,
   Workflow,
   Layout,
+  AlertTriangle,
+  Info,
+  TrendingDown,
+  Clock,
 } from "lucide-react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Header } from "@/components/layout/Sidebar";
@@ -63,6 +67,8 @@ import {
   professionalPresets,
 } from "@/components/campaigns/AdvancedFilters";
 import { Slider } from "@/components/ui/slider";
+import { Progress } from "@/components/ui/progress";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useCampaigns, useCreateCampaign, useUpdateCampaign, useDeleteCampaign, type Campaign } from "@/hooks/useCampaigns";
 import { useMessageVariants } from "@/hooks/useMessageVariants";
 import { useLeads } from "@/hooks/useLeads";
@@ -290,6 +296,54 @@ export const CampaignsPage = () => {
     return { leads, revenue };
   };
 
+  // Calculate configuration progress
+  const calculateConfigProgress = () => {
+    let progress = 0;
+    const missingFields: string[] = [];
+
+    // Essential fields (60% total)
+    if (campaignData.name) progress += 20; else missingFields.push('Nome da Campanha');
+    if (campaignData.niche) progress += 20; else missingFields.push('Nicho');
+    if (campaignData.location) progress += 20; else missingFields.push('Localização');
+
+    // Sources (20%)
+    if (campaignData.sources.length > 0) progress += 20; else missingFields.push('Fontes de Dados');
+
+    // Profile or filters (20%)
+    if (campaignData.professionalProfile) {
+      progress += 20;
+    } else {
+      const hasFilters = campaignData.technologies.length > 0 ||
+        campaignData.digitalPresence.adsStatus !== 'all' ||
+        campaignData.digitalPresence.presenceLevel !== 'all' ||
+        campaignData.painPoints.openComplaints ||
+        campaignData.painPoints.notMobile ||
+        campaignData.painPoints.noChatbot;
+      if (hasFilters) progress += 10;
+    }
+
+    return { progress, missingFields };
+  };
+
+  // Count active filters
+  const countActiveFilters = () => {
+    let count = 0;
+    if (campaignData.digitalPresence.adsStatus !== 'all') count++;
+    if (campaignData.digitalPresence.googleQuality !== 'all') count++;
+    if (campaignData.digitalPresence.instagramStatus !== 'all') count++;
+    if (campaignData.digitalPresence.pixelStatus !== 'all') count++;
+    if (campaignData.digitalPresence.siteTechnology !== 'all') count++;
+    if (campaignData.digitalPresence.presenceLevel !== 'all') count++;
+    if (campaignData.digitalPresence.infrastructureLevel !== 'all') count++;
+    if (campaignData.painPoints.openComplaints) count++;
+    if (campaignData.painPoints.notMobile) count++;
+    if (campaignData.painPoints.noChatbot) count++;
+    if (campaignData.decisionMakerContact) count++;
+    if (campaignData.onlyActiveStatus) count++;
+    if (campaignData.cnaes.length > 0) count++;
+    return count;
+  };
+
   const applyPreset = (profileId: string) => {
     const preset = professionalPresets[profileId];
     if (preset) {
@@ -357,48 +411,103 @@ export const CampaignsPage = () => {
                 Nova Campanha
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-5xl h-[90vh] max-h-[90vh] flex flex-col overflow-hidden p-0 gap-0">
+            <DialogContent className="max-w-6xl w-[95vw] sm:w-[90vw] h-[95vh] sm:h-[92vh] max-h-[95vh] sm:max-h-[92vh] flex flex-col overflow-hidden p-0 gap-0">
               <div className="flex h-full overflow-hidden">
                 {/* Left Side: Form Area */}
                 <div className="flex-1 flex flex-col border-r border-border/50 overflow-hidden">
-                  <DialogHeader className="p-6 pb-2 shrink-0">
-                    <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                  <DialogHeader className="p-4 sm:p-6 pb-2 shrink-0">
+                    <DialogTitle className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                       Configurar Míssil de Prospecção
                     </DialogTitle>
-                    <DialogDescription>
+                    <DialogDescription className="text-xs sm:text-sm">
                       Defina os parâmetros para uma busca ultra-segmentada
                     </DialogDescription>
                   </DialogHeader>
 
-                  <ScrollArea className="flex-1 px-6">
-                    <div className="space-y-8 py-6">
+                  <ScrollArea className="flex-1 px-3 sm:px-4 md:px-6">
+                    <div className="space-y-6 sm:space-y-8 py-4 sm:py-6">
                       {/* Presets de Perfil Profissional */}
-                      <div className="space-y-3">
-                        <Label className="text-xs font-bold text-muted-foreground uppercase flex items-center gap-2">
+                      <div className="space-y-2 sm:space-y-3">
+                        <Label className="text-[10px] sm:text-xs font-bold text-muted-foreground uppercase flex items-center gap-2">
                           <Sparkles className="h-3 w-3 text-primary" />
                           Selecione seu Perfil para Auto-Configurar
                         </Label>
-                        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
                           {[
-                            { id: 'agency', label: 'Agência', subLabel: 'Marketing', icon: Building2, color: 'text-blue-500' },
-                            { id: 'dev', label: 'Programador', subLabel: 'Sistemas', icon: Code2, color: 'text-emerald-500' },
-                            { id: 'traffic_manager', label: 'Tráfego', subLabel: 'Ads/ROI', icon: BarChart3, color: 'text-amber-500' },
-                            { id: 'web_designer', label: 'Designer', subLabel: 'UI/UX', icon: Palette, color: 'text-pink-500' },
-                            { id: 'copywriter', label: 'Copywriter', subLabel: 'Vendas', icon: PenTool, color: 'text-purple-500' },
-                            { id: 'automations', label: 'Automações', subLabel: 'CRM/API', icon: Workflow, color: 'text-cyan-500' },
-                            { id: 'websites', label: 'WebSites', subLabel: 'LP/Sites', icon: Layout, color: 'text-orange-500' },
-                            { id: 'ai_specialist', label: 'IA', subLabel: 'GPT/Bots', icon: Bot, color: 'text-rose-500' },
+                            {
+                              id: 'agency',
+                              label: 'Agência',
+                              icon: Building2,
+                              color: 'text-blue-500',
+                              services: ['Social Media', 'Branding', 'Gestão de Ads', 'Conteúdo']
+                            },
+                            {
+                              id: 'dev',
+                              label: 'Programador',
+                              icon: Code2,
+                              color: 'text-emerald-500',
+                              services: ['Web Apps', 'Mobile Apps', 'APIs', 'Integrações']
+                            },
+                            {
+                              id: 'traffic_manager',
+                              label: 'Tráfego',
+                              icon: BarChart3,
+                              color: 'text-amber-500',
+                              services: ['Google Ads', 'Meta Ads', 'Analytics', 'ROI']
+                            },
+                            {
+                              id: 'web_designer',
+                              label: 'Designer',
+                              icon: Palette,
+                              color: 'text-pink-500',
+                              services: ['UI/UX', 'Redesign', 'Protótipos', 'Identidade']
+                            },
+                            {
+                              id: 'copywriter',
+                              label: 'Copywriter',
+                              icon: PenTool,
+                              color: 'text-purple-500',
+                              services: ['Copy de Vendas', 'E-mails', 'Landing Pages', 'Scripts']
+                            },
+                            {
+                              id: 'automations',
+                              label: 'Automações',
+                              icon: Workflow,
+                              color: 'text-cyan-500',
+                              services: ['CRM', 'Fluxos', 'Webhooks', 'N8N/Zapier']
+                            },
+                            {
+                              id: 'websites',
+                              label: 'WebSites',
+                              icon: Layout,
+                              color: 'text-orange-500',
+                              services: ['Landing Pages', 'Sites', 'SEO', 'Hospedagem']
+                            },
+                            {
+                              id: 'ai_specialist',
+                              label: 'IA',
+                              icon: Bot,
+                              color: 'text-rose-500',
+                              services: ['ChatBots', 'GPTs', 'Agentes', 'Automação IA']
+                            },
                           ].map((profile) => (
                             <Button
                               key={profile.id}
+                              type="button"
                               variant={campaignData.professionalProfile === profile.id ? "default" : "outline"}
-                              className={`h-auto py-3 px-1 flex flex-col gap-1.5 transition-all ${campaignData.professionalProfile === profile.id ? "ring-2 ring-primary ring-offset-2" : "hover:bg-secondary/50"}`}
+                              className={`h-auto py-3 sm:py-4 px-2 sm:px-3 flex flex-col gap-2 transition-all ${campaignData.professionalProfile === profile.id ? "ring-2 ring-primary ring-offset-2" : "hover:bg-secondary/50"}`}
                               onClick={() => applyPreset(profile.id as any)}
                             >
-                              <profile.icon className={`h-5 w-5 ${campaignData.professionalProfile === profile.id ? 'text-white' : profile.color}`} />
-                              <div className="flex flex-col">
-                                <span className="text-[10px] font-bold leading-none">{profile.label}</span>
-                                <span className="text-[8px] opacity-60 font-medium leading-tight mt-0.5">{profile.subLabel}</span>
+                              <profile.icon className={`h-6 w-6 sm:h-7 sm:w-7 ${campaignData.professionalProfile === profile.id ? 'text-white' : profile.color}`} />
+                              <div className="flex flex-col gap-1 w-full">
+                                <span className="text-sm sm:text-base font-bold leading-none">{profile.label}</span>
+                                <div className="flex flex-col gap-0.5 mt-1">
+                                  {profile.services.map((service, idx) => (
+                                    <span key={idx} className="text-[9px] opacity-70 font-medium leading-tight text-left">
+                                      • {service}
+                                    </span>
+                                  ))}
+                                </div>
                               </div>
                             </Button>
                           ))}
@@ -406,12 +515,12 @@ export const CampaignsPage = () => {
                       </div>
 
                       {/* Section 1: Identidade e Origem */}
-                      <div className="space-y-4">
+                      <div className="space-y-3 sm:space-y-4">
                         <div className="flex items-center gap-2 text-primary font-semibold">
-                          <Target className="h-5 w-5" />
-                          <span className="text-lg">Identidade e Origem</span>
+                          <Target className="h-4 sm:h-5 w-4 sm:w-5" />
+                          <span className="text-base sm:text-lg">Identidade e Origem</span>
                         </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-4">
                           <div className="space-y-2">
                             <Label>Nome da Campanha</Label>
                             <Input
@@ -422,7 +531,7 @@ export const CampaignsPage = () => {
                             />
                           </div>
                           <div className="space-y-2">
-                            <Label>Nicho/Segmento</Label>
+                            <Label>Nicho do Segmento</Label>
                             <Input
                               placeholder="Ex: Agências de Marketing Digital"
                               className="bg-secondary/20"
@@ -441,29 +550,37 @@ export const CampaignsPage = () => {
                           />
                         </div>
 
-                        <div className="space-y-3">
-                          <Label>Fontes de Dados (Foco no Alvo)</Label>
-                          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
+                        <div className="space-y-2 sm:space-y-3">
+                          <Label>Fontes de Dados</Label>
+                          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-1.5 sm:gap-2">
                             {[
+                              // Busca & Social (Linha 1)
                               { name: 'Google', icon: Globe, color: 'text-blue-500' },
                               { name: 'Maps', icon: MapPin, color: 'text-red-500' },
                               { name: 'LinkedIn', icon: Globe, color: 'text-sky-600' },
                               { name: 'Instagram', icon: InstaIcon, color: 'text-pink-500' },
+                              // Inteligência de Negócio (Linha 2)
+                              { name: 'CNPJ Aberto', icon: Globe, color: 'text-gray-600' },
+                              { name: 'Junta Comercial', icon: Globe, color: 'text-slate-600' },
+                              { name: 'SEBRAE', icon: Globe, color: 'text-blue-700' },
+                              { name: 'ReclameAqui', icon: SearchIcon, color: 'text-orange-600' },
+                              // Plataformas & E-commerce (Linha 3)
+                              { name: 'Facebook', icon: Globe, color: 'text-blue-600' },
                               { name: 'Workana', icon: MousePointer2, color: 'text-emerald-500' },
-                              { name: '99Freelas', icon: MousePointer2, color: 'text-blue-400' },
-                              { name: 'GetNinjas', icon: MousePointer2, color: 'text-amber-500' },
-                              { name: 'ReclameAqui', icon: SearchIcon, color: 'text-green-600' },
+                              { name: 'Mercado Livre', icon: Globe, color: 'text-yellow-500' },
+                              { name: 'Hotmart', icon: Globe, color: 'text-orange-500' },
                             ].map((source) => (
                               <button
                                 key={source.name}
+                                type="button"
                                 onClick={() => toggleSource(source.name)}
-                                className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all ${campaignData.sources.includes(source.name)
+                                className={`flex flex-col items-center gap-1 sm:gap-1.5 p-1.5 sm:p-2 rounded-lg border transition-all ${campaignData.sources.includes(source.name)
                                   ? "border-primary bg-primary/10 ring-1 ring-primary"
                                   : "border-border hover:bg-secondary/50"
                                   }`}
                               >
-                                <source.icon className={`h-6 w-6 ${campaignData.sources.includes(source.name) ? 'text-primary' : source.color}`} />
-                                <span className="text-[10px] font-medium">{source.name}</span>
+                                <source.icon className={`h-4 sm:h-5 w-4 sm:w-5 ${campaignData.sources.includes(source.name) ? 'text-primary' : source.color}`} />
+                                <span className="text-[8px] sm:text-[9px] font-medium text-center leading-tight">{source.name}</span>
                               </button>
                             ))}
                           </div>
@@ -481,11 +598,11 @@ export const CampaignsPage = () => {
                     </div>
                   </ScrollArea>
 
-                  <DialogFooter className="p-6 border-t border-border/50 shrink-0">
-                    <Button variant="outline" onClick={() => setIsCreateOpen(false)}>
+                  <DialogFooter className="p-4 sm:p-6 border-t border-border/50 shrink-0 flex-col sm:flex-row gap-2">
+                    <Button variant="outline" onClick={() => setIsCreateOpen(false)} className="w-full sm:w-auto order-2 sm:order-1">
                       Cancelar
                     </Button>
-                    <Button onClick={handleCreateCampaign} disabled={createCampaign.isPending} className="bg-primary hover:bg-primary/90">
+                    <Button onClick={handleCreateCampaign} disabled={createCampaign.isPending} className="w-full sm:w-auto bg-primary hover:bg-primary/90 order-1 sm:order-2">
                       {createCampaign.isPending ? "Lançando..." : "Lançar Míssil"}
                     </Button>
                   </DialogFooter>
@@ -501,10 +618,28 @@ export const CampaignsPage = () => {
                   </div>
                   <ScrollArea className="flex-1 p-6">
                     <div className="space-y-6">
+                      {/* Estimativa de Leads com Badge de Qualidade */}
                       <div className="p-4 rounded-xl bg-primary/10 border border-primary/20 space-y-3">
                         <div>
                           <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Estimativa de Leads</p>
-                          <p className="text-3xl font-black text-primary">~{leads}</p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <p className="text-3xl font-black text-primary">~{leads}</p>
+                            {leads > 500 && (
+                              <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20">
+                                Volume Alto
+                              </Badge>
+                            )}
+                            {leads >= 100 && leads <= 500 && (
+                              <Badge variant="outline" className="bg-blue-500/10 text-blue-600 border-blue-500/20">
+                                Volume Médio
+                              </Badge>
+                            )}
+                            {leads < 100 && (
+                              <Badge variant="outline" className="bg-amber-500/10 text-amber-600 border-amber-500/20">
+                                Volume Baixo
+                              </Badge>
+                            )}
+                          </div>
                         </div>
                         <div className="pt-2 border-t border-primary/10">
                           <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Faturamento Estimado</p>
@@ -516,33 +651,98 @@ export const CampaignsPage = () => {
                         <p className="text-[10px] text-muted-foreground">Baseado nos filtros atuais em {campaignData.location || "Brasil"}</p>
                       </div>
 
+                      {/* Barra de Progresso da Configuração */}
+                      {(() => {
+                        const { progress, missingFields } = calculateConfigProgress();
+                        return (
+                          <div className="space-y-2">
+                            <div className="flex justify-between text-xs">
+                              <span className="text-muted-foreground">Configuração</span>
+                              <span className="font-bold text-primary">{progress}%</span>
+                            </div>
+                            <Progress value={progress} className="h-2" />
+                            {missingFields.length > 0 && (
+                              <p className="text-[9px] text-muted-foreground">
+                                Falta: {missingFields[0]}
+                              </p>
+                            )}
+                          </div>
+                        );
+                      })()}
+
+                      {/* Insights Acionáveis */}
                       <div className="space-y-3">
-                        <p className="text-xs font-bold text-muted-foreground uppercase">Resumo do Alvo</p>
+                        <p className="text-xs font-bold text-muted-foreground uppercase flex items-center gap-1">
+                          <TrendingUp className="h-3 w-3" />
+                          Insights
+                        </p>
                         <div className="space-y-2">
                           <div className="flex justify-between text-xs">
-                            <span className="text-muted-foreground">Nicho:</span>
-                            <span className="font-medium">{campaignData.niche || "Geral"}</span>
+                            <span className="text-muted-foreground">Perfil:</span>
+                            <span className="font-medium">
+                              {campaignData.professionalProfile
+                                ? professionalPresets[campaignData.professionalProfile]?.label || "Personalizado"
+                                : "Nenhum"}
+                            </span>
                           </div>
                           <div className="flex justify-between text-xs">
-                            <span className="text-muted-foreground">Fontes:</span>
-                            <span className="font-medium">{campaignData.sources.length} ativas</span>
+                            <span className="text-muted-foreground">Filtros ativos:</span>
+                            <span className="font-medium">{countActiveFilters()}/13</span>
                           </div>
                           <div className="flex justify-between text-xs">
-                            <span className="text-muted-foreground">Tecnologias:</span>
-                            <span className="font-medium">{campaignData.technologies.length} selecionadas</span>
+                            <span className="text-muted-foreground">Precisão:</span>
+                            <span className="font-medium">
+                              {countActiveFilters() > 7 ? "Alta" : countActiveFilters() > 3 ? "Média" : "Baixa"}
+                            </span>
                           </div>
                           <div className="flex justify-between text-xs">
-                            <span className="text-muted-foreground">Qualificação:</span>
-                            <span className="font-medium">{campaignData.minScore}%+</span>
+                            <span className="text-muted-foreground flex items-center gap-1">
+                              <Clock className="h-3 w-3" />
+                              Tempo estimado:
+                            </span>
+                            <span className="font-medium">
+                              {leads > 500 ? "~3h" : leads > 200 ? "~2h" : "~1h"}
+                            </span>
                           </div>
                         </div>
                       </div>
 
-                      <div className="pt-4 space-y-2">
-                        <p className="text-[10px] leading-relaxed text-muted-foreground italic">
-                          "Este míssil varrerá as fontes selecionadas em busca de leads que atendam exatamente aos seus critérios de dor e qualificação."
-                        </p>
-                      </div>
+                      {/* Alertas Contextuais */}
+                      {leads < 50 && (
+                        <Alert className="border-amber-500/50 bg-amber-500/10">
+                          <AlertTriangle className="h-4 w-4 text-amber-600" />
+                          <AlertDescription className="text-xs text-amber-700">
+                            Volume muito baixo. Considere remover filtros ou adicionar mais fontes.
+                          </AlertDescription>
+                        </Alert>
+                      )}
+
+                      {leads > 1000 && (
+                        <Alert className="border-blue-500/50 bg-blue-500/10">
+                          <Info className="h-4 w-4 text-blue-600" />
+                          <AlertDescription className="text-xs text-blue-700">
+                            Alto volume! Adicione filtros para maior precisão e qualidade.
+                          </AlertDescription>
+                        </Alert>
+                      )}
+
+                      {!campaignData.location && (
+                        <Alert className="border-primary/50 bg-primary/10">
+                          <Info className="h-4 w-4 text-primary" />
+                          <AlertDescription className="text-xs">
+                            Adicione uma localização para resultados mais relevantes.
+                          </AlertDescription>
+                        </Alert>
+                      )}
+
+                      {campaignData.sources.length === 0 && (
+                        <Alert className="border-destructive/50 bg-destructive/10">
+                          <AlertTriangle className="h-4 w-4 text-destructive" />
+                          <AlertDescription className="text-xs text-destructive">
+                            Selecione pelo menos uma fonte de dados.
+                          </AlertDescription>
+                        </Alert>
+                      )}
                     </div>
                   </ScrollArea>
                 </div>

@@ -484,10 +484,11 @@ export const AdvancedFilters = ({ data, onChange, selectedSources = [] }: Advanc
           </ToggleGroup>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+
+        <div className="space-y-3 mt-4">
           {/* Status de Anúncios */}
-          <div className="flex items-center justify-between p-2 rounded-lg border border-border bg-secondary/5">
-            <span className="text-xs font-medium">Anúncios</span>
+          <div className="flex items-center justify-between p-3 rounded-lg border border-border bg-secondary/5">
+            <span className="text-sm font-medium">Anúncios</span>
             <ToggleGroup
               type="single"
               value={data.digitalPresence.adsStatus}
@@ -500,8 +501,8 @@ export const AdvancedFilters = ({ data, onChange, selectedSources = [] }: Advanc
           </div>
 
           {/* Redes Sociais */}
-          <div className="flex items-center justify-between p-2 rounded-lg border border-border bg-secondary/5">
-            <span className="text-xs font-medium">Instagram</span>
+          <div className="flex items-center justify-between p-3 rounded-lg border border-border bg-secondary/5">
+            <span className="text-sm font-medium">Instagram</span>
             <ToggleGroup
               type="single"
               value={data.digitalPresence.instagramStatus}
@@ -549,36 +550,6 @@ export const AdvancedFilters = ({ data, onChange, selectedSources = [] }: Advanc
         </div>
       </div>
 
-      {/* Fontes Avançadas (incluindo Freelance) */}
-      <div>
-        <Label className="text-sm font-medium mb-3 block">Fontes Avançadas</Label>
-        <div className="space-y-3">
-          <p className="text-xs text-muted-foreground">Plataformas Freelance</p>
-          <div className="grid grid-cols-2 gap-2">
-            {freelanceSources.map(source => (
-              <FreelanceSourceCheckbox
-                key={source.id}
-                source={source}
-                checked={data.advancedSources.includes(source.id)}
-                onChange={toggleAdvancedSource}
-              />
-            ))}
-          </div>
-          <p className="text-xs text-muted-foreground mt-3">Outras Fontes</p>
-          <div className="flex flex-wrap gap-2">
-            {advancedSourcesList.map(source => (
-              <Badge
-                key={source}
-                variant={data.advancedSources.includes(source) ? "default" : "outline"}
-                className="cursor-pointer transition-all"
-                onClick={() => toggleAdvancedSource(source)}
-              >
-                {source}
-              </Badge>
-            ))}
-          </div>
-        </div>
-      </div>
 
       {/* Tags / Palavras-chave */}
       <div>
@@ -646,13 +617,18 @@ export const AdvancedFilters = ({ data, onChange, selectedSources = [] }: Advanc
                 ? 'border-primary bg-primary/10'
                 : 'border-border hover:bg-secondary/50'
                 }`}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                updateField('verificationMode', option.id as 'email' | 'whatsapp' | 'both');
+              }}
             >
               <input
                 type="radio"
                 name="verificationMode"
                 value={option.id}
                 checked={data.verificationMode === option.id}
-                onChange={(e) => updateField('verificationMode', e.target.value as 'email' | 'whatsapp' | 'both')}
+                onChange={() => { }}
                 className="sr-only"
               />
               {option.label}
@@ -691,13 +667,18 @@ export const AdvancedFilters = ({ data, onChange, selectedSources = [] }: Advanc
                 ? 'border-primary bg-primary/10'
                 : 'border-border hover:bg-secondary/50'
                 }`}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                updateField('updateFrequency', option.id as 'daily' | 'thrice_weekly' | 'weekly');
+              }}
             >
               <input
                 type="radio"
                 name="updateFrequency"
                 value={option.id}
                 checked={data.updateFrequency === option.id}
-                onChange={(e) => updateField('updateFrequency', e.target.value as 'daily' | 'thrice_weekly' | 'weekly')}
+                onChange={() => { }}
                 className="sr-only"
               />
               {option.label}
