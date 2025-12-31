@@ -1,9 +1,9 @@
 import { motion } from "framer-motion";
-import { 
-  CheckCircle, 
-  XCircle, 
-  ExternalLink, 
-  Phone, 
+import {
+  CheckCircle,
+  XCircle,
+  ExternalLink,
+  Phone,
   Mail,
   MessageCircle,
   Building2,
@@ -12,7 +12,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import type { Lead } from "@/lib/mockData";
+import type { Lead } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
 interface LeadsTableProps {

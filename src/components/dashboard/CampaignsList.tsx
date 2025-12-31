@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { 
-  Play, 
-  Pause, 
-  Settings, 
+import {
+  Play,
+  Pause,
+  Settings,
   MoreVertical,
   MapPin,
   Target,
@@ -13,7 +13,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import type { Campaign } from "@/lib/mockData";
+import type { Campaign } from "@/lib/api";
 
 interface CampaignsListProps {
   campaigns: Campaign[];

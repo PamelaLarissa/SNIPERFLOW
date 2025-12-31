@@ -4,7 +4,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 // Generic fetch wrapper
 async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;
-  
+
   const defaultHeaders: HeadersInit = {
     'Content-Type': 'application/json',
   };
@@ -55,6 +55,20 @@ export interface Lead {
   avgTicket?: number;
   rating?: number;
   campaignId?: string;
+  niche?: string;
+  capitalSocial?: number;
+  naturezaJuridica?: string;
+  partners?: string;
+  inicioAtividade?: string;
+  situacao?: string;
+  dataSituacao?: string;
+  address?: string;
+  whatsappNumber?: string;
+  street?: string;
+  numberComplement?: string;
+  neighborhood?: string;
+  zipCode?: string;
+  cityState?: string;
 }
 
 export interface LeadFilters {
@@ -75,7 +89,7 @@ export const leadsApi = {
     if (filters?.source) params.append('source', filters.source);
     if (filters?.isVerified !== undefined) params.append('isVerified', String(filters.isVerified));
     if (filters?.limit) params.append('limit', String(filters.limit));
-    
+
     const query = params.toString();
     return apiFetch<Lead[]>(`/api/leads${query ? `?${query}` : ''}`);
   },
@@ -136,7 +150,7 @@ export const campaignsApi = {
     const params = new URLSearchParams();
     if (filters?.status) params.append('status', filters.status);
     if (filters?.workspaceId) params.append('workspaceId', filters.workspaceId);
-    
+
     const query = params.toString();
     return apiFetch<Campaign[]>(`/api/campaigns${query ? `?${query}` : ''}`);
   },
@@ -191,7 +205,7 @@ export const schedulesApi = {
     if (filters?.leadId) params.append('leadId', filters.leadId);
     if (filters?.status) params.append('status', filters.status);
     if (filters?.date) params.append('date', filters.date);
-    
+
     const query = params.toString();
     return apiFetch<Schedule[]>(`/api/schedules${query ? `?${query}` : ''}`);
   },
@@ -244,7 +258,7 @@ export const proposalsApi = {
     const params = new URLSearchParams();
     if (filters?.leadId) params.append('leadId', filters.leadId);
     if (filters?.status) params.append('status', filters.status);
-    
+
     const query = params.toString();
     return apiFetch<Proposal[]>(`/api/proposals${query ? `?${query}` : ''}`);
   },
@@ -257,6 +271,45 @@ export const proposalsApi = {
     return apiFetch<Proposal>('/api/proposals', {
       method: 'POST',
       body: JSON.stringify(proposal),
+    });
+  },
+};
+
+// ==================== MESSAGE VARIANTS API ====================
+
+export interface MessageVariant {
+  id: string;
+  campaignId: string;
+  name: string;
+  text: string;
+  sent: number;
+  opened: number;
+  isWinner?: boolean;
+  createdAt?: string;
+}
+
+export const variantsApi = {
+  list: (campaignId?: string): Promise<MessageVariant[]> => {
+    return apiFetch<MessageVariant[]>(`/api/variants${campaignId ? `?campaignId=${campaignId}` : ''}`);
+  },
+
+  create: (variant: Partial<MessageVariant>): Promise<MessageVariant> => {
+    return apiFetch<MessageVariant>('/api/variants', {
+      method: 'POST',
+      body: JSON.stringify(variant),
+    });
+  },
+
+  update: (id: string, updates: Partial<MessageVariant>): Promise<MessageVariant> => {
+    return apiFetch<MessageVariant>(`/api/variants/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(updates),
+    });
+  },
+
+  delete: (id: string): Promise<{ success: boolean }> => {
+    return apiFetch<{ success: boolean }>(`/api/variants/${id}`, {
+      method: 'DELETE',
     });
   },
 };
@@ -317,6 +370,7 @@ export const api = {
   campaigns: campaignsApi,
   schedules: schedulesApi,
   proposals: proposalsApi,
+  variants: variantsApi,
   stats: statsApi,
   health: healthApi,
 };

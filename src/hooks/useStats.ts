@@ -33,3 +33,14 @@ export function useScoreDistribution() {
     staleTime: 60000,
   });
 }
+
+export function useLeadsTrend() {
+  return useQuery({
+    queryKey: ['stats', 'leads-trend'],
+    queryFn: async () => {
+      const response = await fetch('http://localhost:3001/api/stats/leads-trend');
+      return response.json();
+    },
+    staleTime: 60000,
+  });
+}

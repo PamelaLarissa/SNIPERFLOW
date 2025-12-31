@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { 
+import {
   Save,
   Upload,
   Palette,
@@ -10,7 +10,8 @@ import {
   Shield,
   Key,
   Zap,
-  Building
+  Building,
+  Loader2
 } from "lucide-react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Header } from "@/components/layout/Sidebar";
@@ -24,7 +25,32 @@ import { useToast } from "@/hooks/use-toast";
 export const SettingsPage = () => {
   const [workspaceName, setWorkspaceName] = useState("Minha Agência");
   const [primaryColor, setPrimaryColor] = useState("#06b6d4");
+  const [smtpConfig, setSmtpConfig] = useState({
+    host: "",
+    port: 587,
+    user: "",
+    pass: "",
+    from: "LeadScan 365"
+  });
+  const [isSaving, setIsSaving] = useState(false);
+  const [isTesting, setIsTesting] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    fetchSettings();
+  }, []);
+
+  const fetchSettings = async () => {
+    try {
+      const response = await fetch('http://localhost:3001/api/settings');
+      const data = await response.json();
+      if (data.smtp_config) {
+        setSmtpConfig(data.smtp_config);
+      }
+    } catch (error) {
+      console.error('Failed to fetch settings:', error);
+    }
+  };
 
   const handleSave = () => {
     toast({
@@ -33,11 +59,55 @@ export const SettingsPage = () => {
     });
   };
 
+  const handleSaveSmtp = async () => {
+    setIsSaving(true);
+    try {
+      const response = await fetch('http://localhost:3001/api/email/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(smtpConfig)
+      });
+
+      if (response.ok) {
+        toast({ title: "Configuração Salva", description: "SMTP configurado e persistido com sucesso." });
+      } else {
+        const error = await response.json();
+        toast({ title: "Erro na Configuração", description: error.error, variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Erro", description: "Falha ao conectar com o servidor.", variant: "destructive" });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleTestConnection = async () => {
+    setIsTesting(true);
+    try {
+      const response = await fetch('http://localhost:3001/api/email/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(smtpConfig)
+      });
+
+      if (response.ok) {
+        toast({ title: "Conexão Bem-sucedida", description: "O servidor SMTP respondeu corretamente." });
+      } else {
+        const error = await response.json();
+        toast({ title: "Falha na Conexão", description: error.error, variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Erro", description: "Falha ao testar conexão.", variant: "destructive" });
+    } finally {
+      setIsTesting(false);
+    }
+  };
+
   return (
     <DashboardLayout>
-      <Header 
-        title="Configurações" 
-        subtitle="Personalize sua experiência no LeadScan 365" 
+      <Header
+        title="Configurações"
+        subtitle="Personalize sua experiência no LeadScan 365"
       />
 
       <Tabs defaultValue="workspace" className="space-y-4 sm:space-y-6">
@@ -62,6 +132,11 @@ export const SettingsPage = () => {
             <span className="hidden sm:inline">Notificações</span>
             <span className="sm:hidden">Not</span>
           </TabsTrigger>
+          <TabsTrigger value="email" className="gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3">
+            <Mail className="h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">E-mail (SMTP)</span>
+            <span className="sm:hidden">Mail</span>
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="workspace">
@@ -83,7 +158,7 @@ export const SettingsPage = () => {
               <CardContent className="space-y-4">
                 <div>
                   <label className="text-sm font-medium mb-2 block">Nome do Workspace</label>
-                  <Input 
+                  <Input
                     value={workspaceName}
                     onChange={(e) => setWorkspaceName(e.target.value)}
                     className="bg-secondary/50 max-w-md"
@@ -91,7 +166,7 @@ export const SettingsPage = () => {
                 </div>
                 <div>
                   <label className="text-sm font-medium mb-2 block">E-mail de Contato</label>
-                  <Input 
+                  <Input
                     type="email"
                     placeholder="contato@suaempresa.com"
                     className="bg-secondary/50 max-w-md"
@@ -164,13 +239,13 @@ export const SettingsPage = () => {
                 <div>
                   <label className="text-sm font-medium mb-2 block">Cor Primária</label>
                   <div className="flex items-center gap-3">
-                    <input 
-                      type="color" 
+                    <input
+                      type="color"
                       value={primaryColor}
                       onChange={(e) => setPrimaryColor(e.target.value)}
                       className="w-12 h-12 rounded-lg cursor-pointer border-0"
                     />
-                    <Input 
+                    <Input
                       value={primaryColor}
                       onChange={(e) => setPrimaryColor(e.target.value)}
                       className="bg-secondary/50 max-w-[120px] uppercase"
@@ -181,7 +256,7 @@ export const SettingsPage = () => {
                 <div>
                   <label className="text-sm font-medium mb-2 block">Subdomínio Personalizado</label>
                   <div className="flex items-center gap-2">
-                    <Input 
+                    <Input
                       placeholder="suaempresa"
                       className="bg-secondary/50 max-w-[200px]"
                     />
@@ -202,14 +277,14 @@ export const SettingsPage = () => {
                 <CardDescription>Veja como ficará para seus clientes</CardDescription>
               </CardHeader>
               <CardContent>
-                <div 
+                <div
                   className="p-6 rounded-xl border border-border"
-                  style={{ 
-                    background: `linear-gradient(135deg, ${primaryColor}10 0%, transparent 100%)` 
+                  style={{
+                    background: `linear-gradient(135deg, ${primaryColor}10 0%, transparent 100%)`
                   }}
                 >
                   <div className="flex items-center gap-3 mb-4">
-                    <div 
+                    <div
                       className="w-10 h-10 rounded-xl flex items-center justify-center"
                       style={{ background: primaryColor }}
                     >
@@ -221,7 +296,7 @@ export const SettingsPage = () => {
                     <div className="h-3 bg-secondary/50 rounded w-3/4" />
                     <div className="h-3 bg-secondary/50 rounded w-1/2" />
                   </div>
-                  <Button 
+                  <Button
                     className="mt-4"
                     style={{ background: primaryColor }}
                   >
@@ -297,6 +372,87 @@ export const SettingsPage = () => {
                   <Save className="h-4 w-4 mr-2" />
                   Salvar Preferências
                 </Button>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </TabsContent>
+
+        <TabsContent value="email">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-6"
+          >
+            <Card variant="glass">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Mail className="h-5 w-5 text-primary" />
+                  Configuração SMTP
+                </CardTitle>
+                <CardDescription>
+                  Configure seu servidor de e-mail para envio de campanhas automáticas.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Host SMTP</label>
+                    <Input
+                      placeholder="smtp.gmail.com"
+                      className="bg-secondary/50"
+                      value={smtpConfig.host}
+                      onChange={(e) => setSmtpConfig({ ...smtpConfig, host: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Porta</label>
+                    <Input
+                      type="number"
+                      placeholder="587"
+                      className="bg-secondary/50"
+                      value={smtpConfig.port}
+                      onChange={(e) => setSmtpConfig({ ...smtpConfig, port: parseInt(e.target.value) || 587 })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Usuário</label>
+                    <Input
+                      placeholder="seu@email.com"
+                      className="bg-secondary/50"
+                      value={smtpConfig.user}
+                      onChange={(e) => setSmtpConfig({ ...smtpConfig, user: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Senha</label>
+                    <Input
+                      type="password"
+                      placeholder="••••••••"
+                      className="bg-secondary/50"
+                      value={smtpConfig.pass}
+                      onChange={(e) => setSmtpConfig({ ...smtpConfig, pass: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2 md:col-span-2">
+                    <label className="text-sm font-medium">Nome do Remetente</label>
+                    <Input
+                      placeholder="LeadScan 365"
+                      className="bg-secondary/50"
+                      value={smtpConfig.from}
+                      onChange={(e) => setSmtpConfig({ ...smtpConfig, from: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <div className="flex gap-3 pt-4">
+                  <Button onClick={handleSaveSmtp} disabled={isSaving}>
+                    {isSaving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
+                    Salvar Configuração
+                  </Button>
+                  <Button variant="outline" onClick={handleTestConnection} disabled={isTesting}>
+                    {isTesting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                    Testar Conexão
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </motion.div>

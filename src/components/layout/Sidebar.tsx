@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  LayoutDashboard, 
-  Users, 
-  Target, 
-  Settings,
+import {
+  LayoutDashboard,
+  Users,
+  Target,
   ChevronLeft,
   ChevronRight,
   LogOut,
@@ -18,7 +17,8 @@ import {
   Kanban,
   FileText,
   TestTube2,
-  MessageSquare
+  History,
+  Settings
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -40,14 +40,14 @@ const navItems = [
   { icon: Kanban, label: "Kanban", path: "/kanban" },
   { icon: FileText, label: "Propostas", path: "/proposals" },
   { icon: TestTube2, label: "Teste A/B", path: "/ab-test" },
-  { icon: MessageSquare, label: "WhatsApp", path: "/whatsapp" },
+  { icon: History, label: "Logs de E-mail", path: "/email-logs" },
   { icon: Settings, label: "Configurações", path: "/settings" },
 ];
 
 export const Sidebar = ({ collapsed = false, onCollapse, mobileOpen, onMobileClose }: SidebarProps) => {
   const location = useLocation();
   const isMobile = useIsMobile();
-  
+
   // On mobile, sidebar behavior is different
   if (isMobile) {
     return (
@@ -76,7 +76,7 @@ export const Sidebar = ({ collapsed = false, onCollapse, mobileOpen, onMobileClo
                   <X className="h-5 w-5" />
                 </Button>
               </div>
-              
+
               {/* Logo */}
               <div className="p-6 flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/20">
@@ -193,8 +193,8 @@ export const Sidebar = ({ collapsed = false, onCollapse, mobileOpen, onMobileClo
 
       {/* Footer */}
       <div className="p-4 border-t border-sidebar-border space-y-2">
-        <Button 
-          variant="ghost" 
+        <Button
+          variant="ghost"
           className={cn(
             "w-full justify-start gap-3 text-muted-foreground hover:text-foreground",
             collapsed && "justify-center px-0"
@@ -260,7 +260,7 @@ interface HeaderProps {
 
 export const Header = ({ title, subtitle }: HeaderProps) => {
   const isMobile = useIsMobile();
-  
+
   return (
     <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-6 md:mb-8">
       <div className="min-w-0">

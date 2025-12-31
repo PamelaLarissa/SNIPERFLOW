@@ -1,4 +1,5 @@
-import Database from 'better-sqlite3';
+import sqlite3 from 'sqlite3';
+import { open } from 'sqlite';
 import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
 import fs from 'fs';
@@ -10,14 +11,20 @@ if (!fs.existsSync(dataDir)) {
 }
 
 const dbPath = process.env.DATABASE_PATH || path.join(dataDir, 'leadscan.db');
-const db = new Database(dbPath);
 
-// Enable WAL mode for better performance
-db.pragma('journal_mode = WAL');
+let db;
 
-// Initialize tables
-export function initDatabase() {
-  db.exec(`
+// Initialize database
+export async function initDatabase() {
+  db = await open({
+    filename: dbPath,
+    driver: sqlite3.Database
+  });
+
+  // Enable WAL mode for better performance
+  await db.run('PRAGMA journal_mode = WAL');
+
+  await db.exec(`
     CREATE TABLE IF NOT EXISTS users (
       id TEXT PRIMARY KEY,
       email TEXT UNIQUE NOT NULL,
@@ -73,6 +80,17 @@ export function initDatabase() {
       avg_ticket REAL,
       rating REAL,
       campaign_id TEXT,
+      capital_social REAL,
+      natureza_juridica TEXT,
+      partners TEXT,
+      inicio_atividade TEXT,
+      situacao TEXT,
+      whatsapp_number TEXT,
+      street TEXT,
+      number_complement TEXT,
+      neighborhood TEXT,
+      zip_code TEXT,
+      city_state TEXT,
       created_at TEXT DEFAULT (datetime('now')),
       FOREIGN KEY (campaign_id) REFERENCES campaigns(id)
     );
@@ -113,6 +131,23 @@ export function initDatabase() {
       FOREIGN KEY (campaign_id) REFERENCES campaigns(id)
     );
 
+    CREATE TABLE IF NOT EXISTS email_logs (
+      id TEXT PRIMARY KEY,
+      lead_id TEXT,
+      lead_name TEXT,
+      recipient TEXT NOT NULL,
+      subject TEXT,
+      status TEXT DEFAULT 'sent',
+      error TEXT,
+      created_at TEXT DEFAULT (datetime('now')),
+      FOREIGN KEY (lead_id) REFERENCES leads(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS settings (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL
+    );
+
     CREATE INDEX IF NOT EXISTS idx_leads_campaign ON leads(campaign_id);
     CREATE INDEX IF NOT EXISTS idx_leads_status ON leads(status);
     CREATE INDEX IF NOT EXISTS idx_leads_score ON leads(score);
@@ -124,14 +159,12 @@ export function initDatabase() {
 
 // ==================== LEADS CRUD ====================
 
-export function createLead(lead) {
+export async function createLead(lead) {
   const id = lead.id || uuidv4();
-  const stmt = db.prepare(`
-    INSERT INTO leads (id, name, company, email, phone, whatsapp, score, is_verified, source, website, employee_count, revenue_range, tech_stack, social_profiles, lat, lng, assigned_to, status, invoice_due, avg_ticket, rating, campaign_id, created_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `);
-  
-  stmt.run(
+  await db.run(`
+    INSERT INTO leads (id, name, company, email, phone, whatsapp, score, is_verified, source, website, employee_count, revenue_range, tech_stack, social_profiles, lat, lng, assigned_to, status, invoice_due, avg_ticket, rating, campaign_id, capital_social, natureza_juridica, partners, inicio_atividade, situacao, address, whatsapp_number, street, number_complement, neighborhood, zip_code, city_state, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `, [
     id,
     lead.name,
     lead.company || null,
@@ -150,26 +183,37 @@ export function createLead(lead) {
     lead.lng || null,
     lead.assignedTo || null,
     lead.status || 'new',
-    lead.invoiceDue || null,
+    lead.invoice_due || null,
     lead.avgTicket || null,
     lead.rating || null,
     lead.campaignId || null,
+    lead.capitalSocial || null,
+    lead.naturezaJuridica || null,
+    lead.partners || null,
+    lead.inicioAtividade || null,
+    lead.situacao || null,
+    lead.address || null,
+    lead.whatsappNumber || null,
+    lead.street || null,
+    lead.numberComplement || null,
+    lead.neighborhood || null,
+    lead.zipCode || null,
+    lead.cityState || null,
     lead.createdAt || new Date().toISOString()
-  );
-  
+  ]);
+
   return getLead(id);
 }
 
-export function getLead(id) {
-  const stmt = db.prepare('SELECT * FROM leads WHERE id = ?');
-  const row = stmt.get(id);
+export async function getLead(id) {
+  const row = await db.get('SELECT * FROM leads WHERE id = ?', [id]);
   return row ? mapLeadFromDb(row) : null;
 }
 
-export function listLeads(filters = {}) {
+export async function listLeads(filters = {}) {
   let query = 'SELECT * FROM leads WHERE 1=1';
   const params = [];
-  
+
   if (filters.campaignId) {
     query += ' AND campaign_id = ?';
     params.push(filters.campaignId);
@@ -190,23 +234,22 @@ export function listLeads(filters = {}) {
     query += ' AND is_verified = ?';
     params.push(filters.isVerified ? 1 : 0);
   }
-  
+
   query += ' ORDER BY created_at DESC';
-  
+
   if (filters.limit) {
     query += ' LIMIT ?';
     params.push(filters.limit);
   }
-  
-  const stmt = db.prepare(query);
-  const rows = stmt.all(...params);
+
+  const rows = await db.all(query, params);
   return rows.map(mapLeadFromDb);
 }
 
-export function updateLead(id, updates) {
+export async function updateLead(id, updates) {
   const fields = [];
   const values = [];
-  
+
   if (updates.name !== undefined) { fields.push('name = ?'); values.push(updates.name); }
   if (updates.company !== undefined) { fields.push('company = ?'); values.push(updates.company); }
   if (updates.email !== undefined) { fields.push('email = ?'); values.push(updates.email); }
@@ -219,19 +262,29 @@ export function updateLead(id, updates) {
   if (updates.assignedTo !== undefined) { fields.push('assigned_to = ?'); values.push(updates.assignedTo); }
   if (updates.avgTicket !== undefined) { fields.push('avg_ticket = ?'); values.push(updates.avgTicket); }
   if (updates.techStack !== undefined) { fields.push('tech_stack = ?'); values.push(JSON.stringify(updates.techStack)); }
-  
+  if (updates.capitalSocial !== undefined) { fields.push('capital_social = ?'); values.push(updates.capitalSocial); }
+  if (updates.naturezaJuridica !== undefined) { fields.push('natureza_juridica = ?'); values.push(updates.naturezaJuridica); }
+  if (updates.partners !== undefined) { fields.push('partners = ?'); values.push(updates.partners); }
+  if (updates.inicioAtividade !== undefined) { fields.push('inicio_atividade = ?'); values.push(updates.inicioAtividade); }
+  if (updates.situacao !== undefined) { fields.push('situacao = ?'); values.push(updates.situacao); }
+  if (updates.address !== undefined) { fields.push('address = ?'); values.push(updates.address); }
+  if (updates.whatsappNumber !== undefined) { fields.push('whatsapp_number = ?'); values.push(updates.whatsappNumber); }
+  if (updates.street !== undefined) { fields.push('street = ?'); values.push(updates.street); }
+  if (updates.numberComplement !== undefined) { fields.push('number_complement = ?'); values.push(updates.numberComplement); }
+  if (updates.neighborhood !== undefined) { fields.push('neighborhood = ?'); values.push(updates.neighborhood); }
+  if (updates.zipCode !== undefined) { fields.push('zip_code = ?'); values.push(updates.zipCode); }
+  if (updates.cityState !== undefined) { fields.push('city_state = ?'); values.push(updates.cityState); }
+
   if (fields.length === 0) return getLead(id);
-  
+
   values.push(id);
-  const stmt = db.prepare(`UPDATE leads SET ${fields.join(', ')} WHERE id = ?`);
-  stmt.run(...values);
-  
+  await db.run(`UPDATE leads SET ${fields.join(', ')} WHERE id = ?`, values);
+
   return getLead(id);
 }
 
-export function deleteLead(id) {
-  const stmt = db.prepare('DELETE FROM leads WHERE id = ?');
-  const result = stmt.run(id);
+export async function deleteLead(id) {
+  const result = await db.run('DELETE FROM leads WHERE id = ?', [id]);
   return result.changes > 0;
 }
 
@@ -259,20 +312,30 @@ function mapLeadFromDb(row) {
     avgTicket: row.avg_ticket,
     rating: row.rating,
     campaignId: row.campaign_id,
+    capitalSocial: row.capital_social,
+    naturezaJuridica: row.natureza_juridica,
+    partners: row.partners,
+    inicioAtividade: row.inicio_atividade,
+    situacao: row.situacao,
+    address: row.address,
+    whatsappNumber: row.whatsapp_number,
+    street: row.street,
+    numberComplement: row.number_complement,
+    neighborhood: row.neighborhood,
+    zipCode: row.zip_code,
+    cityState: row.city_state,
     createdAt: row.created_at
   };
 }
 
 // ==================== CAMPAIGNS CRUD ====================
 
-export function createCampaign(campaign) {
+export async function createCampaign(campaign) {
   const id = campaign.id || uuidv4();
-  const stmt = db.prepare(`
+  await db.run(`
     INSERT INTO campaigns (id, name, niche, location, status, leads_found, leads_verified, sources, filters, workspace_id, created_at, last_run)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `);
-  
-  stmt.run(
+  `, [
     id,
     campaign.name,
     campaign.niche || null,
@@ -285,21 +348,20 @@ export function createCampaign(campaign) {
     campaign.workspaceId || null,
     campaign.createdAt || new Date().toISOString(),
     campaign.lastRun || null
-  );
-  
+  ]);
+
   return getCampaign(id);
 }
 
-export function getCampaign(id) {
-  const stmt = db.prepare('SELECT * FROM campaigns WHERE id = ?');
-  const row = stmt.get(id);
+export async function getCampaign(id) {
+  const row = await db.get('SELECT * FROM campaigns WHERE id = ?', [id]);
   return row ? mapCampaignFromDb(row) : null;
 }
 
-export function listCampaigns(filters = {}) {
+export async function listCampaigns(filters = {}) {
   let query = 'SELECT * FROM campaigns WHERE 1=1';
   const params = [];
-  
+
   if (filters.status) {
     query += ' AND status = ?';
     params.push(filters.status);
@@ -308,18 +370,17 @@ export function listCampaigns(filters = {}) {
     query += ' AND workspace_id = ?';
     params.push(filters.workspaceId);
   }
-  
+
   query += ' ORDER BY created_at DESC';
-  
-  const stmt = db.prepare(query);
-  const rows = stmt.all(...params);
+
+  const rows = await db.all(query, params);
   return rows.map(mapCampaignFromDb);
 }
 
-export function updateCampaign(id, updates) {
+export async function updateCampaign(id, updates) {
   const fields = [];
   const values = [];
-  
+
   if (updates.name !== undefined) { fields.push('name = ?'); values.push(updates.name); }
   if (updates.niche !== undefined) { fields.push('niche = ?'); values.push(updates.niche); }
   if (updates.location !== undefined) { fields.push('location = ?'); values.push(updates.location); }
@@ -329,19 +390,17 @@ export function updateCampaign(id, updates) {
   if (updates.sources !== undefined) { fields.push('sources = ?'); values.push(JSON.stringify(updates.sources)); }
   if (updates.filters !== undefined) { fields.push('filters = ?'); values.push(JSON.stringify(updates.filters)); }
   if (updates.lastRun !== undefined) { fields.push('last_run = ?'); values.push(updates.lastRun); }
-  
+
   if (fields.length === 0) return getCampaign(id);
-  
+
   values.push(id);
-  const stmt = db.prepare(`UPDATE campaigns SET ${fields.join(', ')} WHERE id = ?`);
-  stmt.run(...values);
-  
+  await db.run(`UPDATE campaigns SET ${fields.join(', ')} WHERE id = ?`, values);
+
   return getCampaign(id);
 }
 
-export function deleteCampaign(id) {
-  const stmt = db.prepare('DELETE FROM campaigns WHERE id = ?');
-  const result = stmt.run(id);
+export async function deleteCampaign(id) {
+  const result = await db.run('DELETE FROM campaigns WHERE id = ?', [id]);
   return result.changes > 0;
 }
 
@@ -364,48 +423,43 @@ function mapCampaignFromDb(row) {
 
 // ==================== USERS CRUD ====================
 
-export function createUser(user) {
+export async function createUser(user) {
   const id = user.id || uuidv4();
-  const stmt = db.prepare(`
+  await db.run(`
     INSERT INTO users (id, email, name, password_hash, workspace_id, role)
     VALUES (?, ?, ?, ?, ?, ?)
-  `);
-  
-  stmt.run(
+  `, [
     id,
     user.email,
     user.name || null,
     user.passwordHash || null,
     user.workspaceId || null,
     user.role || 'user'
-  );
-  
+  ]);
+
   return getUser(id);
 }
 
-export function getUser(id) {
-  const stmt = db.prepare('SELECT * FROM users WHERE id = ?');
-  const row = stmt.get(id);
+export async function getUser(id) {
+  const row = await db.get('SELECT * FROM users WHERE id = ?', [id]);
   return row ? mapUserFromDb(row) : null;
 }
 
-export function getUserByEmail(email) {
-  const stmt = db.prepare('SELECT * FROM users WHERE email = ?');
-  const row = stmt.get(email);
+export async function getUserByEmail(email) {
+  const row = await db.get('SELECT * FROM users WHERE email = ?', [email]);
   return row ? mapUserFromDb(row) : null;
 }
 
-export function listUsers(filters = {}) {
+export async function listUsers(filters = {}) {
   let query = 'SELECT * FROM users WHERE 1=1';
   const params = [];
-  
+
   if (filters.workspaceId) {
     query += ' AND workspace_id = ?';
     params.push(filters.workspaceId);
   }
-  
-  const stmt = db.prepare(query);
-  const rows = stmt.all(...params);
+
+  const rows = await db.all(query, params);
   return rows.map(mapUserFromDb);
 }
 
@@ -422,14 +476,12 @@ function mapUserFromDb(row) {
 
 // ==================== SCHEDULES CRUD ====================
 
-export function createSchedule(schedule) {
+export async function createSchedule(schedule) {
   const id = schedule.id || uuidv4();
-  const stmt = db.prepare(`
+  await db.run(`
     INSERT INTO schedules (id, lead_id, lead_name, date, hour, status, notes)
     VALUES (?, ?, ?, ?, ?, ?, ?)
-  `);
-  
-  stmt.run(
+  `, [
     id,
     schedule.leadId,
     schedule.leadName || null,
@@ -437,21 +489,20 @@ export function createSchedule(schedule) {
     schedule.hour,
     schedule.status || 'pending',
     schedule.notes || null
-  );
-  
+  ]);
+
   return getSchedule(id);
 }
 
-export function getSchedule(id) {
-  const stmt = db.prepare('SELECT * FROM schedules WHERE id = ?');
-  const row = stmt.get(id);
+export async function getSchedule(id) {
+  const row = await db.get('SELECT * FROM schedules WHERE id = ?', [id]);
   return row ? mapScheduleFromDb(row) : null;
 }
 
-export function listSchedules(filters = {}) {
+export async function listSchedules(filters = {}) {
   let query = 'SELECT * FROM schedules WHERE 1=1';
   const params = [];
-  
+
   if (filters.leadId) {
     query += ' AND lead_id = ?';
     params.push(filters.leadId);
@@ -464,35 +515,32 @@ export function listSchedules(filters = {}) {
     query += ' AND date = ?';
     params.push(filters.date);
   }
-  
+
   query += ' ORDER BY date ASC, hour ASC';
-  
-  const stmt = db.prepare(query);
-  const rows = stmt.all(...params);
+
+  const rows = await db.all(query, params);
   return rows.map(mapScheduleFromDb);
 }
 
-export function updateSchedule(id, updates) {
+export async function updateSchedule(id, updates) {
   const fields = [];
   const values = [];
-  
+
   if (updates.date !== undefined) { fields.push('date = ?'); values.push(updates.date); }
   if (updates.hour !== undefined) { fields.push('hour = ?'); values.push(updates.hour); }
   if (updates.status !== undefined) { fields.push('status = ?'); values.push(updates.status); }
   if (updates.notes !== undefined) { fields.push('notes = ?'); values.push(updates.notes); }
-  
+
   if (fields.length === 0) return getSchedule(id);
-  
+
   values.push(id);
-  const stmt = db.prepare(`UPDATE schedules SET ${fields.join(', ')} WHERE id = ?`);
-  stmt.run(...values);
-  
+  await db.run(`UPDATE schedules SET ${fields.join(', ')} WHERE id = ?`, values);
+
   return getSchedule(id);
 }
 
-export function deleteSchedule(id) {
-  const stmt = db.prepare('DELETE FROM schedules WHERE id = ?');
-  const result = stmt.run(id);
+export async function deleteSchedule(id) {
+  const result = await db.run('DELETE FROM schedules WHERE id = ?', [id]);
   return result.changes > 0;
 }
 
@@ -511,14 +559,12 @@ function mapScheduleFromDb(row) {
 
 // ==================== PROPOSALS CRUD ====================
 
-export function createProposal(proposal) {
+export async function createProposal(proposal) {
   const id = proposal.id || uuidv4();
-  const stmt = db.prepare(`
+  await db.run(`
     INSERT INTO proposals (id, lead_id, lead_name, products, discount, total, status)
     VALUES (?, ?, ?, ?, ?, ?, ?)
-  `);
-  
-  stmt.run(
+  `, [
     id,
     proposal.leadId,
     proposal.leadName || null,
@@ -526,21 +572,20 @@ export function createProposal(proposal) {
     proposal.discount || 0,
     proposal.total || 0,
     proposal.status || 'draft'
-  );
-  
+  ]);
+
   return getProposal(id);
 }
 
-export function getProposal(id) {
-  const stmt = db.prepare('SELECT * FROM proposals WHERE id = ?');
-  const row = stmt.get(id);
+export async function getProposal(id) {
+  const row = await db.get('SELECT * FROM proposals WHERE id = ?', [id]);
   return row ? mapProposalFromDb(row) : null;
 }
 
-export function listProposals(filters = {}) {
+export async function listProposals(filters = {}) {
   let query = 'SELECT * FROM proposals WHERE 1=1';
   const params = [];
-  
+
   if (filters.leadId) {
     query += ' AND lead_id = ?';
     params.push(filters.leadId);
@@ -549,12 +594,27 @@ export function listProposals(filters = {}) {
     query += ' AND status = ?';
     params.push(filters.status);
   }
-  
+
   query += ' ORDER BY created_at DESC';
-  
-  const stmt = db.prepare(query);
-  const rows = stmt.all(...params);
+
+  const rows = await db.all(query, params);
   return rows.map(mapProposalFromDb);
+}
+
+export async function updateProposal(id, updates) {
+  const fields = [];
+  const values = [];
+
+  if (updates.status !== undefined) { fields.push('status = ?'); values.push(updates.status); }
+  if (updates.total !== undefined) { fields.push('total = ?'); values.push(updates.total); }
+  if (updates.discount !== undefined) { fields.push('discount = ?'); values.push(updates.discount); }
+
+  if (fields.length === 0) return getProposal(id);
+
+  values.push(id);
+  await db.run(`UPDATE proposals SET ${fields.join(', ')} WHERE id = ?`, values);
+
+  return getProposal(id);
 }
 
 function mapProposalFromDb(row) {
@@ -570,26 +630,102 @@ function mapProposalFromDb(row) {
   };
 }
 
+// ==================== MESSAGE VARIANTS CRUD ====================
+
+export async function createMessageVariant(variant) {
+  const id = variant.id || uuidv4();
+  await db.run(`
+    INSERT INTO message_variants (id, campaign_id, name, text, sent, opened, is_winner)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `, [
+    id,
+    variant.campaignId,
+    variant.name || null,
+    variant.text || null,
+    variant.sent || 0,
+    variant.opened || 0,
+    variant.isWinner ? 1 : 0
+  ]);
+
+  return getMessageVariant(id);
+}
+
+export async function getMessageVariant(id) {
+  const row = await db.get('SELECT * FROM message_variants WHERE id = ?', [id]);
+  return row ? mapMessageVariantFromDb(row) : null;
+}
+
+export async function listMessageVariants(filters = {}) {
+  let query = 'SELECT * FROM message_variants WHERE 1=1';
+  const params = [];
+
+  if (filters.campaignId) {
+    query += ' AND campaign_id = ?';
+    params.push(filters.campaignId);
+  }
+
+  query += ' ORDER BY created_at DESC';
+
+  const rows = await db.all(query, params);
+  return rows.map(mapMessageVariantFromDb);
+}
+
+export async function updateMessageVariant(id, updates) {
+  const fields = [];
+  const values = [];
+
+  if (updates.name !== undefined) { fields.push('name = ?'); values.push(updates.name); }
+  if (updates.text !== undefined) { fields.push('text = ?'); values.push(updates.text); }
+  if (updates.sent !== undefined) { fields.push('sent = ?'); values.push(updates.sent); }
+  if (updates.opened !== undefined) { fields.push('opened = ?'); values.push(updates.opened); }
+  if (updates.isWinner !== undefined) { fields.push('is_winner = ?'); values.push(updates.isWinner ? 1 : 0); }
+
+  if (fields.length === 0) return getMessageVariant(id);
+
+  values.push(id);
+  await db.run(`UPDATE message_variants SET ${fields.join(', ')} WHERE id = ?`, values);
+
+  return getMessageVariant(id);
+}
+
+export async function deleteMessageVariant(id) {
+  const result = await db.run('DELETE FROM message_variants WHERE id = ?', [id]);
+  return result.changes > 0;
+}
+
+function mapMessageVariantFromDb(row) {
+  return {
+    id: row.id,
+    campaignId: row.campaign_id,
+    name: row.name,
+    text: row.text,
+    sent: row.sent,
+    opened: row.opened,
+    isWinner: Boolean(row.is_winner),
+    createdAt: row.created_at
+  };
+}
+
 // ==================== STATS ====================
 
-export function getDashboardStats() {
-  const totalLeads = db.prepare('SELECT COUNT(*) as count FROM leads').get().count;
-  const verifiedLeads = db.prepare('SELECT COUNT(*) as count FROM leads WHERE is_verified = 1').get().count;
-  const avgScore = db.prepare('SELECT AVG(score) as avg FROM leads').get().avg || 0;
-  const activeCampaigns = db.prepare("SELECT COUNT(*) as count FROM campaigns WHERE status = 'active'").get().count;
-  
+export async function getDashboardStats() {
+  const totalLeads = (await db.get('SELECT COUNT(*) as count FROM leads')).count;
+  const verifiedLeads = (await db.get('SELECT COUNT(*) as count FROM leads WHERE is_verified = 1')).count;
+  const avgScore = (await db.get('SELECT AVG(score) as avg FROM leads')).avg || 0;
+  const activeCampaigns = (await db.get("SELECT COUNT(*) as count FROM campaigns WHERE status = 'active'")).count;
+
   const weekAgo = new Date();
   weekAgo.setDate(weekAgo.getDate() - 7);
-  const leadsThisWeek = db.prepare('SELECT COUNT(*) as count FROM leads WHERE created_at >= ?').get(weekAgo.toISOString()).count;
-  
-  const wonLeads = db.prepare("SELECT COUNT(*) as count FROM leads WHERE status = 'won'").get().count;
-  const totalWithStatus = db.prepare("SELECT COUNT(*) as count FROM leads WHERE status IS NOT NULL").get().count;
+  const leadsThisWeek = (await db.get('SELECT COUNT(*) as count FROM leads WHERE created_at >= ?', [weekAgo.toISOString()])).count;
+
+  const wonLeads = (await db.get("SELECT COUNT(*) as count FROM leads WHERE status = 'won'")).count;
+  const totalWithStatus = (await db.get("SELECT COUNT(*) as count FROM leads WHERE status IS NOT NULL")).count;
   const conversionRate = totalWithStatus > 0 ? (wonLeads / totalWithStatus) * 100 : 0;
-  
-  const avgTicketResult = db.prepare('SELECT AVG(avg_ticket) as avg FROM leads WHERE avg_ticket IS NOT NULL').get();
-  const unansweredLeads = db.prepare("SELECT COUNT(*) as count FROM leads WHERE status = 'new'").get().count;
+
+  const avgTicketResult = await db.get('SELECT AVG(avg_ticket) as avg FROM leads WHERE avg_ticket IS NOT NULL');
+  const unansweredLeads = (await db.get("SELECT COUNT(*) as count FROM leads WHERE status = 'new'")).count;
   const moneyLeft = unansweredLeads * (avgTicketResult.avg || 0) * 0.67;
-  
+
   return {
     totalLeads,
     verifiedLeads,
@@ -601,18 +737,18 @@ export function getDashboardStats() {
   };
 }
 
-export function getLeadsBySource() {
-  const stmt = db.prepare(`
+export async function getLeadsBySource() {
+  const query = `
     SELECT source, COUNT(*) as count 
     FROM leads 
     WHERE source IS NOT NULL 
     GROUP BY source 
     ORDER BY count DESC
-  `);
-  return stmt.all();
+  `;
+  return db.all(query);
 }
 
-export function getScoreDistribution() {
+export async function getScoreDistribution() {
   const ranges = [
     { range: '0-20', min: 0, max: 20 },
     { range: '21-40', min: 21, max: 40 },
@@ -620,11 +756,117 @@ export function getScoreDistribution() {
     { range: '61-80', min: 61, max: 80 },
     { range: '81-100', min: 81, max: 100 }
   ];
-  
-  return ranges.map(r => {
-    const count = db.prepare('SELECT COUNT(*) as count FROM leads WHERE score >= ? AND score <= ?').get(r.min, r.max).count;
-    return { range: r.range, count };
+
+  const results = [];
+  for (const r of ranges) {
+    const count = (await db.get('SELECT COUNT(*) as count FROM leads WHERE score >= ? AND score <= ?', [r.min, r.max])).count;
+    results.push({ range: r.range, count });
+  }
+  return results;
+}
+
+export async function getLeadsTrend() {
+  const query = `
+    SELECT strftime('%Y-%m-%d', created_at) as date, COUNT(*) as count
+    FROM leads
+    GROUP BY date
+    ORDER BY date ASC
+    LIMIT 30
+  `;
+  return db.all(query);
+}
+
+
+// ==================== EMAIL LOGS ====================
+
+export async function createEmailLog(log) {
+  const id = log.id || uuidv4();
+  await db.run(`
+    INSERT INTO email_logs (id, lead_id, lead_name, recipient, subject, status, error)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `, [
+    id,
+    log.leadId || null,
+    log.leadName || null,
+    log.recipient,
+    log.subject || null,
+    log.status || 'sent',
+    log.error || null
+  ]);
+  return id;
+}
+
+export async function listEmailLogs(limit = 50) {
+  const rows = await db.all('SELECT * FROM email_logs ORDER BY created_at DESC LIMIT ?', [limit]);
+  return rows.map(row => ({
+    id: row.id,
+    leadId: row.lead_id,
+    leadName: row.lead_name,
+    recipient: row.recipient,
+    subject: row.subject,
+    status: row.status,
+    error: row.error,
+    createdAt: row.created_at
+  }));
+}
+
+// ==================== LEAD DETAILS ====================
+
+export async function getLeadWithDetails(id) {
+  const lead = await getLead(id);
+  if (!lead) return null;
+
+  const schedules = await listSchedules({ leadId: id });
+  const proposals = await listProposals({ leadId: id });
+  const emailLogs = await db.all('SELECT * FROM email_logs WHERE lead_id = ? ORDER BY created_at DESC', [id]);
+
+  return {
+    ...lead,
+    schedules,
+    proposals,
+    emailLogs: emailLogs.map(row => ({
+      id: row.id,
+      recipient: row.recipient,
+      subject: row.subject,
+      status: row.status,
+      createdAt: row.created_at
+    }))
+  };
+}
+
+// ==================== SETTINGS ====================
+
+export async function getSetting(key, defaultValue = null) {
+  const row = await db.get('SELECT value FROM settings WHERE key = ?', [key]);
+  if (!row) return defaultValue;
+  try {
+    return JSON.parse(row.value);
+  } catch (e) {
+    return row.value;
+  }
+}
+
+export async function setSetting(key, value) {
+  const stringValue = typeof value === 'string' ? value : JSON.stringify(value);
+  await db.run(`
+    INSERT INTO settings (key, value)
+    VALUES (?, ?)
+    ON CONFLICT(key) DO UPDATE SET value = excluded.value
+  `, [key, stringValue]);
+  return value;
+}
+
+export async function listSettings() {
+  const rows = await db.all('SELECT * FROM settings');
+  const settings = {};
+  rows.forEach(row => {
+    try {
+      settings[row.key] = JSON.parse(row.value);
+    } catch (e) {
+      settings[row.key] = row.value;
+    }
   });
+  return settings;
 }
 
 export default db;

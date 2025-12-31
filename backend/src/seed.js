@@ -1,9 +1,8 @@
-import db from './database.js';
-import { createLead, createCampaign, createUser, createSchedule, createProposal, listLeads, listCampaigns } from './database.js';
+import { createLead, createCampaign, createUser, createSchedule, createProposal, listLeads } from './database.js';
 
-export function seedDatabase() {
+export async function seedDatabase() {
   // Check if data already exists
-  const existingLeads = listLeads({ limit: 1 });
+  const existingLeads = await listLeads({ limit: 1 });
   if (existingLeads.length > 0) {
     console.log('📦 Database already has data, skipping seed');
     return;
@@ -12,7 +11,7 @@ export function seedDatabase() {
   console.log('🌱 Seeding database with initial data...');
 
   // Create admin user
-  createUser({
+  await createUser({
     id: 'admin-1',
     email: 'admin@leadscan365.com',
     name: 'Admin',
@@ -65,7 +64,9 @@ export function seedDatabase() {
     }
   ];
 
-  campaigns.forEach(c => createCampaign(c));
+  for (const c of campaigns) {
+    await createCampaign(c);
+  }
 
   // Create leads
   const leads = [
@@ -321,7 +322,9 @@ export function seedDatabase() {
     }
   ];
 
-  leads.forEach(l => createLead(l));
+  for (const l of leads) {
+    await createLead(l);
+  }
 
   // Create schedules
   const schedules = [
@@ -332,7 +335,9 @@ export function seedDatabase() {
     { id: 'sched-5', leadId: 'lead-5', leadName: 'Paulo Mendes', date: '2024-01-18', hour: '15:00', status: 'completed' }
   ];
 
-  schedules.forEach(s => createSchedule(s));
+  for (const s of schedules) {
+    await createSchedule(s);
+  }
 
   // Create proposals
   const proposals = [
@@ -362,7 +367,9 @@ export function seedDatabase() {
     }
   ];
 
-  proposals.forEach(p => createProposal(p));
+  for (const p of proposals) {
+    await createProposal(p);
+  }
 
   console.log('✅ Database seeded successfully');
   console.log(`   - ${campaigns.length} campaigns`);
@@ -370,3 +377,4 @@ export function seedDatabase() {
   console.log(`   - ${schedules.length} schedules`);
   console.log(`   - ${proposals.length} proposals`);
 }
+

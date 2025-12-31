@@ -1,14 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { 
-  TestTube2, 
-  Plus, 
-  Edit, 
-  Trash2, 
+import {
+  TestTube2,
+  Plus,
+  Edit,
+  Trash2,
   Trophy,
   Send,
   BarChart3,
-  Percent
+  Loader2
 } from "lucide-react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Header } from "@/components/layout/Sidebar";
@@ -22,10 +22,17 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
-import { mockMessageVariants, mockCampaigns, type MessageVariant } from "@/lib/mockData";
+import { useMessageVariants, useCreateMessageVariant, useUpdateMessageVariant, useDeleteMessageVariant } from "@/hooks/useMessageVariants";
+import { useCampaigns } from "@/hooks/useCampaigns";
+import { MessageVariant } from "@/lib/api";
 
 export const ABTestPage = () => {
-  const [variants, setVariants] = useState<MessageVariant[]>(mockMessageVariants);
+  const { data: variants = [], isLoading } = useMessageVariants();
+  const { data: campaigns = [] } = useCampaigns();
+  const createVariant = useCreateMessageVariant();
+  const updateVariant = useUpdateMessageVariant();
+  const deleteVariant = useDeleteMessageVariant();
+
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingVariant, setEditingVariant] = useState<MessageVariant | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
@@ -51,76 +58,61 @@ export const ABTestPage = () => {
       return;
     }
 
-    const newVariant: MessageVariant = {
-      id: Date.now().toString(),
+    createVariant.mutate({
       campaignId: formData.campaignId,
       name: formData.name,
       text: formData.text,
       sent: 0,
       opened: 0,
-    };
-
-    setVariants([...variants, newVariant]);
-    toast({ title: "Variante criada!" });
-    setIsCreateOpen(false);
-    resetForm();
+    }, {
+      onSuccess: () => {
+        toast({ title: "Variante criada!" });
+        setIsCreateOpen(false);
+        resetForm();
+      }
+    });
   };
 
   const handleEdit = () => {
     if (!editingVariant) return;
-    
-    setVariants(variants.map(v => 
-      v.id === editingVariant.id
-        ? { ...v, name: formData.name, text: formData.text, campaignId: formData.campaignId }
-        : v
-    ));
-    toast({ title: "Variante atualizada!" });
-    setEditingVariant(null);
-    resetForm();
+
+    updateVariant.mutate({
+      id: editingVariant.id,
+      updates: {
+        name: formData.name,
+        text: formData.text,
+        campaignId: formData.campaignId
+      }
+    }, {
+      onSuccess: () => {
+        toast({ title: "Variante atualizada!" });
+        setEditingVariant(null);
+        resetForm();
+      }
+    });
   };
 
   const handleDelete = (id: string) => {
-    setVariants(variants.filter(v => v.id !== id));
-    toast({ title: "Variante excluída" });
-    setDeleteConfirm(null);
-  };
-
-  const simulateSend = (id: string) => {
-    setVariants(variants.map(v => {
-      if (v.id === id) {
-        const newSent = v.sent + 10;
-        const openRate = 0.2 + Math.random() * 0.3; // 20-50% open rate
-        const newOpened = v.opened + Math.round(10 * openRate);
-        return { ...v, sent: newSent, opened: newOpened };
+    deleteVariant.mutate(id, {
+      onSuccess: () => {
+        toast({ title: "Variante excluída" });
+        setDeleteConfirm(null);
       }
-      return v;
-    }));
-    toast({ title: "Envio simulado!", description: "10 mensagens enviadas" });
-    
-    // Check for winner after 100 sends
-    setTimeout(() => checkForWinner(), 100);
+    });
   };
 
-  const checkForWinner = () => {
-    const grouped = variants.reduce((acc, v) => {
-      if (!acc[v.campaignId]) acc[v.campaignId] = [];
-      acc[v.campaignId].push(v);
-      return acc;
-    }, {} as Record<string, MessageVariant[]>);
+  const simulateSend = (variant: MessageVariant) => {
+    const newSent = variant.sent + 10;
+    const openRate = 0.2 + Math.random() * 0.3; // 20-50% open rate
+    const newOpened = variant.opened + Math.round(10 * openRate);
 
-    Object.entries(grouped).forEach(([campaignId, campaignVariants]) => {
-      const allOver100 = campaignVariants.every(v => v.sent >= 100);
-      if (allOver100 && !campaignVariants.some(v => v.isWinner)) {
-        const best = campaignVariants.reduce((a, b) => 
-          (a.opened / a.sent) > (b.opened / b.sent) ? a : b
-        );
-        setVariants(prev => prev.map(v => 
-          v.id === best.id ? { ...v, isWinner: true } : v
-        ));
-        toast({ 
-          title: "Vencedor detectado!", 
-          description: `"${best.name}" tem a melhor taxa de abertura!` 
-        });
+    updateVariant.mutate({
+      id: variant.id,
+      updates: { sent: newSent, opened: newOpened }
+    }, {
+      onSuccess: () => {
+        toast({ title: "Envio simulado!", description: "10 mensagens enviadas" });
+        // Check for winner logic could be here or on backend
       }
     });
   };
@@ -134,11 +126,11 @@ export const ABTestPage = () => {
     setEditingVariant(variant);
   };
 
-  const getOpenRate = (variant: MessageVariant) => 
+  const getOpenRate = (variant: MessageVariant) =>
     variant.sent > 0 ? ((variant.opened / variant.sent) * 100).toFixed(1) : '0.0';
 
-  const getCampaignName = (campaignId: string) => 
-    mockCampaigns.find(c => c.id === campaignId)?.name || 'Campanha';
+  const getCampaignName = (campaignId: string) =>
+    campaigns.find(c => c.id === campaignId)?.name || 'Campanha';
 
   // Group variants by campaign
   const groupedVariants = variants.reduce((acc, v) => {
@@ -147,11 +139,22 @@ export const ABTestPage = () => {
     return acc;
   }, {} as Record<string, MessageVariant[]>);
 
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <Header title="Teste A/B" subtitle="Carregando..." />
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout>
-      <Header 
-        title="Teste A/B" 
-        subtitle="Teste diferentes versões de mensagens" 
+      <Header
+        title="Teste A/B"
+        subtitle="Teste diferentes versões de mensagens"
       />
 
       <div className="space-y-4 sm:space-y-6">
@@ -191,7 +194,7 @@ export const ABTestPage = () => {
                 <div>
                   <h4 className="font-medium text-sm">Como funciona</h4>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Crie variantes de mensagens para cada campanha. Após 100 envios por variante, 
+                    Crie variantes de mensagens para cada campanha. Após 100 envios por variante,
                     o sistema identifica automaticamente a versão com melhor taxa de abertura.
                   </p>
                 </div>
@@ -225,11 +228,10 @@ export const ABTestPage = () => {
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ delay: index * 0.05 }}
-                      className={`p-4 rounded-lg border ${
-                        variant.isWinner 
-                          ? 'bg-accent/10 border-accent/30' 
+                      className={`p-4 rounded-lg border ${variant.isWinner
+                          ? 'bg-accent/10 border-accent/30'
                           : 'bg-secondary/20 border-border/50'
-                      }`}
+                        }`}
                     >
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center gap-2">
@@ -242,17 +244,17 @@ export const ABTestPage = () => {
                           )}
                         </div>
                         <div className="flex gap-1">
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
+                          <Button
+                            variant="ghost"
+                            size="icon"
                             className="h-7 w-7"
                             onClick={() => openEditModal(variant)}
                           >
                             <Edit className="h-3 w-3" />
                           </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
+                          <Button
+                            variant="ghost"
+                            size="icon"
                             className="h-7 w-7 text-destructive"
                             onClick={() => setDeleteConfirm(variant.id)}
                           >
@@ -260,7 +262,7 @@ export const ABTestPage = () => {
                           </Button>
                         </div>
                       </div>
-                      
+
                       <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
                         {variant.text}
                       </p>
@@ -270,8 +272,8 @@ export const ABTestPage = () => {
                           <span className="text-muted-foreground">Taxa de Abertura</span>
                           <span className="font-semibold text-primary">{getOpenRate(variant)}%</span>
                         </div>
-                        <Progress 
-                          value={parseFloat(getOpenRate(variant))} 
+                        <Progress
+                          value={parseFloat(getOpenRate(variant))}
                           className="h-2"
                         />
                         <div className="grid grid-cols-2 gap-2 text-xs">
@@ -284,13 +286,14 @@ export const ABTestPage = () => {
                             <p className="font-semibold">{variant.opened}</p>
                           </div>
                         </div>
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
+                        <Button
+                          size="sm"
+                          variant="outline"
                           className="w-full"
-                          onClick={() => simulateSend(variant.id)}
+                          onClick={() => simulateSend(variant)}
+                          disabled={updateVariant.isPending}
                         >
-                          <Send className="h-3 w-3 mr-2" />
+                          {updateVariant.isPending ? <Loader2 className="h-3 w-3 animate-spin mr-2" /> : <Send className="h-3 w-3 mr-2" />}
                           Simular Envio (+10)
                         </Button>
                       </div>
@@ -307,7 +310,7 @@ export const ABTestPage = () => {
             <CardContent className="p-8 text-center">
               <TestTube2 className="h-12 w-12 mx-auto mb-3 text-muted-foreground opacity-50" />
               <p className="text-muted-foreground">Nenhuma variante criada ainda</p>
-              <Button className="mt-4" onClick={() => setIsCreateOpen(true)}>
+              <Button className="mt-4" onClick={() => { resetForm(); setIsCreateOpen(true); }}>
                 <Plus className="h-4 w-4 mr-2" />
                 Criar Primeira Variante
               </Button>
@@ -331,7 +334,7 @@ export const ABTestPage = () => {
                   <SelectValue placeholder="Selecione uma campanha" />
                 </SelectTrigger>
                 <SelectContent>
-                  {mockCampaigns.map(campaign => (
+                  {campaigns.map(campaign => (
                     <SelectItem key={campaign.id} value={campaign.id}>
                       {campaign.name}
                     </SelectItem>
@@ -341,7 +344,7 @@ export const ABTestPage = () => {
             </div>
             <div>
               <Label className="text-sm font-medium mb-2 block">Nome da Variante</Label>
-              <Input 
+              <Input
                 placeholder="Ex: Versão A - Formal"
                 className="bg-secondary/50"
                 value={formData.name}
@@ -350,7 +353,7 @@ export const ABTestPage = () => {
             </div>
             <div>
               <Label className="text-sm font-medium mb-2 block">Texto da Mensagem</Label>
-              <Textarea 
+              <Textarea
                 placeholder="Use {nome} para personalizar..."
                 className="bg-secondary/50 min-h-[100px]"
                 value={formData.text}
@@ -360,13 +363,16 @@ export const ABTestPage = () => {
           </div>
           <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 pt-4">
             <Button variant="outline" onClick={() => setIsCreateOpen(false)}>Cancelar</Button>
-            <Button onClick={handleCreate}>Criar Variante</Button>
+            <Button onClick={handleCreate} disabled={createVariant.isPending}>
+              {createVariant.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              Criar Variante
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* Edit Modal */}
-      <Dialog open={!!editingVariant} onOpenChange={(open) => { if (!open) { setEditingVariant(null); resetForm(); }}}>
+      <Dialog open={!!editingVariant} onOpenChange={(open) => { if (!open) { setEditingVariant(null); resetForm(); } }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Editar Variante</DialogTitle>
@@ -380,7 +386,7 @@ export const ABTestPage = () => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {mockCampaigns.map(campaign => (
+                  {campaigns.map(campaign => (
                     <SelectItem key={campaign.id} value={campaign.id}>
                       {campaign.name}
                     </SelectItem>
@@ -390,7 +396,7 @@ export const ABTestPage = () => {
             </div>
             <div>
               <Label className="text-sm font-medium mb-2 block">Nome da Variante</Label>
-              <Input 
+              <Input
                 className="bg-secondary/50"
                 value={formData.name}
                 onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
@@ -398,7 +404,7 @@ export const ABTestPage = () => {
             </div>
             <div>
               <Label className="text-sm font-medium mb-2 block">Texto da Mensagem</Label>
-              <Textarea 
+              <Textarea
                 className="bg-secondary/50 min-h-[100px]"
                 value={formData.text}
                 onChange={(e) => setFormData(prev => ({ ...prev, text: e.target.value }))}
@@ -407,7 +413,10 @@ export const ABTestPage = () => {
           </div>
           <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 pt-4">
             <Button variant="outline" onClick={() => setEditingVariant(null)}>Cancelar</Button>
-            <Button onClick={handleEdit}>Salvar Alterações</Button>
+            <Button onClick={handleEdit} disabled={updateVariant.isPending}>
+              {updateVariant.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              Salvar Alterações
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -421,7 +430,10 @@ export const ABTestPage = () => {
           </DialogHeader>
           <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2">
             <Button variant="outline" onClick={() => setDeleteConfirm(null)}>Cancelar</Button>
-            <Button variant="destructive" onClick={() => deleteConfirm && handleDelete(deleteConfirm)}>Excluir</Button>
+            <Button variant="destructive" onClick={() => deleteConfirm && handleDelete(deleteConfirm)} disabled={deleteVariant.isPending}>
+              {deleteVariant.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              Excluir
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { 
-  GripVertical, 
-  Phone, 
-  Mail, 
+import {
+  GripVertical,
+  Phone,
+  Mail,
   MessageCircle,
   Sparkles,
   Edit,
@@ -21,12 +21,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { useLeads, useUpdateLead, type Lead } from "@/hooks/useLeads";
-import { 
-  kanbanColumns, 
-  kanbanColumnLabels, 
+import {
+  kanbanColumns,
+  kanbanColumnLabels,
   kanbanColumnColors,
-  type KanbanColumn 
-} from "@/lib/mockData";
+  type KanbanColumn
+} from "@/lib/constants";
 
 const getScoreVariant = (score: number) => {
   if (score >= 80) return "score_high";
@@ -51,7 +51,7 @@ const aiKeywords: Record<string, KanbanColumn> = {
 export const KanbanPage = () => {
   const { data: leads = [], isLoading } = useLeads();
   const updateLead = useUpdateLead();
-  
+
   const [viewingLead, setViewingLead] = useState<Lead | null>(null);
   const [editingLead, setEditingLead] = useState<Lead | null>(null);
   const [aiInput, setAiInput] = useState("");
@@ -64,18 +64,18 @@ export const KanbanPage = () => {
     status: 'new' as KanbanColumn,
   });
 
-  const getLeadsByColumn = (column: KanbanColumn) => 
+  const getLeadsByColumn = (column: KanbanColumn) =>
     leads.filter(l => (l.status || 'new') === column);
 
   const moveLeadToColumn = (leadId: string, newColumn: KanbanColumn) => {
     const lead = leads.find(l => l.id === leadId);
     if (!lead) return;
-    
+
     updateLead.mutate({
       id: leadId,
       updates: { status: newColumn }
     });
-    
+
     toast({
       title: "Lead movido!",
       description: `${lead.name} → ${kanbanColumnLabels[newColumn]}`,
@@ -144,9 +144,9 @@ export const KanbanPage = () => {
 
   return (
     <DashboardLayout>
-      <Header 
-        title="Kanban AI" 
-        subtitle="Funil de vendas com movimentação inteligente" 
+      <Header
+        title="Kanban AI"
+        subtitle="Funil de vendas com movimentação inteligente"
       />
 
       <div className="space-y-4 sm:space-y-6">
@@ -176,8 +176,8 @@ export const KanbanPage = () => {
                         ))}
                       </SelectContent>
                     </Select>
-                    <Input 
-                      placeholder="Ex: 'Quero saber mais sobre o produto'" 
+                    <Input
+                      placeholder="Ex: 'Quero saber mais sobre o produto'"
                       className="bg-secondary/50 flex-1"
                       value={aiInput}
                       onChange={(e) => setAiInput(e.target.value)}
@@ -254,17 +254,17 @@ export const KanbanPage = () => {
                             )}
                           </div>
                           <div className="flex gap-1">
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
+                            <Button
+                              variant="ghost"
+                              size="icon"
                               className="h-6 w-6"
                               onClick={() => setViewingLead(lead)}
                             >
                               <Eye className="h-3 w-3" />
                             </Button>
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
+                            <Button
+                              variant="ghost"
+                              size="icon"
                               className="h-6 w-6"
                               onClick={() => openEditModal(lead)}
                             >
@@ -358,7 +358,7 @@ export const KanbanPage = () => {
           <div className="space-y-4">
             <div>
               <Label className="text-sm font-medium mb-2 block">Nome</Label>
-              <Input 
+              <Input
                 className="bg-secondary/50"
                 value={formData.name}
                 onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
@@ -366,7 +366,7 @@ export const KanbanPage = () => {
             </div>
             <div>
               <Label className="text-sm font-medium mb-2 block">Empresa</Label>
-              <Input 
+              <Input
                 className="bg-secondary/50"
                 value={formData.company}
                 onChange={(e) => setFormData(prev => ({ ...prev, company: e.target.value }))}

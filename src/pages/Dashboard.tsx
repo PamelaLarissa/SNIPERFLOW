@@ -3,26 +3,26 @@ import { Header } from "@/components/layout/Sidebar";
 import { StatsGrid } from "@/components/dashboard/StatsGrid";
 import { LeadsTable } from "@/components/dashboard/LeadsTable";
 import { CampaignsList } from "@/components/dashboard/CampaignsList";
-import { 
-  ScoreDistributionChart, 
-  LeadsTrendChart, 
-  LeadsBySourceChart 
+import {
+  ScoreDistributionChart,
+  LeadsTrendChart,
+  LeadsBySourceChart
 } from "@/components/dashboard/Charts";
-import { useStats, useScoreDistribution, useLeadsBySource } from "@/hooks/useStats";
+import { useStats, useScoreDistribution, useLeadsBySource, useLeadsTrend } from "@/hooks/useStats";
 import { useLeads } from "@/hooks/useLeads";
 import { useCampaigns } from "@/hooks/useCampaigns";
 import { useNavigate } from "react-router-dom";
-import { mockLeadsTrend } from "@/lib/mockData";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export const DashboardPage = () => {
   const navigate = useNavigate();
-  
+
   const { data: stats, isLoading: statsLoading } = useStats();
   const { data: leads, isLoading: leadsLoading } = useLeads();
   const { data: campaigns, isLoading: campaignsLoading } = useCampaigns();
   const { data: scoreDistribution } = useScoreDistribution();
   const { data: leadsBySource } = useLeadsBySource();
+  const { data: leadsTrend } = useLeadsTrend();
 
   if (statsLoading) {
     return (
@@ -39,9 +39,9 @@ export const DashboardPage = () => {
 
   return (
     <DashboardLayout>
-      <Header 
-        title="Dashboard" 
-        subtitle="Visão geral da sua prospecção automática" 
+      <Header
+        title="Dashboard"
+        subtitle="Visão geral da sua prospecção automática"
       />
 
       <div className="space-y-4 sm:space-y-6">
@@ -55,7 +55,7 @@ export const DashboardPage = () => {
 
         {/* Charts Row */}
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
-          <LeadsTrendChart data={mockLeadsTrend} />
+          <LeadsTrendChart data={leadsTrend ?? []} />
           <ScoreDistributionChart data={scoreDistribution ?? []} />
           <LeadsBySourceChart data={leadsBySource ?? []} />
         </div>
@@ -63,8 +63,8 @@ export const DashboardPage = () => {
         {/* Leads Table & Campaigns */}
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6">
           <div className="xl:col-span-2">
-            <LeadsTable 
-              leads={(leads ?? []).slice(0, 5)} 
+            <LeadsTable
+              leads={(leads ?? []).slice(0, 5)}
               onViewAll={() => navigate("/leads")}
             />
           </div>

@@ -13,6 +13,20 @@ import {
   Search,
   CheckCircle,
   Edit,
+  Mail,
+  Building2,
+  Code2,
+  BarChart3,
+  PenTool,
+  Bot,
+  Sparkles,
+  Globe,
+  Instagram as InstaIcon,
+  Search as SearchIcon,
+  MousePointer2,
+  Palette,
+  Workflow,
+  Layout,
 } from "lucide-react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Header } from "@/components/layout/Sidebar";
@@ -31,16 +45,27 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   AdvancedFilters,
   type AdvancedFiltersData,
   defaultAdvancedFilters,
+  availableTechnologies,
+  advancedSourcesList,
+  professionalPresets,
 } from "@/components/campaigns/AdvancedFilters";
+import { Slider } from "@/components/ui/slider";
 import { useCampaigns, useCreateCampaign, useUpdateCampaign, useDeleteCampaign, type Campaign } from "@/hooks/useCampaigns";
+import { useMessageVariants } from "@/hooks/useMessageVariants";
+import { useLeads } from "@/hooks/useLeads";
 
 const getStatusBadge = (status: Campaign['status']) => {
   switch (status) {
@@ -60,49 +85,97 @@ export const CampaignsPage = () => {
   const createCampaign = useCreateCampaign();
   const updateCampaign = useUpdateCampaign();
   const deleteCampaign = useDeleteCampaign();
-  
+
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingCampaign, setEditingCampaign] = useState<Campaign | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const [formData, setFormData] = useState({
+  const [campaignData, setCampaignData] = useState({
     name: "",
     niche: "",
     location: "",
-    sources: ["Google", "LinkedIn"] as string[],
     minScore: 50,
     verifiedOnly: false,
+    ...defaultAdvancedFilters,
+    sources: ["Google", "LinkedIn"] as string[],
   });
 
-  const [advancedFilters, setAdvancedFilters] = useState<AdvancedFiltersData>(
-    defaultAdvancedFilters,
-  );
-
+  const [isSendDialogOpen, setIsSendDialogOpen] = useState(false);
+  const [selectedCampaignForSend, setSelectedCampaignForSend] = useState<Campaign | null>(null);
+  const [selectedVariantId, setSelectedVariantId] = useState<string>("");
+  const { data: variants = [] } = useMessageVariants(selectedCampaignForSend?.id);
+  const { data: allLeads = [] } = useLeads();
   const { toast } = useToast();
 
+  const handleSendCampaign = (campaign: Campaign) => {
+    setSelectedCampaignForSend(campaign);
+    setIsSendDialogOpen(true);
+  };
+
+  const confirmSend = async () => {
+    if (!selectedCampaignForSend || !selectedVariantId) return;
+
+    const variant = variants.find(v => v.id === selectedVariantId);
+    if (!variant) return;
+
+    const campaignLeads = allLeads.filter(l => l.campaignId === selectedCampaignForSend.id);
+
+    if (campaignLeads.length === 0) {
+      toast({ title: "Sem Leads", description: "Esta campanha não possui leads para envio.", variant: "destructive" });
+      return;
+    }
+
+    toast({ title: "Iniciando Disparos", description: `Enviando para ${campaignLeads.length} leads...` });
+    setIsSendDialogOpen(false);
+
+    let successCount = 0;
+    for (const lead of campaignLeads) {
+      try {
+        const response = await fetch('http://localhost:3001/api/email/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            to: lead.email,
+            subject: variant.name || "Prospecção",
+            html: variant.text,
+            leadId: lead.id,
+            leadName: lead.name
+          })
+        });
+        if (response.ok) successCount++;
+      } catch (error) {
+        console.error('Failed to send email to', lead.email, error);
+      }
+    }
+
+    toast({
+      title: "Campanha Finalizada",
+      description: `${successCount} de ${campaignLeads.length} e-mails enviados com sucesso.`
+    });
+  };
+
   const resetForm = () => {
-    setFormData({
+    setCampaignData({
       name: "",
       niche: "",
       location: "",
       sources: ["Google", "LinkedIn"],
       minScore: 50,
       verifiedOnly: false,
+      ...defaultAdvancedFilters,
     });
-    setAdvancedFilters(defaultAdvancedFilters);
   };
 
   const handleCreateCampaign = () => {
     createCampaign.mutate({
-      name: formData.name || 'Nova Campanha',
-      niche: formData.niche || 'Não definido',
-      location: formData.location || 'Brasil',
+      name: campaignData.name || 'Nova Campanha',
+      niche: campaignData.niche || 'Não definido',
+      location: campaignData.location || 'Brasil',
       status: 'active',
-      sources: formData.sources,
+      sources: campaignData.sources,
       filters: {
-        minScore: formData.minScore,
-        verifiedOnly: formData.verifiedOnly,
+        ...campaignData,
       },
     });
     setIsCreateOpen(false);
@@ -111,17 +184,16 @@ export const CampaignsPage = () => {
 
   const handleEditCampaign = () => {
     if (!editingCampaign) return;
-    
+
     updateCampaign.mutate({
       id: editingCampaign.id,
       updates: {
-        name: formData.name || editingCampaign.name,
-        niche: formData.niche || editingCampaign.niche,
-        location: formData.location || editingCampaign.location,
-        sources: formData.sources,
+        name: campaignData.name || editingCampaign.name,
+        niche: campaignData.niche || editingCampaign.niche,
+        location: campaignData.location || editingCampaign.location,
+        sources: campaignData.sources,
         filters: {
-          minScore: formData.minScore,
-          verifiedOnly: formData.verifiedOnly,
+          ...campaignData,
         },
       }
     });
@@ -144,19 +216,20 @@ export const CampaignsPage = () => {
   };
 
   const openEditModal = (campaign: Campaign) => {
-    setFormData({
+    setCampaignData({
       name: campaign.name,
       niche: campaign.niche,
       location: campaign.location,
       sources: campaign.sources || [],
       minScore: campaign.filters?.minScore || 50,
       verifiedOnly: campaign.filters?.verifiedOnly || false,
+      ...(campaign.filters as unknown as AdvancedFiltersData || defaultAdvancedFilters),
     });
     setEditingCampaign(campaign);
   };
 
   const toggleSource = (source: string) => {
-    setFormData(prev => ({
+    setCampaignData(prev => ({
       ...prev,
       sources: prev.sources.includes(source)
         ? prev.sources.filter(s => s !== source)
@@ -168,6 +241,80 @@ export const CampaignsPage = () => {
     campaign.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     campaign.niche.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const calculateEstimate = () => {
+    let leadCount = 2500;
+
+    // Basic criteria reduction
+    leadCount -= (campaignData.sources.length * 50);
+    leadCount -= (campaignData.technologies.length * 100);
+    leadCount -= (campaignData.minScore * 15);
+
+    // Strategic Filters
+    if (campaignData.digitalPresence.adsStatus !== 'all') leadCount *= 0.65;
+    if (campaignData.digitalPresence.googleQuality !== 'all') leadCount *= 0.75;
+    if (campaignData.digitalPresence.instagramStatus !== 'all') leadCount *= 0.8;
+    if (campaignData.digitalPresence.pixelStatus !== 'all') leadCount *= 0.55;
+    if (campaignData.digitalPresence.siteTechnology !== 'all') leadCount *= 0.7;
+    if (campaignData.digitalPresence.presenceLevel !== 'all') leadCount *= 0.6;
+    if (campaignData.digitalPresence.infrastructureLevel !== 'all') leadCount *= 0.65;
+
+    // Pain Points
+    if (campaignData.painPoints.openComplaints) leadCount *= 0.4;
+    if (campaignData.painPoints.notMobile) leadCount *= 0.5;
+    if (campaignData.painPoints.noChatbot) leadCount *= 0.45;
+
+    // Business Intelligence Filters
+    if (campaignData.decisionMakerContact) leadCount *= 0.2; // Much harder but higher value
+    if (campaignData.onlyActiveStatus) leadCount *= 0.85;
+    if (campaignData.cnaes.length > 0) leadCount *= 0.4;
+
+    const leads = Math.max(12, Math.floor(leadCount));
+
+    // Revenue Estimation
+    const ticketSizes: Record<string, number> = {
+      agency: 5000,
+      dev: 3500,
+      traffic_manager: 2500,
+      web_designer: 3000,
+      copywriter: 1500,
+      automations: 6000,
+      websites: 2500,
+      ai_specialist: 8000
+    };
+
+    const currentTicket = campaignData.professionalProfile ? ticketSizes[campaignData.professionalProfile] : 2000;
+    const conversionRate = 0.02; // 2% conversion expectation
+    const revenue = leads * conversionRate * currentTicket;
+
+    return { leads, revenue };
+  };
+
+  const applyPreset = (profileId: string) => {
+    const preset = professionalPresets[profileId];
+    if (preset) {
+      setCampaignData(prev => ({
+        ...prev,
+        ...preset.filters,
+        professionalProfile: profileId as any,
+        // Preset specific sources
+        sources: profileId === 'dev' ? ['Google', 'Maps'] :
+          profileId === 'traffic_manager' ? ['Instagram', 'Facebook Pages'] :
+            profileId === 'copywriter' ? ['LinkedIn', 'Workana'] :
+              profileId === 'ai_specialist' ? ['GetNinjas', '99Freelas'] :
+                profileId === 'automations' ? ['Google', 'LinkedIn'] :
+                  profileId === 'web_designer' ? ['Maps', 'Instagram'] :
+                    profileId === 'websites' ? ['Google', 'Maps'] :
+                      ['Google', 'LinkedIn', 'Maps']
+      }));
+      toast({
+        title: "Preset Aplicado",
+        description: `Configurações otimizadas para: ${preset.label} (${preset.subLabel})`,
+      });
+    }
+  };
+
+  const { leads, revenue } = calculateEstimate();
 
   if (isLoading) {
     return (
@@ -182,9 +329,9 @@ export const CampaignsPage = () => {
 
   return (
     <DashboardLayout>
-      <Header 
-        title="Campanhas" 
-        subtitle="Gerencie suas campanhas de prospecção" 
+      <Header
+        title="Campanhas"
+        subtitle="Gerencie suas campanhas de prospecção"
       />
 
       <div className="space-y-4 sm:space-y-6">
@@ -210,225 +357,424 @@ export const CampaignsPage = () => {
                 Nova Campanha
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh]">
-              <DialogHeader>
-                <DialogTitle>Criar Nova Campanha</DialogTitle>
-                <DialogDescription>
-                  Configure os parâmetros da sua campanha de prospecção
-                </DialogDescription>
-              </DialogHeader>
+            <DialogContent className="max-w-5xl h-[90vh] max-h-[90vh] flex flex-col overflow-hidden p-0 gap-0">
+              <div className="flex h-full overflow-hidden">
+                {/* Left Side: Form Area */}
+                <div className="flex-1 flex flex-col border-r border-border/50 overflow-hidden">
+                  <DialogHeader className="p-6 pb-2 shrink-0">
+                    <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                      Configurar Míssil de Prospecção
+                    </DialogTitle>
+                    <DialogDescription>
+                      Defina os parâmetros para uma busca ultra-segmentada
+                    </DialogDescription>
+                  </DialogHeader>
 
-              <Tabs defaultValue="basic" className="w-full">
-                <TabsList className="w-full grid grid-cols-2">
-                  <TabsTrigger value="basic">Básico</TabsTrigger>
-                  <TabsTrigger value="advanced">Avançado</TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="basic">
-                  <ScrollArea className="max-h-[calc(90vh-240px)] pr-4">
-                    <div className="space-y-4">
-                      <div>
-                        <Label className="text-sm font-medium mb-2 block">Nome da Campanha</Label>
-                        <Input
-                          placeholder="Ex: Agências de Marketing SP"
-                          className="bg-secondary/50"
-                          value={formData.name}
-                          onChange={(e) =>
-                            setFormData((prev) => ({ ...prev, name: e.target.value }))
-                          }
-                        />
-                      </div>
-                      <div>
-                        <Label className="text-sm font-medium mb-2 block">Nicho/Segmento</Label>
-                        <Input
-                          placeholder="Ex: Agências de Marketing Digital"
-                          className="bg-secondary/50"
-                          value={formData.niche}
-                          onChange={(e) =>
-                            setFormData((prev) => ({ ...prev, niche: e.target.value }))
-                          }
-                        />
-                      </div>
-                      <div>
-                        <Label className="text-sm font-medium mb-2 block">Localização</Label>
-                        <Input
-                          placeholder="Ex: São Paulo, SP"
-                          className="bg-secondary/50"
-                          value={formData.location}
-                          onChange={(e) =>
-                            setFormData((prev) => ({
-                              ...prev,
-                              location: e.target.value,
-                            }))
-                          }
-                        />
-                      </div>
-                      <div>
-                        <Label className="text-sm font-medium mb-2 block">Fontes de Dados</Label>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                          {availableSources.map((source) => (
-                            <label
-                              key={source}
-                              className={`flex items-center gap-2 p-2 rounded-lg border cursor-pointer transition-all ${
-                                formData.sources.includes(source)
-                                  ? "border-primary bg-primary/10"
-                                  : "border-border hover:bg-secondary/50"
-                              }`}
+                  <ScrollArea className="flex-1 px-6">
+                    <div className="space-y-8 py-6">
+                      {/* Presets de Perfil Profissional */}
+                      <div className="space-y-3">
+                        <Label className="text-xs font-bold text-muted-foreground uppercase flex items-center gap-2">
+                          <Sparkles className="h-3 w-3 text-primary" />
+                          Selecione seu Perfil para Auto-Configurar
+                        </Label>
+                        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                          {[
+                            { id: 'agency', label: 'Agência', subLabel: 'Marketing', icon: Building2, color: 'text-blue-500' },
+                            { id: 'dev', label: 'Programador', subLabel: 'Sistemas', icon: Code2, color: 'text-emerald-500' },
+                            { id: 'traffic_manager', label: 'Tráfego', subLabel: 'Ads/ROI', icon: BarChart3, color: 'text-amber-500' },
+                            { id: 'web_designer', label: 'Designer', subLabel: 'UI/UX', icon: Palette, color: 'text-pink-500' },
+                            { id: 'copywriter', label: 'Copywriter', subLabel: 'Vendas', icon: PenTool, color: 'text-purple-500' },
+                            { id: 'automations', label: 'Automações', subLabel: 'CRM/API', icon: Workflow, color: 'text-cyan-500' },
+                            { id: 'websites', label: 'WebSites', subLabel: 'LP/Sites', icon: Layout, color: 'text-orange-500' },
+                            { id: 'ai_specialist', label: 'IA', subLabel: 'GPT/Bots', icon: Bot, color: 'text-rose-500' },
+                          ].map((profile) => (
+                            <Button
+                              key={profile.id}
+                              variant={campaignData.professionalProfile === profile.id ? "default" : "outline"}
+                              className={`h-auto py-3 px-1 flex flex-col gap-1.5 transition-all ${campaignData.professionalProfile === profile.id ? "ring-2 ring-primary ring-offset-2" : "hover:bg-secondary/50"}`}
+                              onClick={() => applyPreset(profile.id as any)}
                             >
-                              <input
-                                type="checkbox"
-                                checked={formData.sources.includes(source)}
-                                onChange={() => toggleSource(source)}
-                                className="rounded border-border"
-                              />
-                              <span className="text-sm">{source}</span>
-                            </label>
+                              <profile.icon className={`h-5 w-5 ${campaignData.professionalProfile === profile.id ? 'text-white' : profile.color}`} />
+                              <div className="flex flex-col">
+                                <span className="text-[10px] font-bold leading-none">{profile.label}</span>
+                                <span className="text-[8px] opacity-60 font-medium leading-tight mt-0.5">{profile.subLabel}</span>
+                              </div>
+                            </Button>
                           ))}
                         </div>
                       </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                          <Label className="text-sm font-medium mb-2 block">Score Mínimo</Label>
+
+                      {/* Section 1: Identidade e Origem */}
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-2 text-primary font-semibold">
+                          <Target className="h-5 w-5" />
+                          <span className="text-lg">Identidade e Origem</span>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label>Nome da Campanha</Label>
+                            <Input
+                              placeholder="Ex: Agências de Marketing SP"
+                              className="bg-secondary/20"
+                              value={campaignData.name}
+                              onChange={(e) => setCampaignData(prev => ({ ...prev, name: e.target.value }))}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Nicho/Segmento</Label>
+                            <Input
+                              placeholder="Ex: Agências de Marketing Digital"
+                              className="bg-secondary/20"
+                              value={campaignData.niche}
+                              onChange={(e) => setCampaignData(prev => ({ ...prev, niche: e.target.value }))}
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Localização</Label>
                           <Input
-                            type="number"
-                            min="0"
-                            max="100"
-                            className="bg-secondary/50"
-                            value={formData.minScore}
-                            onChange={(e) =>
-                              setFormData((prev) => ({
-                                ...prev,
-                                minScore: parseInt(e.target.value) || 0,
-                              }))
-                            }
+                            placeholder="Ex: São Paulo, SP"
+                            className="bg-secondary/20"
+                            value={campaignData.location}
+                            onChange={(e) => setCampaignData(prev => ({ ...prev, location: e.target.value }))}
                           />
                         </div>
-                        <div className="flex items-center justify-between p-3 rounded-lg border border-border">
-                          <Label className="text-sm font-medium">Apenas Verificados</Label>
-                          <Switch
-                            checked={formData.verifiedOnly}
-                            onCheckedChange={(checked) =>
-                              setFormData((prev) => ({ ...prev, verifiedOnly: checked }))
-                            }
-                          />
+
+                        <div className="space-y-3">
+                          <Label>Fontes de Dados (Foco no Alvo)</Label>
+                          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
+                            {[
+                              { name: 'Google', icon: Globe, color: 'text-blue-500' },
+                              { name: 'Maps', icon: MapPin, color: 'text-red-500' },
+                              { name: 'LinkedIn', icon: Globe, color: 'text-sky-600' },
+                              { name: 'Instagram', icon: InstaIcon, color: 'text-pink-500' },
+                              { name: 'Workana', icon: MousePointer2, color: 'text-emerald-500' },
+                              { name: '99Freelas', icon: MousePointer2, color: 'text-blue-400' },
+                              { name: 'GetNinjas', icon: MousePointer2, color: 'text-amber-500' },
+                              { name: 'ReclameAqui', icon: SearchIcon, color: 'text-green-600' },
+                            ].map((source) => (
+                              <button
+                                key={source.name}
+                                onClick={() => toggleSource(source.name)}
+                                className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all ${campaignData.sources.includes(source.name)
+                                  ? "border-primary bg-primary/10 ring-1 ring-primary"
+                                  : "border-border hover:bg-secondary/50"
+                                  }`}
+                              >
+                                <source.icon className={`h-6 w-6 ${campaignData.sources.includes(source.name) ? 'text-primary' : source.color}`} />
+                                <span className="text-[10px] font-medium">{source.name}</span>
+                              </button>
+                            ))}
+                          </div>
                         </div>
+                      </div>
+
+                      {/* Qualificação, Oportunidade e Configurações via AdvancedFilters */}
+                      <div className="space-y-4 pt-4 border-t border-border/50">
+                        <AdvancedFilters
+                          data={campaignData}
+                          onChange={(newData) => setCampaignData(prev => ({ ...prev, ...newData }))}
+                          selectedSources={campaignData.sources}
+                        />
                       </div>
                     </div>
                   </ScrollArea>
-                </TabsContent>
 
-                <TabsContent value="advanced">
-                  <ScrollArea className="max-h-[calc(90vh-240px)] pr-4">
-                    <AdvancedFilters data={advancedFilters} onChange={setAdvancedFilters} />
+                  <DialogFooter className="p-6 border-t border-border/50 shrink-0">
+                    <Button variant="outline" onClick={() => setIsCreateOpen(false)}>
+                      Cancelar
+                    </Button>
+                    <Button onClick={handleCreateCampaign} disabled={createCampaign.isPending} className="bg-primary hover:bg-primary/90">
+                      {createCampaign.isPending ? "Lançando..." : "Lançar Míssil"}
+                    </Button>
+                  </DialogFooter>
+                </div>
+
+                {/* Right Side: Preview Panel */}
+                <div className="hidden lg:flex w-80 bg-secondary/20 flex-col overflow-hidden">
+                  <div className="p-6 border-b border-border/50 shrink-0">
+                    <h4 className="font-bold flex items-center gap-2">
+                      <Play className="h-4 w-4 text-primary" />
+                      Live Preview
+                    </h4>
+                  </div>
+                  <ScrollArea className="flex-1 p-6">
+                    <div className="space-y-6">
+                      <div className="p-4 rounded-xl bg-primary/10 border border-primary/20 space-y-3">
+                        <div>
+                          <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Estimativa de Leads</p>
+                          <p className="text-3xl font-black text-primary">~{leads}</p>
+                        </div>
+                        <div className="pt-2 border-t border-primary/10">
+                          <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Faturamento Estimado</p>
+                          <p className="text-2xl font-black text-emerald-500">
+                            R$ {revenue.toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                          </p>
+                          <p className="text-[9px] text-muted-foreground">Expectativa baseada em 2% de conversão</p>
+                        </div>
+                        <p className="text-[10px] text-muted-foreground">Baseado nos filtros atuais em {campaignData.location || "Brasil"}</p>
+                      </div>
+
+                      <div className="space-y-3">
+                        <p className="text-xs font-bold text-muted-foreground uppercase">Resumo do Alvo</p>
+                        <div className="space-y-2">
+                          <div className="flex justify-between text-xs">
+                            <span className="text-muted-foreground">Nicho:</span>
+                            <span className="font-medium">{campaignData.niche || "Geral"}</span>
+                          </div>
+                          <div className="flex justify-between text-xs">
+                            <span className="text-muted-foreground">Fontes:</span>
+                            <span className="font-medium">{campaignData.sources.length} ativas</span>
+                          </div>
+                          <div className="flex justify-between text-xs">
+                            <span className="text-muted-foreground">Tecnologias:</span>
+                            <span className="font-medium">{campaignData.technologies.length} selecionadas</span>
+                          </div>
+                          <div className="flex justify-between text-xs">
+                            <span className="text-muted-foreground">Qualificação:</span>
+                            <span className="font-medium">{campaignData.minScore}%+</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="pt-4 space-y-2">
+                        <p className="text-[10px] leading-relaxed text-muted-foreground italic">
+                          "Este míssil varrerá as fontes selecionadas em busca de leads que atendam exatamente aos seus critérios de dor e qualificação."
+                        </p>
+                      </div>
+                    </div>
                   </ScrollArea>
-                </TabsContent>
-              </Tabs>
-
-              <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 pt-4">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setIsCreateOpen(false);
-                    resetForm();
-                  }}
-                >
-                  Cancelar
-                </Button>
-                <Button onClick={handleCreateCampaign} disabled={createCampaign.isPending}>
-                  {createCampaign.isPending ? "Criando..." : "Criar Campanha"}
-                </Button>
-              </DialogFooter>
+                </div>
+              </div>
             </DialogContent>
           </Dialog>
         </motion.div>
 
         {/* Edit Modal */}
         <Dialog open={!!editingCampaign} onOpenChange={(open) => { if (!open) { setEditingCampaign(null); resetForm(); } }}>
+          <DialogContent className="max-w-5xl h-[90vh] max-h-[90vh] flex flex-col overflow-hidden p-0 gap-0">
+            <div className="flex h-full overflow-hidden">
+              {/* Left Side: Form Area */}
+              <div className="flex-1 flex flex-col border-r border-border/50 overflow-hidden">
+                <DialogHeader className="p-6 pb-2 shrink-0">
+                  <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                    Editar Míssil de Prospecção
+                  </DialogTitle>
+                  <DialogDescription>Altere os parâmetros do alvo</DialogDescription>
+                </DialogHeader>
+                <ScrollArea className="flex-1 px-6">
+                  <div className="space-y-8 py-6">
+                    {/* Presets de Perfil Profissional */}
+                    <div className="space-y-3">
+                      <Label className="text-xs font-bold text-muted-foreground uppercase flex items-center gap-2">
+                        <Sparkles className="h-3 w-3 text-primary" />
+                        Selecione seu Perfil para Auto-Configurar
+                      </Label>
+                      <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                        {[
+                          { id: 'agency', label: 'Agência', icon: Building2, color: 'text-blue-500' },
+                          { id: 'dev', label: 'Web Dev', icon: Code2, color: 'text-emerald-500' },
+                          { id: 'traffic_manager', label: 'Gestor Tráfego', icon: BarChart3, color: 'text-amber-500' },
+                          { id: 'copywriter', label: 'Copywriter', icon: PenTool, color: 'text-purple-500' },
+                          { id: 'ai_specialist', label: 'Especia. IA', icon: Bot, color: 'text-rose-500' },
+                        ].map((profile) => (
+                          <Button
+                            key={profile.id}
+                            variant={campaignData.professionalProfile === profile.id ? "default" : "outline"}
+                            className={`h-auto py-3 px-2 flex flex-col gap-2 transition-all ${campaignData.professionalProfile === profile.id ? "ring-2 ring-primary ring-offset-2" : "hover:bg-secondary/50"}`}
+                            onClick={() => applyPreset(profile.id as any)}
+                          >
+                            <profile.icon className={`h-5 w-5 ${campaignData.professionalProfile === profile.id ? 'text-white' : profile.color}`} />
+                            <span className="text-[10px] font-bold">{profile.label}</span>
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Identidade e Origem */}
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-2 text-primary font-semibold">
+                        <Target className="h-5 w-5" />
+                        <span className="text-lg">Identidade e Origem</span>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label>Nome da Campanha</Label>
+                          <Input
+                            placeholder="Ex: Agências de Marketing SP"
+                            className="bg-secondary/20"
+                            value={campaignData.name}
+                            onChange={(e) => setCampaignData(prev => ({ ...prev, name: e.target.value }))}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Nicho/Segmento</Label>
+                          <Input
+                            placeholder="Ex: Agências de Marketing Digital"
+                            className="bg-secondary/20"
+                            value={campaignData.niche}
+                            onChange={(e) => setCampaignData(prev => ({ ...prev, niche: e.target.value }))}
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Localização</Label>
+                        <Input
+                          placeholder="Ex: São Paulo, SP"
+                          className="bg-secondary/20"
+                          value={campaignData.location}
+                          onChange={(e) => setCampaignData(prev => ({ ...prev, location: e.target.value }))}
+                        />
+                      </div>
+
+                      <div className="space-y-3">
+                        <Label>Fontes de Dados (Foco no Alvo)</Label>
+                        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
+                          {[
+                            { name: 'Google', icon: Globe, color: 'text-blue-500' },
+                            { name: 'Maps', icon: MapPin, color: 'text-red-500' },
+                            { name: 'LinkedIn', icon: Globe, color: 'text-sky-600' },
+                            { name: 'Instagram', icon: InstaIcon, color: 'text-pink-500' },
+                            { name: 'Workana', icon: MousePointer2, color: 'text-emerald-500' },
+                            { name: '99Freelas', icon: MousePointer2, color: 'text-blue-400' },
+                            { name: 'GetNinjas', icon: MousePointer2, color: 'text-amber-500' },
+                            { name: 'ReclameAqui', icon: SearchIcon, color: 'text-green-600' },
+                          ].map((source) => (
+                            <button
+                              key={source.name}
+                              onClick={() => toggleSource(source.name)}
+                              className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all ${campaignData.sources.includes(source.name)
+                                ? "border-primary bg-primary/10 ring-1 ring-primary"
+                                : "border-border hover:bg-secondary/50"
+                                }`}
+                            >
+                              <source.icon className={`h-6 w-6 ${campaignData.sources.includes(source.name) ? 'text-primary' : source.color}`} />
+                              <span className="text-[10px] font-medium">{source.name}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Qualificação, Oportunidade e Configurações via AdvancedFilters */}
+                    <div className="space-y-4 pt-4 border-t border-border/50">
+                      <AdvancedFilters
+                        data={campaignData}
+                        onChange={(newData) => setCampaignData(prev => ({ ...prev, ...newData }))}
+                        selectedSources={campaignData.sources}
+                      />
+                    </div>
+                  </div>
+                </ScrollArea>
+
+                <DialogFooter className="p-6 border-t border-border/50 shrink-0">
+                  <Button variant="outline" onClick={() => setEditingCampaign(null)}>
+                    Cancelar
+                  </Button>
+                  <Button onClick={handleEditCampaign} disabled={updateCampaign.isPending} className="bg-primary hover:bg-primary/90">
+                    {updateCampaign.isPending ? "Salvando..." : "Salvar Alterações"}
+                  </Button>
+                </DialogFooter>
+              </div>
+
+              {/* Right Side: Preview Panel */}
+              <div className="hidden lg:flex w-80 bg-secondary/20 flex-col overflow-hidden">
+                <div className="p-6 border-b border-border/50 shrink-0">
+                  <h4 className="font-bold flex items-center gap-2">
+                    <Play className="h-4 w-4 text-primary" />
+                    Live Preview
+                  </h4>
+                </div>
+                <ScrollArea className="flex-1 p-6">
+                  <div className="space-y-6">
+                    <div className="p-4 rounded-xl bg-primary/10 border border-primary/20 space-y-3">
+                      <div>
+                        <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Estimativa de Leads</p>
+                        <p className="text-3xl font-black text-primary">~{leads}</p>
+                      </div>
+                      <div className="pt-2 border-t border-primary/10">
+                        <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Faturamento Estimado</p>
+                        <p className="text-2xl font-black text-emerald-500">
+                          R$ {revenue.toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                        </p>
+                        <p className="text-[9px] text-muted-foreground">Expectativa baseada em 2% de conversão</p>
+                      </div>
+                      <p className="text-[10px] text-muted-foreground">Baseado nos filtros atuais em {campaignData.location || "Brasil"}</p>
+                    </div>
+
+                    <div className="space-y-3">
+                      <p className="text-xs font-bold text-muted-foreground uppercase">Resumo do Alvo</p>
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-xs">
+                          <span className="text-muted-foreground">Nicho:</span>
+                          <span className="font-medium">{campaignData.niche || "Geral"}</span>
+                        </div>
+                        <div className="flex justify-between text-xs">
+                          <span className="text-muted-foreground">Fontes:</span>
+                          <span className="font-medium">{campaignData.sources.length} ativas</span>
+                        </div>
+                        <div className="flex justify-between text-xs">
+                          <span className="text-muted-foreground">Tecnologias:</span>
+                          <span className="font-medium">{campaignData.technologies.length} selecionadas</span>
+                        </div>
+                        <div className="flex justify-between text-xs">
+                          <span className="text-muted-foreground">Qualificação:</span>
+                          <span className="font-medium">{campaignData.minScore}%+</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pt-4 space-y-2">
+                      <p className="text-[10px] leading-relaxed text-muted-foreground italic">
+                        "Este míssil varrerá as fontes selecionadas em busca de leads que atendam exatamente aos seus critérios de dor e qualificação."
+                      </p>
+                    </div>
+                  </div>
+                </ScrollArea>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Send Campaign Dialog */}
+        <Dialog open={isSendDialogOpen} onOpenChange={setIsSendDialogOpen}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Editar Campanha</DialogTitle>
-              <DialogDescription>Altere os parâmetros da campanha</DialogDescription>
+              <DialogTitle>Disparar Campanha</DialogTitle>
+              <DialogDescription>
+                Selecione uma variante de mensagem para enviar aos leads da campanha <strong>{selectedCampaignForSend?.name}</strong>.
+              </DialogDescription>
             </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <Label className="text-sm font-medium mb-2 block">Nome da Campanha</Label>
-                <Input 
-                  placeholder="Ex: Agências de Marketing SP" 
-                  className="bg-secondary/50"
-                  value={formData.name}
-                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                />
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label>Variante de Mensagem</Label>
+                <Select value={selectedVariantId} onValueChange={setSelectedVariantId}>
+                  <SelectTrigger className="bg-secondary/50">
+                    <SelectValue placeholder="Selecione uma variante..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {variants.map(variant => (
+                      <SelectItem key={variant.id} value={variant.id}>
+                        {variant.name} {variant.isWinner && "(Vencedora ⭐)"}
+                      </SelectItem>
+                    ))}
+                    {variants.length === 0 && (
+                      <SelectItem value="none" disabled>Nenhuma variante encontrada</SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  As variantes são gerenciadas na página de <strong>Teste A/B</strong>.
+                </p>
               </div>
-              <div>
-                <Label className="text-sm font-medium mb-2 block">Nicho/Segmento</Label>
-                <Input 
-                  placeholder="Ex: Agências de Marketing Digital" 
-                  className="bg-secondary/50"
-                  value={formData.niche}
-                  onChange={(e) => setFormData(prev => ({ ...prev, niche: e.target.value }))}
-                />
-              </div>
-              <div>
-                <Label className="text-sm font-medium mb-2 block">Localização</Label>
-                <Input 
-                  placeholder="Ex: São Paulo, SP" 
-                  className="bg-secondary/50"
-                  value={formData.location}
-                  onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
-                />
-              </div>
-              <div>
-                <Label className="text-sm font-medium mb-2 block">Fontes de Dados</Label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  {availableSources.map(source => (
-                    <label 
-                      key={source} 
-                      className={`flex items-center gap-2 p-2 rounded-lg border cursor-pointer transition-all ${
-                        formData.sources.includes(source) 
-                          ? 'border-primary bg-primary/10' 
-                          : 'border-border hover:bg-secondary/50'
-                      }`}
-                    >
-                      <input 
-                        type="checkbox" 
-                        checked={formData.sources.includes(source)}
-                        onChange={() => toggleSource(source)}
-                        className="rounded border-border"
-                      />
-                      <span className="text-sm">{source}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-sm font-medium mb-2 block">Score Mínimo</Label>
-                  <Input 
-                    type="number" 
-                    min="0" 
-                    max="100"
-                    className="bg-secondary/50"
-                    value={formData.minScore}
-                    onChange={(e) => setFormData(prev => ({ ...prev, minScore: parseInt(e.target.value) || 0 }))}
-                  />
-                </div>
-                <div className="flex items-center justify-between p-3 rounded-lg border border-border">
-                  <Label className="text-sm font-medium">Apenas Verificados</Label>
-                  <Switch 
-                    checked={formData.verifiedOnly}
-                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, verifiedOnly: checked }))}
-                  />
-                </div>
-              </div>
-              <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 pt-4">
-                <Button variant="outline" onClick={() => { setEditingCampaign(null); resetForm(); }}>
-                  Cancelar
-                </Button>
-                <Button onClick={handleEditCampaign} disabled={updateCampaign.isPending}>
-                  {updateCampaign.isPending ? "Salvando..." : "Salvar Alterações"}
-                </Button>
-              </DialogFooter>
             </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsSendDialogOpen(false)}>Cancelar</Button>
+              <Button onClick={confirmSend} disabled={!selectedVariantId || selectedVariantId === "none"}>
+                Confirmar e Enviar
+              </Button>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
 
@@ -544,8 +890,8 @@ export const CampaignsPage = () => {
                   </div>
 
                   <div className="flex border-t border-border/50 divide-x divide-border/50">
-                    <Button 
-                      variant="ghost" 
+                    <Button
+                      variant="ghost"
                       className="flex-1 rounded-none h-10 sm:h-12 text-xs sm:text-sm"
                       onClick={() => toggleCampaignStatus(campaign)}
                     >
@@ -561,21 +907,29 @@ export const CampaignsPage = () => {
                         </>
                       )}
                     </Button>
-                    <Button 
-                      variant="ghost" 
+                    <Button
+                      variant="ghost"
                       className="flex-1 rounded-none h-10 sm:h-12 text-xs sm:text-sm"
                       onClick={() => openEditModal(campaign)}
                     >
                       <Edit className="h-4 w-4 mr-1.5" />
                       Editar
                     </Button>
-                    <Button 
-                      variant="ghost" 
+                    <Button
+                      variant="ghost"
                       className="flex-1 rounded-none h-10 sm:h-12 text-destructive hover:text-destructive text-xs sm:text-sm"
                       onClick={() => setDeleteConfirm(campaign.id)}
                     >
                       <Trash2 className="h-4 w-4 mr-1.5" />
                       Excluir
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="flex-1 rounded-none h-10 sm:h-12 text-xs sm:text-sm"
+                      onClick={() => handleSendCampaign(campaign)}
+                    >
+                      <Mail className="h-4 w-4 mr-1.5" />
+                      Enviar
                     </Button>
                   </div>
                 </CardContent>

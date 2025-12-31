@@ -12,7 +12,8 @@ import { SchedulesPage } from "./pages/Schedules";
 import { KanbanPage } from "./pages/Kanban";
 import { ProposalsPage } from "./pages/Proposals";
 import { ABTestPage } from "./pages/ABTest";
-import { WhatsAppPage } from "./pages/WhatsApp";
+import { EmailLogsPage } from "./pages/EmailLogs";
+import { LeadDetailsPage } from "./pages/LeadDetails";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -33,7 +34,8 @@ const App = () => (
           <Route path="/kanban" element={<KanbanPage />} />
           <Route path="/proposals" element={<ProposalsPage />} />
           <Route path="/ab-test" element={<ABTestPage />} />
-          <Route path="/whatsapp" element={<WhatsAppPage />} />
+          <Route path="/email-logs" element={<EmailLogsPage />} />
+          <Route path="/leads/:id" element={<LeadDetailsPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
