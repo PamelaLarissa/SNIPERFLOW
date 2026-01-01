@@ -34,10 +34,23 @@ import {
   X,
   Gauge,
   Layers,
-  Globe2
+  Globe2,
+  Database,
+  Utensils,
+  GraduationCap,
+  Car,
+  Home,
+  ShoppingBag,
+  Stethoscope,
+  Scale,
+  Scissors,
+  Factory,
+  Truck,
+  Camera
 } from "lucide-react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Header } from "@/components/layout/Sidebar";
+import { citiesList } from "@/data/brazilCities";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -89,15 +102,15 @@ const detailedSources = [
 ];
 
 const profileNiches: Record<string, string[]> = {
-  agency: ['E-commerce de Moda', 'Clínicas de Estética', 'Imobiliárias', 'Academias'],
-  dev: ['Startups SaaS', 'Fintechs', 'Logística', 'E-commerces Grandes'],
-  traffic_manager: ['Info-produtos', 'Dropshipping', 'Negócios Locais', 'Delivery'],
-  web_designer: ['Advogados', 'Arquitetos', 'Psicólogos', 'Consultórios'],
-  copywriter: ['Lançamentos', 'E-mail Marketing', 'Páginas de Vendas', 'Blogs'],
-  automations: ['Call Centers', 'Financeiras', 'Atendimento', 'Sistemas'],
-  websites: ['Profissionais', 'Pequenos Negócios', 'Prestadores', 'Lojas'],
-  ai_specialist: ['Tech Companies', 'Startups', 'Data Science', 'Content'],
-  consulting: ['Gestão Empresarial', 'Recursos Humanos', 'Financeiro', 'Processos']
+  agency: ['Contas High-Ticket', 'Dominação Local', 'Gestão de Crise', 'Projetos White Label'],
+  dev: ['Sistemas Legados', 'Falhas de Segurança', 'Integração de APIs', 'Apps & Dashboards'],
+  traffic_manager: ['Abandono de Pixel', 'Criação de Anúncios', 'Concorrência Agressiva', 'Escala B2B'],
+  web_designer: ['Retrofit Digital', 'Identidade Visual', 'Design de Ofertas', 'Social Media Aesthetic'],
+  copywriter: ['Quebra de Objeção', 'Funis de vendas', 'VSL & Vídeo Sales', 'Scripts de Prospecção'],
+  automations: ['Triagem de WhatsApp', 'Recuperação de Carrinho', 'Sincronização de CRM', 'Workflow de Vendas'],
+  websites: ['Oceano Azul (Sem Site)', 'Migração de Plataforma', 'Otimização de SEO', 'E-commerce'],
+  ai_specialist: ['Atendimento 24/7', 'Agentes Analistas', 'Fluxos Cognitivos', 'Automação de Conteúdo'],
+  consulting: ['Eficiência Financeira', 'Expansão de Mercado', 'Recrutamento Ativo', 'Planejamento 360º']
 };
 
 // --- DATA FOR SMART RADAR ---
@@ -108,10 +121,18 @@ const maturityLevels = [
 ];
 
 const ecosystems = [
-  { id: 'health', label: 'Saúde e Bem-estar', niches: ['Clínicas', 'Academias', 'Nutricionistas', 'Psicólogos', 'Dentistas'] },
-  { id: 'pro_services', label: 'Serviços Profissionais', niches: ['Advogados', 'Contadores', 'Consultores', 'Arquitetos', 'Engenheiros'] },
-  { id: 'retail', label: 'Varejo Local', niches: ['Restaurantes', 'Pet Shops', 'Lojas de Roupa', 'Mercados', 'Farmácias'] },
-  { id: 'auto', label: 'Automotivo', niches: ['Oficinas', 'Concessionárias', 'Lava-rápidos', 'Auto peças'] },
+  { id: 'health', label: 'Saúde e Bem-estar (Health)', icon: Stethoscope, niches: ['Clínicas Médicas', 'Clínicas de Estética', 'Dentistas', 'Nutricionistas', 'Psicólogos', 'Farmácias', 'Laboratórios', 'Fisioterapeutas'] },
+  { id: 'legal', label: 'Jurídico e Financeiro', icon: Scale, niches: ['Escritórios de Advocacia', 'Contabilidade', 'Consultoria Financeira', 'Corretoras de Seguros', 'Cartórios', 'Peritos', 'Despachantes'] },
+  { id: 'retail', label: 'Varejo Local', icon: ShoppingBag, niches: ['Pet Shops', 'Lojas de Roupas', 'Floriculturas', 'Supermercados', 'Óticas', 'Joalherias', 'Lojas de Calçados', 'Materiais de Construção'] },
+  { id: 'food', label: 'Gastronomia (Food Service)', icon: Utensils, niches: ['Restaurantes', 'Hamburguerias', 'Pizzarias', 'Padarias', 'Bares', 'Cafeterias', 'Buffets', 'Delivery'] },
+  { id: 'auto', label: 'Automotivo', icon: Car, niches: ['Oficinas Mecânicas', 'Concessionárias', 'Lojas de Pneus', 'Estética Automotiva', 'Auto Peças', 'Locadoras de Veículos', 'Blindadoras'] },
+  { id: 'real_estate', label: 'Imobiliário e Casa', icon: Home, niches: ['Imobiliárias', 'Construtoras', 'Arquitetos', 'Lojas de Móveis', 'Energia Solar', 'Marcenarias', 'Decoradores', 'Administradoras de Condomínios'] },
+  { id: 'education', label: 'Educação e Ensino', icon: GraduationCap, niches: ['Escolas Particulares', 'Escolas de Idiomas', 'Faculdades', 'Cursos Profissionalizantes', 'Treinamentos Corporativos', 'Escolas de Música'] },
+  { id: 'beauty', label: 'Beleza e Serviços', icon: Scissors, niches: ['Salões de Beleza', 'Barbearias', 'Spas', 'Estúdios de Tatuagem', 'Clínicas de Depilação', 'Manicures', 'Design de Sobrancelhas'] },
+  { id: 'b2b', label: 'Indústria e B2B', icon: Factory, niches: ['Indústrias', 'Atacadistas', 'Distribuidores', 'Fábricas de Móveis', 'Fábricas de Roupas', 'Usinas', 'Metalúrgicas'] },
+  { id: 'tech', label: 'Tecnologia e Startups', icon: Code2, niches: ['Software Houses', 'Startups', 'Agências de Marketing', 'Provedores de Internet', 'Consultoria de TI', 'Data Centers'] },
+  { id: 'logistics', label: 'Logística e Transportes', icon: Truck, niches: ['Transportadoras', 'Empresas de Mudança', 'Logística Reversa', 'Entregas Rápidas', 'Armazéns'] },
+  { id: 'events', label: 'Eventos e Turismo', icon: Camera, niches: ['Agências de Turismo', 'Casas de Festas', 'Organizadores de Eventos', 'Hotéis e Pousadas', 'Fotógrafos', 'Produtoras de Vídeo'] },
 ];
 
 const maturitySuggestions = {
@@ -122,11 +143,8 @@ const maturitySuggestions = {
 
 // Mock data for Location Autocomplete
 // Initial static data as fallback, will be populated by API
-const [brazilLocations, setBrazilLocations] = useState<string[]>([
-  "São Paulo, SP", "Rio de Janeiro, RJ", "Belo Horizonte, MG", "Brasília, DF",
-  "Curitiba, PR", "Porto Alegre, RS", "Salvador, BA", "Fortaleza, CE",
-  "Recife, PE", "Goiânia, GO"
-]);
+// Initial empty array, to be populated by API inside component
+// const brazilLocations is removed from here to be state inside component
 
 const allNiches = [
   ...new Set([
@@ -142,16 +160,30 @@ export const CampaignsPage = () => {
   const updateCampaign = useUpdateCampaign();
   const deleteCampaign = useDeleteCampaign();
 
-  // Load IBGE Locations
+  // --- IBGE LOCATIONS STATE ---
+  // Initialize with local comprehensive list
+  const [brazilLocations, setBrazilLocations] = useState<string[]>(citiesList);
+
+  // Load IBGE Locations (Update/Hydrate)
   useEffect(() => {
     fetch('https://servicodados.ibge.gov.br/api/v1/localidades/municipios')
       .then(res => res.json())
       .then(data => {
         const locations = data.map((city: any) => `${city.nome}, ${city.microrregiao.mesorregiao.UF.sigla}`);
-        setBrazilLocations(locations.sort());
+        // Merge with local list to ensure no duplicates but maximize coverage
+        // Using Set to deduplicate
+        setBrazilLocations(prev => {
+          const combined = new Set([...prev, ...locations]);
+          return Array.from(combined).sort();
+        });
       })
-      .catch(err => console.error("Failed to load IBGE data", err));
+      .catch(err => {
+        console.error("Failed to load IBGE data, using local fallback", err);
+        // Fallback is already set, no action needed
+      });
   }, []);
+
+
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingCampaign, setEditingCampaign] = useState<Campaign | null>(null);
@@ -163,7 +195,7 @@ export const CampaignsPage = () => {
   const [locationRadius, setLocationRadius] = useState([0]); // 0 = Exact
   const [nicheTags, setNicheTags] = useState<string[]>([]);
   const [nicheInput, setNicheInput] = useState("");
-  const [maturityLevel, setMaturityLevel] = useState<string>('scale');
+  const [maturityLevel, setMaturityLevel] = useState<string[]>(['scale']);
 
   // Autocomplete States
   const [showLocationSuggestions, setShowLocationSuggestions] = useState(false);
@@ -249,7 +281,7 @@ export const CampaignsPage = () => {
     setNicheInput("");
     setLocationScope('local');
     setLocationRadius([0]);
-    setMaturityLevel('scale');
+    setMaturityLevel(['scale']);
   };
 
   const handleCreateCampaign = () => {
@@ -269,7 +301,7 @@ export const CampaignsPage = () => {
         ...campaignData,
         niche: computedNiche, // Ensure consistency
         location: computedLocation
-      },
+      } as any,
     });
     setIsCreateOpen(false);
     resetForm();
@@ -383,7 +415,7 @@ export const CampaignsPage = () => {
       searchRadius: mode === 'blitz' ? 100 : 15,
       // Reset or set strict filters could go here
     }));
-    toast({ title: `Modo ${mode === 'blitz' ? 'BLITZ' : 'SNIPER'} Ativado`, description: mode === 'blitz' ? 'Alcance máximo, filtros abertos.' : 'Precisão cirúrgica, raio curto.' });
+    // Toast removed as requested
   };
 
   // --- SMART NICHE HANDLERS ---
@@ -433,27 +465,57 @@ export const CampaignsPage = () => {
     setShowLocationSuggestions(false);
   };
 
-  const filteredLocations = campaignData.location
+  const filteredLocations = campaignData.location && brazilLocations
     ? brazilLocations.filter(l => normalizeText(l).includes(normalizeText(campaignData.location))).slice(0, 50)
-    : brazilLocations.slice(0, 10);
+    : (brazilLocations || []).slice(0, 10);
 
   const filteredNicheSuggestions = nicheInput
     ? allNiches.filter(n => normalizeText(n).includes(normalizeText(nicheInput)) && !nicheTags.includes(n)).slice(0, 10)
     : allNiches.filter(n => !nicheTags.includes(n)).slice(0, 10);
 
-  // Compute suggestions based on Maturity + Profiles
-  const getSmartSuggestions = () => {
-    let suggestions = new Set<string>();
+  // --- GROUPED SUGGESTIONS ENGINE ---
+  const getGroupedSuggestions = () => {
+    const groups: { label: string; icon: any; items: string[] }[] = [];
 
-    // Add maturity based suggestions
-    (maturitySuggestions[maturityLevel as keyof typeof maturitySuggestions] || []).forEach(s => suggestions.add(s));
-
-    // Add profile based suggestions
-    campaignData.professionalProfiles.forEach(p => {
-      (profileNiches[p] || []).forEach(s => suggestions.add(s));
+    // 1. Maturity Groups
+    (maturityLevel || []).forEach(level => {
+      const items = maturitySuggestions[level as keyof typeof maturitySuggestions] || [];
+      if (items.length > 0) {
+        const info = maturityLevels.find(m => m.id === level);
+        groups.push({
+          label: `Para ${info?.label || 'Maturidade'}`,
+          icon: info?.icon || BarChart3,
+          items
+        });
+      }
     });
 
-    return Array.from(suggestions).slice(0, 10); // Limit to 10
+    // 2. Profile Groups
+    campaignData.professionalProfiles.forEach(p => {
+      const items = profileNiches[p] || [];
+      if (items.length > 0) {
+        // Find profile info to get label/icon
+        const profileInfo = [
+          { id: 'agency', label: 'Agência', icon: Building2 },
+          { id: 'dev', label: 'Programador', icon: Code2 },
+          { id: 'traffic_manager', label: 'Tráfego', icon: BarChart3 },
+          { id: 'web_designer', label: 'Designer', icon: Palette },
+          { id: 'copywriter', label: 'Copywriter', icon: PenTool },
+          { id: 'automations', label: 'Automações', icon: Workflow },
+          { id: 'websites', label: 'WebSites', icon: Layout },
+          { id: 'ai_specialist', label: 'IA Specialist', icon: Bot },
+          { id: 'consulting', label: 'Consultoria', icon: Briefcase },
+        ].find(pi => pi.id === p);
+
+        groups.push({
+          label: `Específico para ${profileInfo?.label || 'Perfil'}`,
+          icon: profileInfo?.icon || Briefcase,
+          items
+        });
+      }
+    });
+
+    return groups;
   };
 
   if (isLoading) {
@@ -518,21 +580,23 @@ export const CampaignsPage = () => {
                         <div className="flex items-center gap-2 text-primary font-semibold border-b pb-2">
                           <Target className="h-5 w-5" />
                           <span className="text-lg">Radar (Alvo)</span>
+                          {/* Force Update */}
                         </div>
 
-                        {/* CAMPAIGN NAME */}
-                        <div className="space-y-2">
-                          <Label>Nome da Campanha</Label>
-                          <Input
-                            placeholder="Ex: Prospecção Agências"
-                            className="bg-secondary/20"
-                            value={campaignData.name}
-                            onChange={(e) => setCampaignData(prev => ({ ...prev, name: e.target.value }))}
-                          />
-                        </div>
 
-                        {/* LOCATION */}
-                        <div className="space-y-3 p-4 border rounded-xl bg-secondary/10">
+
+                        {/* LOCATION & NAME CARD */}
+                        <div className="space-y-4 p-4 border rounded-xl bg-secondary/10">
+                          {/* CAMPAIGN NAME */}
+                          <div className="space-y-2">
+                            <Label>Nome da Campanha</Label>
+                            <Input
+                              placeholder="Ex: Prospecção Agências"
+                              className="bg-secondary/20 bg-background"
+                              value={campaignData.name}
+                              onChange={(e) => setCampaignData(prev => ({ ...prev, name: e.target.value }))}
+                            />
+                          </div>
                           <div className="flex items-center justify-between">
                             <Label className="flex items-center gap-2">
                               <MapPin className="h-4 w-4 text-primary" />
@@ -619,22 +683,24 @@ export const CampaignsPage = () => {
                         </div>
 
                         {/* CALIBRATION PROFILES - MOVED UP */}
-                        <div className="space-y-3 pt-2">
-                          <Label className="text-sm font-bold text-muted-foreground uppercase flex items-center gap-2">
+
+                        {/* CALIBRATION PROFILES CARD */}
+                        <div className="space-y-4 p-4 border rounded-xl bg-secondary/10">
+                          <Label className="text-sm font-bold text-muted-foreground uppercase flex items-center gap-2 mb-2">
                             <Sparkles className="h-4 w-4 text-primary" />
                             Perfis para Calibração
                           </Label>
                           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                             {[
-                              { id: 'agency', label: 'Agência', icon: Building2, color: 'text-blue-500' },
-                              { id: 'dev', label: 'Programador', icon: Code2, color: 'text-emerald-500' },
-                              { id: 'traffic_manager', label: 'Tráfego', icon: BarChart3, color: 'text-amber-500' },
-                              { id: 'web_designer', label: 'Designer', icon: Palette, color: 'text-pink-500' },
-                              { id: 'copywriter', label: 'Copywriter', icon: PenTool, color: 'text-purple-500' },
-                              { id: 'automations', label: 'Automações', icon: Workflow, color: 'text-cyan-500' },
-                              { id: 'websites', label: 'WebSites', icon: Layout, color: 'text-orange-500' },
-                              { id: 'ai_specialist', label: 'IA', icon: Bot, color: 'text-rose-500' },
-                              { id: 'consulting', label: 'Consultoria', icon: Briefcase, color: 'text-slate-500' },
+                              { id: 'agency', label: 'Agência', sub: 'Foco: Escala e Gestão', icon: Building2, color: 'text-blue-500' },
+                              { id: 'dev', label: 'Programador', sub: 'Foco: Infra e Performance', icon: Code2, color: 'text-emerald-500' },
+                              { id: 'traffic_manager', label: 'Tráfego', sub: 'Foco: Ads e ROI', icon: BarChart3, color: 'text-amber-500' },
+                              { id: 'web_designer', label: 'Designer', sub: 'Foco: UI/UX e Visual', icon: Palette, color: 'text-pink-500' },
+                              { id: 'copywriter', label: 'Copywriter', sub: 'Foco: Vendas e Narrativa', icon: PenTool, color: 'text-purple-500' },
+                              { id: 'automations', label: 'Automações', sub: 'Foco: CRM e Processos', icon: Workflow, color: 'text-cyan-500' },
+                              { id: 'websites', label: 'WebSites', sub: 'Foco: Presença Digital', icon: Layout, color: 'text-orange-500' },
+                              { id: 'ai_specialist', label: 'IA Specialist', sub: 'Foco: Bots e Dados', icon: Bot, color: 'text-rose-500' },
+                              { id: 'consulting', label: 'Consultoria', sub: 'Foco: Estratégia Business', icon: Briefcase, color: 'text-slate-500' },
                             ].map((profile) => (
                               <button
                                 key={profile.id}
@@ -647,7 +713,10 @@ export const CampaignsPage = () => {
                               >
                                 <div className="flex items-center gap-2 mb-1">
                                   <profile.icon className={`h-5 w-5 ${campaignData.professionalProfiles.includes(profile.id) ? 'text-primary' : profile.color}`} />
-                                  <span className="font-bold text-sm leading-tight">{profile.label}</span>
+                                  <div className="flex flex-col gap-0.5">
+                                    <span className="font-bold text-sm leading-snug">{profile.label}</span>
+                                    <span className="text-[10px] text-muted-foreground font-medium">{profile.sub}</span>
+                                  </div>
                                 </div>
                                 <div className="space-y-1 w-full pl-0.5">
                                   {profileNiches[profile.id]?.slice(0, 4).map((ex, idx) => (
@@ -664,29 +733,53 @@ export const CampaignsPage = () => {
                         </div>
 
                         {/* SMART NICHE SELECTION - MOVED DOWN */}
-                        <div className="space-y-3">
-                          <Label className="flex items-center gap-2">
+
+                        {/* SMART NICHE SELECTION CARD */}
+                        <div className="space-y-4 p-4 border rounded-xl bg-secondary/10">
+                          <Label className="flex items-center gap-2 mb-2">
                             <Briefcase className="h-4 w-4 text-primary" />
                             Seleção de Público (Nichos)
                           </Label>
 
                           {/* 1. MATURITY SELECTOR */}
-                          <div className="grid grid-cols-3 gap-2 mb-2">
+                          <div className="grid grid-cols-4 gap-2 mb-2">
+                            {/* SELECT ALL OPTION */}
+                            <div
+                              onClick={() => {
+                                if (maturityLevel.length === maturityLevels.length) {
+                                  setMaturityLevel([]);
+                                } else {
+                                  setMaturityLevel(maturityLevels.map(l => l.id));
+                                }
+                              }}
+                              className={`cursor-pointer p-2 rounded-lg border flex flex-col items-center text-center gap-1 transition-all ${maturityLevel.length === maturityLevels.length ? 'bg-primary/20 border-primary ring-1 ring-primary' : 'bg-background border-border hover:bg-secondary/50'}`}
+                            >
+                              <CheckCircle className={`h-4 w-4 ${maturityLevel.length === maturityLevels.length ? 'text-primary' : 'text-muted-foreground'}`} />
+                              <span className="text-xs font-bold">Todos</span>
+                              <span className="text-[10px] text-muted-foreground leading-tight hidden sm:block">Selecionar todos</span>
+                            </div>
+
                             {maturityLevels.map(level => (
                               <div
                                 key={level.id}
-                                onClick={() => setMaturityLevel(level.id)}
-                                className={`cursor-pointer p-2 rounded-lg border flex flex-col items-center text-center gap-1 transition-all ${maturityLevel === level.id ? 'bg-primary/10 border-primary ring-1 ring-primary' : 'bg-background border-border hover:bg-secondary/50'}`}
+                                onClick={() => {
+                                  if (maturityLevel.includes(level.id)) {
+                                    setMaturityLevel(maturityLevel.filter(l => l !== level.id));
+                                  } else {
+                                    setMaturityLevel([...maturityLevel, level.id]);
+                                  }
+                                }}
+                                className={`cursor-pointer p-2 rounded-lg border flex flex-col items-center text-center gap-1 transition-all ${maturityLevel.includes(level.id) ? 'bg-primary/10 border-primary ring-1 ring-primary' : 'bg-background border-border hover:bg-secondary/50'}`}
                               >
-                                <level.icon className={`h-4 w-4 ${maturityLevel === level.id ? 'text-primary' : 'text-muted-foreground'}`} />
+                                <level.icon className={`h-4 w-4 ${maturityLevel.includes(level.id) ? 'text-primary' : 'text-muted-foreground'}`} />
                                 <span className="text-xs font-bold">{level.label}</span>
                                 <span className="text-[10px] text-muted-foreground leading-tight hidden sm:block">{level.desc}</span>
                               </div>
                             ))}
                           </div>
 
-                          {/* 2. TAG INPUT + AUTOCOMPLETE */}
-                          <div className="p-2 min-h-[42px] border rounded-lg bg-secondary/10 flex flex-wrap gap-2 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 ring-offset-background relative">
+                          {/* 2. TAG INPUT + MEGA MENU */}
+                          <div className="p-2 min-h-[42px] border rounded-lg bg-secondary/10 flex flex-wrap gap-2 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 ring-offset-background relative z-20">
                             {nicheTags.map(tag => (
                               <Badge key={tag} variant="secondary" className="flex items-center gap-1 bg-background border shadow-sm">
                                 {tag}
@@ -696,74 +789,112 @@ export const CampaignsPage = () => {
                                 />
                               </Badge>
                             ))}
-                            <div className="relative flex-1 min-w-[120px]">
+                            <div className="relative flex-1 min-w-[200px]">
                               <input
-                                className="w-full bg-transparent border-none outline-none text-sm h-6"
-                                placeholder={nicheTags.length === 0 ? "Digite nichos (ex: Imobiliárias, Dentistas)..." : ""}
+                                className="w-full bg-transparent border-none outline-none text-sm h-6 font-medium placeholder:text-muted-foreground/70"
+                                placeholder={
+                                  nicheTags.length === 0
+                                    ? "Digite um Nicho, ou Selecione Itens ou Todos do Ecosistema pronto..."
+                                    : ""
+                                }
                                 value={nicheInput}
                                 onChange={(e) => {
                                   setNicheInput(e.target.value);
                                   setShowNicheSuggestions(true);
                                 }}
                                 onFocus={() => setShowNicheSuggestions(true)}
-                                onBlur={() => setTimeout(() => setShowNicheSuggestions(false), 200)}
+                                // Delayed blur to allow clicks inside the menu
+                                onBlur={() => setTimeout(() => setShowNicheSuggestions(false), 300)}
                                 onKeyDown={handleNicheKeyDown}
                               />
-                              {/* NICHE AUTOCOMPLETE DROPDOWN */}
-                              {showNicheSuggestions && filteredNicheSuggestions.length > 0 && (
-                                <div className="absolute top-full left-0 mt-2 w-64 bg-popover border border-border rounded-md shadow-lg z-50 overflow-hidden">
-                                  {filteredNicheSuggestions.map((suggestion) => (
-                                    <div
-                                      key={suggestion}
-                                      className="px-3 py-2 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground"
-                                      onMouseDown={() => addNicheTag(suggestion)}
-                                    >
-                                      {suggestion}
-                                    </div>
-                                  ))}
-                                </div>
+                            </div>
+
+                            {/* MEGA MENU DROPDOWN */}
+                            <AnimatePresence>
+                              {showNicheSuggestions && (
+                                <motion.div
+                                  initial={{ opacity: 0, y: 10 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  exit={{ opacity: 0, y: 10 }}
+                                  className="absolute top-full left-0 right-0 mt-2 bg-popover border border-border rounded-xl shadow-2xl overflow-hidden z-50 flex flex-col max-h-[600px] sm:max-h-[500px]"
+                                >
+                                  <ScrollArea className="h-[400px] sm:h-[500px]">
+                                    {nicheInput ? (
+                                      // SEARCH MODE
+                                      <div className="p-2">
+                                        <p className="px-3 py-2 text-xs font-bold text-muted-foreground uppercase">Resultados da busca</p>
+                                        {filteredNicheSuggestions.length > 0 ? (
+                                          filteredNicheSuggestions.map((suggestion) => (
+                                            <div
+                                              key={suggestion}
+                                              className="px-3 py-2 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground rounded-md flex items-center gap-2"
+                                              onMouseDown={(e) => { e.preventDefault(); addNicheTag(suggestion); }}
+                                            >
+                                              <SearchIcon className="h-4 w-4 text-muted-foreground" />
+                                              {suggestion}
+                                            </div>
+                                          ))
+                                        ) : (
+                                          <div className="p-4 text-center text-sm text-muted-foreground">Nenhum nicho encontrado.</div>
+                                        )}
+                                      </div>
+                                    ) : (
+                                      // DISCOVERY MODE (CATALOG)
+                                      <div className="p-4 space-y-6">
+
+                                        <div className="text-center pb-4 border-b border-border/50">
+                                          <p className="text-sm text-muted-foreground">
+                                            Selecione um <strong>Ecossistema</strong> abaixo para adicionar todos os seus nichos, ou clique em itens específicos.
+                                          </p>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-8">
+                                          {ecosystems.map(group => (
+                                            <div key={group.id} className="space-y-3">
+                                              <div
+                                                className="flex items-center gap-2 group/header cursor-pointer"
+                                                onClick={() => toggleEcosystem(group)}
+                                              >
+                                                <div className={`p-2 rounded-lg bg-primary/10 text-primary group-hover/header:bg-primary group-hover/header:text-primary-foreground transition-colors`}>
+                                                  <group.icon className="h-5 w-5" />
+                                                </div>
+                                                <div>
+                                                  <h4 className="font-bold text-sm flex items-center gap-2">
+                                                    {group.label}
+                                                    {group.niches.every(n => nicheTags.includes(n)) && <CheckCircle className="h-3 w-3 text-primary" />}
+                                                  </h4>
+                                                  <p className="text-[10px] text-muted-foreground group-hover/header:text-primary decoration-primary/50 underline-offset-2 group-hover/header:underline">
+                                                    {group.niches.every(n => nicheTags.includes(n)) ? 'Desmarcar Todos' : 'Selecionar Todos'}
+                                                  </p>
+                                                </div>
+                                              </div>
+
+                                              <div className="grid grid-cols-2 gap-2 pl-2 border-l-2 border-border/50 ml-4">
+                                                {group.niches.map(item => (
+                                                  <div
+                                                    key={item}
+                                                    className={`cursor-pointer text-xs p-1.5 rounded-md transition-all flex items-center gap-2 ${nicheTags.includes(item) ? 'bg-primary/20 text-primary font-bold' : 'hover:bg-secondary/50 text-muted-foreground hover:text-foreground'}`}
+                                                    onMouseDown={(e) => { e.preventDefault(); if (nicheTags.includes(item)) removeNicheTag(item); else addNicheTag(item); }}
+                                                  >
+                                                    <span className={`w-1.5 h-1.5 rounded-full ${nicheTags.includes(item) ? 'bg-primary' : 'bg-muted-foreground/30'}`} />
+                                                    {item}
+                                                  </div>
+                                                ))}
+                                              </div>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      </div>
+                                    )}
+                                  </ScrollArea>
+                                </motion.div>
                               )}
-                            </div>
+                            </AnimatePresence>
                           </div>
 
-                          {/* 3. ECOSYSTEMS & SMART TAGS */}
-                          <div className="space-y-3 mt-2">
-                            <div>
-                              <p className="text-[10px] font-bold text-muted-foreground uppercase mb-1 flex items-center gap-1">
-                                <Layers className="h-3 w-3" /> Ecossistemas (Combos)
-                              </p>
-                              <div className="flex flex-wrap gap-1.5">
-                                {ecosystems.map(eco => (
-                                  <Badge
-                                    key={eco.id}
-                                    variant="outline"
-                                    className={`cursor-pointer hover:bg-primary/20 ${eco.niches.every(n => nicheTags.includes(n)) ? 'bg-primary/20 border-primary text-primary' : ''}`}
-                                    onClick={() => toggleEcosystem(eco)}
-                                  >
-                                    {eco.label}
-                                  </Badge>
-                                ))}
-                              </div>
-                            </div>
 
-                            <div>
-                              <p className="text-[10px] font-bold text-muted-foreground uppercase mb-1 flex items-center gap-1">
-                                <Lightbulb className="h-3 w-3" /> Sugestões Inteligentes
-                              </p>
-                              <div className="flex flex-wrap gap-1.5">
-                                {getSmartSuggestions().filter(s => !nicheTags.includes(s)).map(s => (
-                                  <Badge
-                                    key={s}
-                                    variant="secondary"
-                                    className="cursor-pointer bg-secondary/30 hover:bg-primary/20 text-muted-foreground hover:text-primary transition-colors border-0"
-                                    onClick={() => addNicheTag(s)}
-                                  >
-                                    + {s}
-                                  </Badge>
-                                ))}
-                              </div>
-                            </div>
-                          </div>
+                          {/* 3. SUGGESTIONS BADGES REMOVED (Moved to Mega Menu) */}
+
                         </div>
 
                       </div>
@@ -775,8 +906,13 @@ export const CampaignsPage = () => {
                           <span className="text-lg">Inteligência de Dados</span>
                         </div>
 
-                        <div className="space-y-3">
-                          <Label>Fontes de Dados</Label>
+
+                        {/* DATA SOURCES CARD */}
+                        <div className="space-y-4 p-4 border rounded-xl bg-secondary/10">
+                          <Label className="flex items-center gap-2 mb-2">
+                            <Database className="h-4 w-4 text-primary" />
+                            Fontes de Dados
+                          </Label>
                           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                             {detailedSources.map((source) => (
                               <button
