@@ -43,9 +43,12 @@ export interface AdvancedFiltersData {
   updateFrequency: 'daily' | 'thrice_weekly' | 'weekly';
   approachTemplate: string;
   professionalProfile?: 'agency' | 'dev' | 'traffic_manager' | 'web_designer' | 'copywriter' | 'automations' | 'websites' | 'ai_specialist';
+
   decisionMakerContact: boolean;
   onlyActiveStatus: boolean;
   cnaes: string[];
+  negativeKeywords: string[];
+  searchMode: 'blitz' | 'sniper' | 'custom';
 }
 
 export const defaultAdvancedFilters: AdvancedFiltersData = {
@@ -77,6 +80,8 @@ export const defaultAdvancedFilters: AdvancedFiltersData = {
   decisionMakerContact: false,
   onlyActiveStatus: true,
   cnaes: [],
+  negativeKeywords: [],
+  searchMode: 'custom',
 };
 
 export const professionalPresets: Record<string, { label: string; subLabel: string; filters: Partial<AdvancedFiltersData> }> = {
@@ -247,9 +252,10 @@ interface AdvancedFiltersProps {
   data: AdvancedFiltersData;
   onChange: (data: AdvancedFiltersData) => void;
   selectedSources?: string[];
+  section?: 'financial' | 'tech'; // New prop to control rendering
 }
 
-export const AdvancedFilters = ({ data, onChange, selectedSources = [] }: AdvancedFiltersProps) => {
+export const AdvancedFilters = ({ data, onChange, selectedSources = [], section = 'tech' }: AdvancedFiltersProps) => {
   const [tagInput, setTagInput] = useState('');
   const [cnaeInput, setCnaeInput] = useState('');
 
@@ -301,411 +307,530 @@ export const AdvancedFilters = ({ data, onChange, selectedSources = [] }: Advanc
   return (
     <div className="space-y-6">
 
-      {/* Faixa de Funcionários (Contextual: Somente para Google/Maps/LinkedIn) */}
-      {(selectedSources.includes('Google') || selectedSources.includes('Maps') || selectedSources.includes('LinkedIn')) && (
-        <div>
-          <Label className="text-sm font-medium mb-3 block">
-            Faixa de Funcionários: {data.employeeRange[0]} - {data.employeeRange[1]}
+      {/* --- FILTROS DE ELITE (Novidade) --- */}
+      <div className="p-4 rounded-xl border border-primary/30 bg-primary/5 space-y-4 relative overflow-hidden">
+        <div className="absolute top-0 right-0 p-2 opacity-10">
+          <Settings className="h-24 w-24" />
+        </div>
+        <div className="relative z-10">
+          <Label className="text-sm font-bold text-primary flex items-center gap-2 uppercase tracking-wide">
+            💎 Filtros de Elite (Oportunidades de Ouro)
           </Label>
-          <Slider
-            value={data.employeeRange}
-            onValueChange={(value) => updateField('employeeRange', value as [number, number])}
-            min={1}
-            max={500}
-            step={5}
-            className="mt-2"
-          />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
+
+            {/* Oportunidade: Tráfego Pago */}
+            <div
+              className={`p-3 rounded-lg border flex flex-col gap-2 cursor-pointer transition-all ${data.digitalPresence.pixelStatus === 'without' && data.digitalPresence.adsStatus === 'inactive'
+                ? 'border-amber-500 bg-amber-500/10'
+                : 'border-border bg-background/50 hover:bg-secondary/50'
+                }`}
+              onClick={() => {
+                const isActive = data.digitalPresence.pixelStatus === 'without' && data.digitalPresence.adsStatus === 'inactive';
+                if (!isActive) {
+                  onChange({
+                    ...data,
+                    digitalPresence: {
+                      ...data.digitalPresence,
+                      pixelStatus: 'without',
+                      adsStatus: 'inactive'
+                    }
+                  });
+                } else {
+                  onChange({
+                    ...data,
+                    digitalPresence: {
+                      ...data.digitalPresence,
+                      pixelStatus: 'all',
+                      adsStatus: 'all'
+                    }
+                  });
+                }
+              }}
+            >
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-xs text-amber-600">Gestão de Tráfego</span>
+                <Switch
+                  checked={data.digitalPresence.pixelStatus === 'without' && data.digitalPresence.adsStatus === 'inactive'}
+                  readOnly
+                />
+              </div>
+              <p className="text-[10px] text-muted-foreground">
+                Detecta empresas <strong>sem Pixel</strong> e <strong>sem anúncios</strong>. Cliente ideal para vender gestão.
+              </p>
+            </div>
+
+            {/* Oportunidade: Segurança/Infra */}
+            <div
+              className={`p-3 rounded-lg border flex flex-col gap-2 cursor-pointer transition-all ${data.digitalPresence.infrastructureLevel === 'no_ssl'
+                ? 'border-red-500 bg-red-500/10'
+                : 'border-border bg-background/50 hover:bg-secondary/50'
+                }`}
+              onClick={() => {
+                const isActive = data.digitalPresence.infrastructureLevel === 'no_ssl';
+                updateField('digitalPresence', {
+                  ...data.digitalPresence,
+                  infrastructureLevel: isActive ? 'all' : 'no_ssl'
+                });
+              }}
+            >
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-xs text-red-600">Segurança & Site</span>
+                <Switch
+                  checked={data.digitalPresence.infrastructureLevel === 'no_ssl'}
+                  readOnly
+                />
+              </div>
+              <p className="text-[10px] text-muted-foreground">
+                Detecta sites <strong>Inseguros (Sem SSL)</strong>. Alta urgência para venda de sites/segurança.
+              </p>
+            </div>
+
+            {/* Oportunidade: Redesign */}
+            <div
+              className={`p-3 rounded-lg border flex flex-col gap-2 cursor-pointer transition-all ${data.digitalPresence.siteTechnology === 'old'
+                ? 'border-purple-500 bg-purple-500/10'
+                : 'border-border bg-background/50 hover:bg-secondary/50'
+                }`}
+              onClick={() => {
+                const isActive = data.digitalPresence.siteTechnology === 'old';
+                updateField('digitalPresence', {
+                  ...data.digitalPresence,
+                  siteTechnology: isActive ? 'all' : 'old'
+                });
+              }}
+            >
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-xs text-purple-600">Web Design</span>
+                <Switch
+                  checked={data.digitalPresence.siteTechnology === 'old'}
+                  readOnly
+                />
+              </div>
+              <p className="text-[10px] text-muted-foreground">
+                Detecta sites com <strong>tecnologia antiga</strong> ou visual datado. Ideal para vender Redesign.
+              </p>
+            </div>
+
+          </div>
         </div>
+      </div>
+
+      {/* SECTION: FINANCIAL (Shown only if section === 'financial') */}
+      {section === 'financial' && (
+        <>
+          {/* Faixa de Funcionários (Contextual: Somente para Google/Maps/LinkedIn) */}
+          {(selectedSources.includes('Google') || selectedSources.includes('Maps') || selectedSources.includes('LinkedIn')) && (
+            <div>
+              <Label className="text-sm font-medium mb-3 block">
+                Faixa de Funcionários: {data.employeeRange[0]} - {data.employeeRange[1]}
+              </Label>
+              <Slider
+                value={data.employeeRange}
+                onValueChange={(value) => updateField('employeeRange', value as [number, number])}
+                min={1}
+                max={500}
+                step={5}
+                className="mt-2"
+              />
+            </div>
+          )}
+
+          {/* Faixa de Faturamento (Contextual: Google/Maps) */}
+          {(selectedSources.includes('Google') || selectedSources.includes('Maps')) && (
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label className="text-sm font-medium mb-2 block">Faturamento Mínimo (R$)</Label>
+                <Input
+                  type="number"
+                  min={0}
+                  className="bg-secondary/50"
+                  value={data.revenueMin}
+                  onChange={(e) => updateField('revenueMin', parseInt(e.target.value) || 0)}
+                  placeholder="0"
+                />
+              </div>
+              <div>
+                <Label className="text-sm font-medium mb-2 block">Faturamento Máximo (R$)</Label>
+                <Input
+                  type="number"
+                  min={0}
+                  className="bg-secondary/50"
+                  value={data.revenueMax}
+                  onChange={(e) => updateField('revenueMax', parseInt(e.target.value) || 0)}
+                  placeholder="50.000.000"
+                />
+              </div>
+            </div>
+          )}
+        </>
       )}
 
-      {/* Faixa de Faturamento (Contextual: Google/Maps) */}
-      {(selectedSources.includes('Google') || selectedSources.includes('Maps')) && (
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <Label className="text-sm font-medium mb-2 block">Faturamento Mínimo (R$)</Label>
-            <Input
-              type="number"
-              min={0}
-              className="bg-secondary/50"
-              value={data.revenueMin}
-              onChange={(e) => updateField('revenueMin', parseInt(e.target.value) || 0)}
-              placeholder="0"
-            />
-          </div>
-          <div>
-            <Label className="text-sm font-medium mb-2 block">Faturamento Máximo (R$)</Label>
-            <Input
-              type="number"
-              min={0}
-              className="bg-secondary/50"
-              value={data.revenueMax}
-              onChange={(e) => updateField('revenueMax', parseInt(e.target.value) || 0)}
-              placeholder="50.000.000"
-            />
-          </div>
-        </div>
-      )}
+      {/* SECTION: TECH (Shown only if section === 'tech') */}
+      {section === 'tech' && (
+        <>
 
-      {/* Dados de Empresa & Inteligência */}
-      <div className="space-y-4 pt-2">
-        <Label className="text-xs font-bold text-muted-foreground uppercase flex items-center gap-2">
-          <Settings className="h-3 w-3 text-primary" />
-          Inteligência de Negócio
-        </Label>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div className="flex items-center justify-between p-3 rounded-xl border border-border bg-secondary/5">
-            <div className="space-y-0.5">
-              <span className="text-sm font-medium">Situação Ativa</span>
-              <p className="text-[10px] text-muted-foreground">Filtro de Receita Federal</p>
+          {/* Dados de Empresa & Inteligência */}
+          <div className="space-y-4 pt-2">
+            <Label className="text-xs font-bold text-muted-foreground uppercase flex items-center gap-2">
+              <Settings className="h-3 w-3 text-primary" />
+              Inteligência de Negócio
+            </Label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="flex items-center justify-between p-3 rounded-xl border border-border bg-secondary/5">
+                <div className="space-y-0.5">
+                  <span className="text-sm font-medium">Situação Ativa</span>
+                  <p className="text-[10px] text-muted-foreground">Filtro de Receita Federal</p>
+                </div>
+                <Switch
+                  checked={data.onlyActiveStatus}
+                  onCheckedChange={(checked) => updateField('onlyActiveStatus', checked)}
+                />
+              </div>
+              <div className="flex items-center justify-between p-3 rounded-xl border border-primary/20 bg-primary/5">
+                <div className="space-y-0.5">
+                  <span className="text-sm font-medium text-primary">Contato Decisor</span>
+                  <p className="text-[10px] text-muted-foreground">Sócio / Proprietário</p>
+                </div>
+                <Switch
+                  checked={data.decisionMakerContact}
+                  onCheckedChange={(checked) => updateField('decisionMakerContact', checked)}
+                />
+              </div>
             </div>
-            <Switch
-              checked={data.onlyActiveStatus}
-              onCheckedChange={(checked) => updateField('onlyActiveStatus', checked)}
-            />
-          </div>
-          <div className="flex items-center justify-between p-3 rounded-xl border border-primary/20 bg-primary/5">
-            <div className="space-y-0.5">
-              <span className="text-sm font-medium text-primary">Contato Decisor</span>
-              <p className="text-[10px] text-muted-foreground">Sócio / Proprietário</p>
-            </div>
-            <Switch
-              checked={data.decisionMakerContact}
-              onCheckedChange={(checked) => updateField('decisionMakerContact', checked)}
-            />
-          </div>
-        </div>
 
-        {/* CNAE Selector */}
-        <div className="space-y-2">
-          <Label className="text-sm font-medium block">CNAE (Ramo de Atividade)</Label>
-          <div className="flex gap-2 mb-2">
-            <Input
-              placeholder="Ex: 6201-5/00 ou nome..."
-              className="bg-secondary/50"
-              value={cnaeInput}
-              onChange={(e) => setCnaeInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addCnae())}
-            />
-            <Button type="button" variant="outline" size="icon" onClick={addCnae}>
-              <Plus className="h-4 w-4" />
-            </Button>
+            {/* CNAE Selector */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium block">CNAE (Ramo de Atividade)</Label>
+              <div className="flex gap-2 mb-2">
+                <Input
+                  placeholder="Ex: 6201-5/00 ou nome..."
+                  className="bg-secondary/50"
+                  value={cnaeInput}
+                  onChange={(e) => setCnaeInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addCnae())}
+                />
+                <Button type="button" variant="outline" size="icon" onClick={addCnae}>
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+              {data.cnaes.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {data.cnaes.map(cnae => (
+                    <Badge key={cnae} variant="verified" className="pl-2 pr-1">
+                      {cnae}
+                      <button
+                        type="button"
+                        onClick={() => removeCnae(cnae)}
+                        className="ml-1 hover:bg-destructive/20 rounded p-0.5"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-          {data.cnaes.length > 0 && (
-            <div className="flex flex-wrap gap-1.5">
-              {data.cnaes.map(cnae => (
-                <Badge key={cnae} variant="verified" className="pl-2 pr-1">
-                  {cnae}
-                  <button
-                    type="button"
-                    onClick={() => removeCnae(cnae)}
-                    className="ml-1 hover:bg-destructive/20 rounded p-0.5"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
+
+          {/* Tecnologias Utilizadas */}
+          <div>
+            <Label className="text-sm font-medium mb-2 block">Tecnologias Utilizadas</Label>
+            <div className="flex flex-wrap gap-2">
+              {availableTechnologies.map(tech => (
+                <Badge
+                  key={tech}
+                  variant={data.technologies.includes(tech) ? "default" : "outline"}
+                  className="cursor-pointer transition-all"
+                  onClick={() => toggleTechnology(tech)}
+                >
+                  {tech}
                 </Badge>
               ))}
             </div>
-          )}
-        </div>
-      </div>
-
-      {/* Tecnologias Utilizadas */}
-      <div>
-        <Label className="text-sm font-medium mb-2 block">Tecnologias Utilizadas</Label>
-        <div className="flex flex-wrap gap-2">
-          {availableTechnologies.map(tech => (
-            <Badge
-              key={tech}
-              variant={data.technologies.includes(tech) ? "default" : "outline"}
-              className="cursor-pointer transition-all"
-              onClick={() => toggleTechnology(tech)}
-            >
-              {tech}
-            </Badge>
-          ))}
-        </div>
-      </div>
-
-      <div className="space-y-4">
-
-        {/* Presença Digital (Objective Based) */}
-        <div className="flex items-center justify-between p-3 rounded-xl border border-primary/20 bg-primary/5">
-          <div className="space-y-0.5">
-            <span className="text-sm font-bold text-primary">Presença Digital</span>
-            <p className="text-[10px] text-muted-foreground uppercase">Objetivo da Venda</p>
-          </div>
-          <ToggleGroup
-            type="single"
-            value={data.digitalPresence.presenceLevel}
-            onValueChange={(value) => value && updateField('digitalPresence', { ...data.digitalPresence, presenceLevel: value as any })}
-            className="bg-background/50 p-1 rounded-lg"
-          >
-            <ToggleGroupItem value="none" className="text-[10px] h-7 px-2">Inexistente (Site Novo)</ToggleGroupItem>
-            <ToggleGroupItem value="precarious" className="text-[10px] h-7 px-2">Precária (Reforma)</ToggleGroupItem>
-            <ToggleGroupItem value="mature" className="text-[10px] h-7 px-2">Madura (Expansão)</ToggleGroupItem>
-            <ToggleGroupItem value="all" className="text-[10px] h-7 px-2">Todas</ToggleGroupItem>
-          </ToggleGroup>
-        </div>
-
-        {/* Infraestrutura Técnica */}
-        <div className="flex items-center justify-between p-3 rounded-xl border border-accent/20 bg-accent/5">
-          <div className="space-y-0.5">
-            <span className="text-sm font-bold text-accent">Infraestrutura Técnica</span>
-            <p className="text-[10px] text-muted-foreground uppercase">Dores Técnicas</p>
-          </div>
-          <ToggleGroup
-            type="single"
-            value={data.digitalPresence.infrastructureLevel}
-            onValueChange={(value) => value && updateField('digitalPresence', { ...data.digitalPresence, infrastructureLevel: value as any })}
-            className="bg-background/50 p-1 rounded-lg"
-          >
-            <ToggleGroupItem value="no_ssl" className="text-[10px] h-7 px-2">Sem SSL</ToggleGroupItem>
-            <ToggleGroupItem value="slow" className="text-[10px] h-7 px-2">Lento</ToggleGroupItem>
-            <ToggleGroupItem value="legacy" className="text-[10px] h-7 px-2">Defasado</ToggleGroupItem>
-            <ToggleGroupItem value="all" className="text-[10px] h-7 px-2">Todas</ToggleGroupItem>
-          </ToggleGroup>
-        </div>
-
-        {/* Rastreamento (Pixel) */}
-        <div className="flex items-center justify-between p-3 rounded-xl border border-verified/20 bg-verified/5">
-          <div className="space-y-0.5">
-            <span className="text-sm font-bold text-verified">Rastreamento & ROI</span>
-            <p className="text-[10px] text-muted-foreground uppercase">Foco em Tráfego</p>
-          </div>
-          <ToggleGroup
-            type="single"
-            value={data.digitalPresence.pixelStatus}
-            onValueChange={(value) => value && updateField('digitalPresence', { ...data.digitalPresence, pixelStatus: value as any })}
-            className="bg-background/50 p-1 rounded-lg"
-          >
-            <ToggleGroupItem value="without" className="text-[10px] h-7 px-2">Sem Pixel (Venda Gestão)</ToggleGroupItem>
-            <ToggleGroupItem value="with" className="text-[10px] h-7 px-2">Com Pixel (Venda ROI)</ToggleGroupItem>
-            <ToggleGroupItem value="all" className="text-[10px] h-7 px-2">Ambos</ToggleGroupItem>
-          </ToggleGroup>
-        </div>
-
-
-        <div className="space-y-3 mt-4">
-          {/* Status de Anúncios */}
-          <div className="flex items-center justify-between p-3 rounded-lg border border-border bg-secondary/5">
-            <span className="text-sm font-medium">Anúncios</span>
-            <ToggleGroup
-              type="single"
-              value={data.digitalPresence.adsStatus}
-              onValueChange={(value) => value && updateField('digitalPresence', { ...data.digitalPresence, adsStatus: value as any })}
-            >
-              <ToggleGroupItem value="active" className="text-[10px] h-7 px-2">Ativos</ToggleGroupItem>
-              <ToggleGroupItem value="inactive" className="text-[10px] h-7 px-2">Inativos</ToggleGroupItem>
-              <ToggleGroupItem value="all" className="text-[10px] h-7 px-2">Todos</ToggleGroupItem>
-            </ToggleGroup>
           </div>
 
-          {/* Redes Sociais */}
-          <div className="flex items-center justify-between p-3 rounded-lg border border-border bg-secondary/5">
-            <span className="text-sm font-medium">Instagram</span>
-            <ToggleGroup
-              type="single"
-              value={data.digitalPresence.instagramStatus}
-              onValueChange={(value) => value && updateField('digitalPresence', { ...data.digitalPresence, instagramStatus: value as any })}
-            >
-              <ToggleGroupItem value="with" className="text-[10px] h-7 px-2">Com</ToggleGroupItem>
-              <ToggleGroupItem value="without" className="text-[10px] h-7 px-2">Sem</ToggleGroupItem>
-              <ToggleGroupItem value="all" className="text-[10px] h-7 px-2">Ambos</ToggleGroupItem>
-            </ToggleGroup>
-          </div>
-        </div>
-      </div>
+          <div className="space-y-4">
 
-      {/* Outros Critérios */}
-      <div>
-        <Label className="text-sm font-medium mb-3 block">Outros Critérios</Label>
-        <div className="space-y-2">
-          <div className="flex items-center justify-between p-2 rounded-lg border border-border">
-            <span className="text-sm">Reclamações abertas</span>
-            <Switch
-              checked={data.painPoints.openComplaints}
-              onCheckedChange={(checked) =>
-                updateField('painPoints', { ...data.painPoints, openComplaints: checked })
-              }
-            />
-          </div>
-          <div className="flex items-center justify-between p-2 rounded-lg border border-border">
-            <span className="text-sm">Site não-mobile</span>
-            <Switch
-              checked={data.painPoints.notMobile}
-              onCheckedChange={(checked) =>
-                updateField('painPoints', { ...data.painPoints, notMobile: checked })
-              }
-            />
-          </div>
-          <div className="flex items-center justify-between p-2 rounded-lg border border-border">
-            <span className="text-sm">Sem Chatbot/Automação</span>
-            <Switch
-              checked={data.painPoints.noChatbot}
-              onCheckedChange={(checked) =>
-                updateField('painPoints', { ...data.painPoints, noChatbot: checked })
-              }
-            />
-          </div>
-        </div>
-      </div>
+            {/* Presença Digital (Objective Based) */}
+            <div className="flex items-center justify-between p-3 rounded-xl border border-primary/20 bg-primary/5">
+              <div className="space-y-0.5">
+                <span className="text-sm font-bold text-primary">Presença Digital</span>
+                <p className="text-[10px] text-muted-foreground uppercase">Objetivo da Venda</p>
+              </div>
+              <ToggleGroup
+                type="single"
+                value={data.digitalPresence.presenceLevel}
+                onValueChange={(value) => value && updateField('digitalPresence', { ...data.digitalPresence, presenceLevel: value as any })}
+                className="bg-background/50 p-1 rounded-lg"
+              >
+                <ToggleGroupItem value="none" className="text-[10px] h-7 px-2">Inexistente (Site Novo)</ToggleGroupItem>
+                <ToggleGroupItem value="precarious" className="text-[10px] h-7 px-2">Precária (Reforma)</ToggleGroupItem>
+                <ToggleGroupItem value="mature" className="text-[10px] h-7 px-2">Madura (Expansão)</ToggleGroupItem>
+                <ToggleGroupItem value="all" className="text-[10px] h-7 px-2">Todas</ToggleGroupItem>
+              </ToggleGroup>
+            </div>
+
+            {/* Infraestrutura Técnica */}
+            <div className="flex items-center justify-between p-3 rounded-xl border border-accent/20 bg-accent/5">
+              <div className="space-y-0.5">
+                <span className="text-sm font-bold text-accent">Infraestrutura Técnica</span>
+                <p className="text-[10px] text-muted-foreground uppercase">Dores Técnicas</p>
+              </div>
+              <ToggleGroup
+                type="single"
+                value={data.digitalPresence.infrastructureLevel}
+                onValueChange={(value) => value && updateField('digitalPresence', { ...data.digitalPresence, infrastructureLevel: value as any })}
+                className="bg-background/50 p-1 rounded-lg"
+              >
+                <ToggleGroupItem value="no_ssl" className="text-[10px] h-7 px-2">Sem SSL</ToggleGroupItem>
+                <ToggleGroupItem value="slow" className="text-[10px] h-7 px-2">Lento</ToggleGroupItem>
+                <ToggleGroupItem value="legacy" className="text-[10px] h-7 px-2">Defasado</ToggleGroupItem>
+                <ToggleGroupItem value="all" className="text-[10px] h-7 px-2">Todas</ToggleGroupItem>
+              </ToggleGroup>
+            </div>
+
+            {/* Rastreamento (Pixel) */}
+            <div className="flex items-center justify-between p-3 rounded-xl border border-verified/20 bg-verified/5">
+              <div className="space-y-0.5">
+                <span className="text-sm font-bold text-verified">Rastreamento & ROI</span>
+                <p className="text-[10px] text-muted-foreground uppercase">Foco em Tráfego</p>
+              </div>
+              <ToggleGroup
+                type="single"
+                value={data.digitalPresence.pixelStatus}
+                onValueChange={(value) => value && updateField('digitalPresence', { ...data.digitalPresence, pixelStatus: value as any })}
+                className="bg-background/50 p-1 rounded-lg"
+              >
+                <ToggleGroupItem value="without" className="text-[10px] h-7 px-2">Sem Pixel (Venda Gestão)</ToggleGroupItem>
+                <ToggleGroupItem value="with" className="text-[10px] h-7 px-2">Com Pixel (Venda ROI)</ToggleGroupItem>
+                <ToggleGroupItem value="all" className="text-[10px] h-7 px-2">Ambos</ToggleGroupItem>
+              </ToggleGroup>
+            </div>
 
 
-      {/* Tags / Palavras-chave */}
-      <div>
-        <Label className="text-sm font-medium mb-2 block">Tags / Palavras-chave</Label>
-        <div className="flex gap-2 mb-2">
-          <Input
-            placeholder="Ex: clínica, odontologia..."
-            className="bg-secondary/50"
-            value={tagInput}
-            onChange={(e) => setTagInput(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
-          />
-          <Button type="button" variant="outline" size="icon" onClick={addTag}>
-            <Plus className="h-4 w-4" />
-          </Button>
-        </div>
-        {data.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1.5">
-            {data.tags.map(tag => (
-              <Badge key={tag} variant="secondary" className="pl-2 pr-1">
-                {tag}
-                <button
-                  type="button"
-                  onClick={() => removeTag(tag)}
-                  className="ml-1 hover:bg-destructive/20 rounded p-0.5"
+            <div className="space-y-3 mt-4">
+              {/* Status de Anúncios */}
+              <div className="flex items-center justify-between p-3 rounded-lg border border-border bg-secondary/5">
+                <span className="text-sm font-medium">Anúncios</span>
+                <ToggleGroup
+                  type="single"
+                  value={data.digitalPresence.adsStatus}
+                  onValueChange={(value) => value && updateField('digitalPresence', { ...data.digitalPresence, adsStatus: value as any })}
                 >
-                  <X className="h-3 w-3" />
-                </button>
-              </Badge>
-            ))}
+                  <ToggleGroupItem value="active" className="text-[10px] h-7 px-2">Ativos</ToggleGroupItem>
+                  <ToggleGroupItem value="inactive" className="text-[10px] h-7 px-2">Inativos</ToggleGroupItem>
+                  <ToggleGroupItem value="all" className="text-[10px] h-7 px-2">Todos</ToggleGroupItem>
+                </ToggleGroup>
+              </div>
+
+              {/* Redes Sociais */}
+              <div className="flex items-center justify-between p-3 rounded-lg border border-border bg-secondary/5">
+                <span className="text-sm font-medium">Instagram</span>
+                <ToggleGroup
+                  type="single"
+                  value={data.digitalPresence.instagramStatus}
+                  onValueChange={(value) => value && updateField('digitalPresence', { ...data.digitalPresence, instagramStatus: value as any })}
+                >
+                  <ToggleGroupItem value="with" className="text-[10px] h-7 px-2">Com</ToggleGroupItem>
+                  <ToggleGroupItem value="without" className="text-[10px] h-7 px-2">Sem</ToggleGroupItem>
+                  <ToggleGroupItem value="all" className="text-[10px] h-7 px-2">Ambos</ToggleGroupItem>
+                </ToggleGroup>
+              </div>
+            </div>
           </div>
-        )}
-      </div>
 
-      {/* Idioma do Conteúdo */}
-      <div>
-        <Label className="text-sm font-medium mb-2 block">Idioma do Conteúdo</Label>
-        <Select
-          value={data.contentLanguage}
-          onValueChange={(value) => updateField('contentLanguage', value)}
-        >
-          <SelectTrigger className="bg-secondary/50">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="pt-BR">Português (BR)</SelectItem>
-            <SelectItem value="en-US">English (US)</SelectItem>
-            <SelectItem value="es-ES">Español</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+          {/* Outros Critérios */}
+          <div>
+            <Label className="text-sm font-medium mb-3 block">Outros Critérios</Label>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between p-2 rounded-lg border border-border">
+                <span className="text-sm">Reclamações abertas</span>
+                <Switch
+                  checked={data.painPoints.openComplaints}
+                  onCheckedChange={(checked) =>
+                    updateField('painPoints', { ...data.painPoints, openComplaints: checked })
+                  }
+                />
+              </div>
+              <div className="flex items-center justify-between p-2 rounded-lg border border-border">
+                <span className="text-sm">Site não-mobile</span>
+                <Switch
+                  checked={data.painPoints.notMobile}
+                  onCheckedChange={(checked) =>
+                    updateField('painPoints', { ...data.painPoints, notMobile: checked })
+                  }
+                />
+              </div>
+              <div className="flex items-center justify-between p-2 rounded-lg border border-border">
+                <span className="text-sm">Sem Chatbot/Automação</span>
+                <Switch
+                  checked={data.painPoints.noChatbot}
+                  onCheckedChange={(checked) =>
+                    updateField('painPoints', { ...data.painPoints, noChatbot: checked })
+                  }
+                />
+              </div>
+            </div>
+          </div>
 
-      {/* Modo de Verificação */}
-      <div>
-        <Label className="text-sm font-medium mb-3 block">Modo de Verificação</Label>
-        <div className="flex gap-2">
-          {[
-            { id: 'email', label: 'Somente E-mail OK' },
-            { id: 'whatsapp', label: 'Somente WhatsApp OK' },
-            { id: 'both', label: 'Ambos' },
-          ].map(option => (
-            <label
-              key={option.id}
-              className={`flex-1 p-2 text-center text-sm rounded-lg border cursor-pointer transition-all ${data.verificationMode === option.id
-                ? 'border-primary bg-primary/10'
-                : 'border-border hover:bg-secondary/50'
-                }`}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                updateField('verificationMode', option.id as 'email' | 'whatsapp' | 'both');
-              }}
-            >
-              <input
-                type="radio"
-                name="verificationMode"
-                value={option.id}
-                checked={data.verificationMode === option.id}
-                onChange={() => { }}
-                className="sr-only"
+
+          {/* Tags / Palavras-chave */}
+          <div>
+            <Label className="text-sm font-medium mb-2 block">Tags / Palavras-chave</Label>
+            <div className="flex gap-2 mb-2">
+              <Input
+                placeholder="Ex: clínica, odontologia..."
+                className="bg-secondary/50"
+                value={tagInput}
+                onChange={(e) => setTagInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
               />
-              {option.label}
-            </label>
-          ))}
-        </div>
-      </div>
+              <Button type="button" variant="outline" size="icon" onClick={addTag}>
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
+            {data.tags.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {data.tags.map(tag => (
+                  <Badge key={tag} variant="secondary" className="pl-2 pr-1">
+                    {tag}
+                    <button
+                      type="button"
+                      onClick={() => removeTag(tag)}
+                      className="ml-1 hover:bg-destructive/20 rounded p-0.5"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+            )}
+          </div>
 
-      {/* Intervalo de Busca (km) */}
-      <div>
-        <Label className="text-sm font-medium mb-3 block">
-          Intervalo de Busca: {data.searchRadius} km
-        </Label>
-        <Slider
-          value={[data.searchRadius]}
-          onValueChange={(value) => updateField('searchRadius', value[0])}
-          min={0}
-          max={200}
-          step={5}
-          className="mt-2"
-        />
-      </div>
-
-      {/* Frequência de Atualização */}
-      <div>
-        <Label className="text-sm font-medium mb-3 block">Frequência de Atualização</Label>
-        <div className="flex gap-2">
-          {[
-            { id: 'daily', label: 'Diária' },
-            { id: 'thrice_weekly', label: '3× semana' },
-            { id: 'weekly', label: 'Semanal' },
-          ].map(option => (
-            <label
-              key={option.id}
-              className={`flex-1 p-2 text-center text-sm rounded-lg border cursor-pointer transition-all ${data.updateFrequency === option.id
-                ? 'border-primary bg-primary/10'
-                : 'border-border hover:bg-secondary/50'
-                }`}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                updateField('updateFrequency', option.id as 'daily' | 'thrice_weekly' | 'weekly');
-              }}
+          {/* Idioma do Conteúdo */}
+          <div>
+            <Label className="text-sm font-medium mb-2 block">Idioma do Conteúdo</Label>
+            <Select
+              value={data.contentLanguage}
+              onValueChange={(value) => updateField('contentLanguage', value)}
             >
-              <input
-                type="radio"
-                name="updateFrequency"
-                value={option.id}
-                checked={data.updateFrequency === option.id}
-                onChange={() => { }}
-                className="sr-only"
-              />
-              {option.label}
-            </label>
-          ))}
-        </div>
-      </div>
+              <SelectTrigger className="bg-secondary/50">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="pt-BR">Português (BR)</SelectItem>
+                <SelectItem value="en-US">English (US)</SelectItem>
+                <SelectItem value="es-ES">Español</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-      {/* Template de Abordagem */}
-      <div>
-        <Label className="text-sm font-medium mb-2 block">Template de Abordagem</Label>
-        <Select
-          value={data.approachTemplate}
-          onValueChange={(value) => updateField('approachTemplate', value)}
-        >
-          <SelectTrigger className="bg-secondary/50">
-            <SelectValue placeholder="Selecione um template..." />
-          </SelectTrigger>
-          <SelectContent>
-            {templateOptions.map(template => (
-              <SelectItem key={template.id} value={template.id}>
-                {template.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+          {/* Modo de Verificação */}
+          <div>
+            <Label className="text-sm font-medium mb-3 block">Modo de Verificação</Label>
+            <div className="flex gap-2">
+              {[
+                { id: 'email', label: 'Somente E-mail OK' },
+                { id: 'whatsapp', label: 'Somente WhatsApp OK' },
+                { id: 'both', label: 'Ambos' },
+              ].map(option => (
+                <label
+                  key={option.id}
+                  className={`flex-1 p-2 text-center text-sm rounded-lg border cursor-pointer transition-all ${data.verificationMode === option.id
+                    ? 'border-primary bg-primary/10'
+                    : 'border-border hover:bg-secondary/50'
+                    }`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    updateField('verificationMode', option.id as 'email' | 'whatsapp' | 'both');
+                  }}
+                >
+                  <input
+                    type="radio"
+                    name="verificationMode"
+                    value={option.id}
+                    checked={data.verificationMode === option.id}
+                    onChange={() => { }}
+                    className="sr-only"
+                  />
+                  {option.label}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Intervalo de Busca (km) */}
+          <div>
+            <Label className="text-sm font-medium mb-3 block">
+              Intervalo de Busca: {data.searchRadius} km
+            </Label>
+            <Slider
+              value={[data.searchRadius]}
+              onValueChange={(value) => updateField('searchRadius', value[0])}
+              min={0}
+              max={200}
+              step={5}
+              className="mt-2"
+            />
+          </div>
+
+          {/* Frequência de Atualização */}
+          <div>
+            <Label className="text-sm font-medium mb-3 block">Frequência de Atualização</Label>
+            <div className="flex gap-2">
+              {[
+                { id: 'daily', label: 'Diária' },
+                { id: 'thrice_weekly', label: '3× semana' },
+                { id: 'weekly', label: 'Semanal' },
+              ].map(option => (
+                <label
+                  key={option.id}
+                  className={`flex-1 p-2 text-center text-sm rounded-lg border cursor-pointer transition-all ${data.updateFrequency === option.id
+                    ? 'border-primary bg-primary/10'
+                    : 'border-border hover:bg-secondary/50'
+                    }`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    updateField('updateFrequency', option.id as 'daily' | 'thrice_weekly' | 'weekly');
+                  }}
+                >
+                  <input
+                    type="radio"
+                    name="updateFrequency"
+                    value={option.id}
+                    checked={data.updateFrequency === option.id}
+                    onChange={() => { }}
+                    className="sr-only"
+                  />
+                  {option.label}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Template de Abordagem */}
+          <div>
+            <Label className="text-sm font-medium mb-2 block">Template de Abordagem</Label>
+            <Select
+              value={data.approachTemplate}
+              onValueChange={(value) => updateField('approachTemplate', value)}
+            >
+              <SelectTrigger className="bg-secondary/50">
+                <SelectValue placeholder="Selecione um template..." />
+              </SelectTrigger>
+              <SelectContent>
+                {templateOptions.map(template => (
+                  <SelectItem key={template.id} value={template.id}>
+                    {template.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </>
+      )}
     </div >
   );
 };
