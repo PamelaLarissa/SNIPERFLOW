@@ -61,14 +61,13 @@ const StatCard = ({ title, value, change, icon, delay = 0 }: StatCardProps) => {
 
 interface StatsGridProps {
   totalLeads: number;
-  opportunities: number;
   activeMissions: number;
   creditsRemaining: number;
 }
 
-export const StatsGrid = ({ totalLeads, opportunities, activeMissions, creditsRemaining }: StatsGridProps) => {
+export const StatsGrid = ({ totalLeads, activeMissions, creditsRemaining }: StatsGridProps) => {
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+    <div className="grid grid-cols-3 gap-3 sm:gap-4">
       <StatCard
         title="Mísseis em Voo"
         value={activeMissions}
@@ -84,17 +83,10 @@ export const StatsGrid = ({ totalLeads, opportunities, activeMissions, creditsRe
         delay={0.1}
       />
       <StatCard
-        title="Oportunidades de Ouro"
-        value={opportunities.toLocaleString('pt-BR')}
-        change={18.3}
-        icon={<Zap className="h-5 w-5 text-amber-500" />}
-        delay={0.2}
-      />
-      <StatCard
         title="Saldo de Mísseis"
         value={creditsRemaining}
         icon={<Zap className="h-5 w-5 text-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.3)]" />}
-        delay={0.3}
+        delay={0.2}
       />
     </div>
   );

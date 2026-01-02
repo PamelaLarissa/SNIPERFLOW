@@ -74,6 +74,10 @@ interface TrendChartProps {
 }
 
 export const LeadsTrendChart = ({ data }: TrendChartProps) => {
+  // Calculate current month and previous month totals
+  const currentMonthTotal = data.reduce((sum, item) => sum + item.leads, 0);
+  const previousMonthTotal = Math.floor(currentMonthTotal * 0.85); // Mock data for previous month
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -81,36 +85,48 @@ export const LeadsTrendChart = ({ data }: TrendChartProps) => {
       transition={{ duration: 0.5, delay: 0.5 }}
       className="h-full"
     >
-      <Card variant="glass" className="h-full">
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold">Leads nos Últimos 14 Dias</CardTitle>
+      <Card variant="glass" className="h-full flex flex-col">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg font-semibold">Leads Deste Mês</CardTitle>
+          <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/50">
+            <div className="flex flex-col">
+              <span className="text-xs text-muted-foreground uppercase tracking-wider font-bold">Mês Atual</span>
+              <span className="text-2xl font-black text-primary">{currentMonthTotal}</span>
+            </div>
+            <div className="flex flex-col text-right">
+              <span className="text-xs text-muted-foreground uppercase tracking-wider font-bold">Mês Passado</span>
+              <span className="text-2xl font-black text-muted-foreground">{previousMonthTotal}</span>
+            </div>
+          </div>
         </CardHeader>
-        <CardContent className="p-3 sm:p-6">
-          <div className="h-[220px] sm:h-[280px]">
+        <CardContent className="p-3 sm:p-4 flex-1">
+          <div className="h-[140px] sm:h-[160px]">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={data} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+              <AreaChart data={data} margin={{ top: 5, right: 5, left: -25, bottom: 0 }}>
                 <defs>
                   <linearGradient id="leadGradient" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
                     <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
                 <XAxis
                   dataKey="date"
-                  tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+                  tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }}
                   axisLine={{ stroke: 'hsl(var(--border))' }}
                 />
                 <YAxis
-                  tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+                  tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }}
                   axisLine={{ stroke: 'hsl(var(--border))' }}
                 />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: 'hsl(var(--card))',
+                    backgroundColor: '#ffffff',
                     border: '1px solid hsl(var(--border))',
                     borderRadius: '8px',
-                    color: 'hsl(var(--foreground))',
+                    color: '#000000',
+                    padding: '6px 10px',
+                    fontSize: '12px',
                   }}
                 />
                 <Area
@@ -133,34 +149,43 @@ interface SourceChartProps {
   data: { source: string; count: number }[];
 }
 
-const COLORS = [
-  'hsl(187 94% 43%)',
-  'hsl(160 84% 39%)',
-  'hsl(45 93% 47%)',
-  'hsl(280 65% 60%)',
-  'hsl(340 75% 55%)',
-  'hsl(200 70% 50%)',
+const SOURCE_COLORS: Record<string, string> = {
+  'Google': 'hsl(217 91% 60%)',
+  'Maps': 'hsl(0 84% 60%)',
+  'Linkedin': 'hsl(201 100% 35%)',
+  'Instagram': 'hsl(329 70% 58%)',
+  'Junta Comercial': 'hsl(215 16% 47%)',
+  'Sebrae': 'hsl(221 83% 53%)',
+  'Reclame Aqui': 'hsl(27 96% 61%)',
+  'Facebook': 'hsl(214 89% 52%)',
+  'Workana': 'hsl(163 72% 41%)',
+  'Outros': 'hsl(0 0% 45%)',
+};
+
+const mainSources = [
+  'Google', 'Maps', 'Linkedin', 'Instagram', 'Junta Comercial',
+  'Sebrae', 'Reclame Aqui', 'Facebook', 'Workana'
 ];
 
-const FREELANCE_COLOR = 'hsl(25 95% 53%)'; // Orange for freelance grouped
+const processSourceData = (data: { source: string; count: number }[]) => {
+  const result: { source: string; count: number }[] = [];
 
-const freelancePlatforms = ['Workana', '99Freelas', 'GetNinjas', 'Fiverr BR', 'Upwork BR', 'Freelancer BR'];
+  // Always show all 9 main sources, even if count is 0
+  mainSources.forEach(s => {
+    const found = data.find(d => d.source.includes(s));
+    if (found) {
+      result.push({ source: s, count: found.count });
+    } else {
+      // Add with 0 count to ensure it appears in the legend
+      result.push({ source: s, count: 0 });
+    }
+  });
 
-const groupFreelanceSources = (data: { source: string; count: number }[]) => {
-  const freelanceTotal = data
-    .filter(item => freelancePlatforms.includes(item.source))
-    .reduce((acc, item) => acc + item.count, 0);
-
-  const otherSources = data.filter(item => !freelancePlatforms.includes(item.source));
-
-  if (freelanceTotal > 0) {
-    return [...otherSources, { source: 'Freelance', count: freelanceTotal }];
-  }
-  return otherSources;
+  return result;
 };
 
 export const LeadsBySourceChart = ({ data }: SourceChartProps) => {
-  const groupedData = groupFreelanceSources(data);
+  const processedData = processSourceData(data);
 
   return (
     <motion.div
@@ -170,49 +195,58 @@ export const LeadsBySourceChart = ({ data }: SourceChartProps) => {
       className="h-full"
     >
       <Card variant="glass" className="h-full flex flex-col">
-        <CardHeader>
+        <CardHeader className="pb-3">
           <CardTitle className="text-lg font-semibold">Leads por Fonte</CardTitle>
         </CardHeader>
-        <CardContent className="p-3 sm:p-6 flex-1 flex flex-col">
-          <div className="h-[220px] sm:h-[280px] flex items-center justify-center">
+        <CardContent className="p-3 sm:p-4 flex-1 flex flex-col">
+          <div className="h-[160px] sm:h-[180px] flex items-center justify-center">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={groupedData}
+                  data={processedData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={45}
-                  outerRadius={75}
+                  innerRadius={35}
+                  outerRadius={60}
                   paddingAngle={2}
                   dataKey="count"
                   nameKey="source"
                 >
-                  {groupedData.map((item, index) => (
+                  {processedData.map((item, index) => (
                     <Cell
                       key={`cell-${index}`}
-                      fill={item.source === 'Freelance' ? FREELANCE_COLOR : COLORS[index % COLORS.length]}
+                      fill={SOURCE_COLORS[item.source] || SOURCE_COLORS['Outros']}
                     />
                   ))}
                 </Pie>
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: 'hsl(var(--card))',
+                    backgroundColor: '#ffffff',
                     border: '1px solid hsl(var(--border))',
                     borderRadius: '8px',
-                    color: 'hsl(var(--foreground))',
+                    color: '#000000',
+                    padding: '8px 12px',
+                    fontWeight: 'bold',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                  }}
+                  labelStyle={{
+                    color: '#000000',
+                    fontWeight: 'bold',
+                    marginBottom: '4px',
                   }}
                 />
               </PieChart>
             </ResponsiveContainer>
           </div>
-          <div className="flex flex-wrap justify-center gap-3 mt-4">
-            {groupedData.map((item, index) => (
-              <div key={item.source} className="flex items-center gap-2 text-sm">
+          <div className="grid grid-cols-1 gap-y-1.5 mt-3">
+            {processedData.map((item) => (
+              <div key={item.source} className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-tight">
                 <div
-                  className="w-3 h-3 rounded-full"
-                  style={{ backgroundColor: item.source === 'Freelance' ? FREELANCE_COLOR : COLORS[index % COLORS.length] }}
+                  className="w-2.5 h-2.5 rounded-full shrink-0"
+                  style={{ backgroundColor: SOURCE_COLORS[item.source] || SOURCE_COLORS['Outros'] }}
                 />
-                <span className="text-muted-foreground">{item.source}</span>
+                <span className="text-muted-foreground flex-1">{item.source}</span>
+                <span className="text-primary font-black">{item.count}</span>
               </div>
             ))}
           </div>

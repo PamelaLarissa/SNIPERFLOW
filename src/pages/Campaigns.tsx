@@ -1048,42 +1048,87 @@ export const CampaignsPage = () => {
                 <span className="text-sm font-normal text-muted-foreground">({statusCampaigns.length})</span>
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                {statusCampaigns.map(campaign => (
-                  <Card key={campaign.id} variant="glass" className="group hover:border-primary/50 transition-all duration-300">
-                    <CardContent className="p-0">
-                      <div className="p-5 space-y-4">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <h4 className="font-bold text-lg group-hover:text-primary transition-colors">{campaign.name}</h4>
-                            <p className="text-sm text-muted-foreground">{campaign.niche} • {campaign.location}</p>
+                {statusCampaigns.map(campaign => {
+                  const qualifiedLeads = Math.floor((campaign.leadsVerified / campaign.leadsFound) * 100) || 0;
+
+                  return (
+                    <Card key={campaign.id} variant="glass" className="group hover:border-primary/50 transition-all duration-300">
+                      <CardContent className="p-0">
+                        <div className="p-5 space-y-4">
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1">
+                              <h4 className="font-bold text-lg group-hover:text-primary transition-colors">{campaign.name}</h4>
+                              <p className="text-sm text-muted-foreground">{campaign.niche}</p>
+                              <div className="flex items-center gap-1.5 mt-1">
+                                <MapPin className="h-3 w-3 text-muted-foreground" />
+                                <span className="text-xs text-muted-foreground">{campaign.location}</span>
+                              </div>
+                            </div>
+                            <Badge
+                              variant={campaign.status === 'active' ? 'verified' : campaign.status === 'paused' ? 'outline' : 'secondary'}
+                              className="flex items-center gap-1"
+                            >
+                              {campaign.status === 'active' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />}
+                              {campaign.status === 'active' ? 'Ativo' : campaign.status === 'paused' ? 'Pausado' : 'Concluído'}
+                            </Badge>
                           </div>
-                          <Badge variant={campaign.status === 'active' ? 'verified' : 'outline'}>{campaign.status}</Badge>
-                        </div>
-                        <div className="grid grid-cols-2 gap-2 text-sm">
-                          <div className="p-2 bg-secondary/30 rounded flex flex-col items-center justify-center">
-                            <span className="font-bold text-xl">{campaign.leadsFound}</span>
-                            <span className="text-xs text-muted-foreground">Leads</span>
+
+                          {/* Metrics */}
+                          <div className="grid grid-cols-3 gap-2 text-sm">
+                            <div className="p-3 bg-primary/10 border border-primary/20 rounded-lg flex flex-col items-center justify-center">
+                              <span className="font-black text-2xl text-primary">{campaign.leadsFound}</span>
+                              <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Capturados</span>
+                            </div>
+                            <div className="p-3 bg-accent/10 border border-accent/20 rounded-lg flex flex-col items-center justify-center">
+                              <span className="font-black text-2xl text-accent">{campaign.leadsVerified}</span>
+                              <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Verificados</span>
+                            </div>
+                            <div className="p-3 bg-secondary/50 border border-border rounded-lg flex flex-col items-center justify-center">
+                              <span className="font-black text-2xl text-foreground">{qualifiedLeads}%</span>
+                              <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Qualidade</span>
+                            </div>
                           </div>
-                          <div className="p-2 bg-secondary/30 rounded flex flex-col items-center justify-center">
-                            <span className="font-bold text-xl">{campaign.leadsVerified}</span>
-                            <span className="text-xs text-muted-foreground">Verificados</span>
+
+                          {/* Actions */}
+                          <div className="flex gap-2">
+                            <Button
+                              variant="default"
+                              size="sm"
+                              className="flex-1 gap-2 font-bold"
+                              onClick={() => window.location.href = `/leads?campaign=${campaign.id}`}
+                            >
+                              <Users className="h-4 w-4" /> Ver Leads
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="flex-1 gap-2"
+                              onClick={() => {
+                                toast({ title: "Re-varredura Iniciada", description: `Atualizando leads de "${campaign.name}"...` });
+                                // TODO: Implement re-scan logic
+                              }}
+                            >
+                              <Zap className="h-4 w-4" /> Re-varrer
+                            </Button>
+                          </div>
+
+                          {/* Secondary Actions */}
+                          <div className="flex gap-2 pt-2 border-t border-border/50">
+                            <Button variant="ghost" size="sm" className="flex-1 text-xs" onClick={() => openEditModal(campaign)}>
+                              <Settings className="h-3 w-3 mr-1" /> Editar
+                            </Button>
+                            <Button variant="ghost" size="sm" className="flex-1 text-xs" onClick={() => handleSendCampaign(campaign)}>
+                              <Play className="h-3 w-3 mr-1" /> Disparar
+                            </Button>
+                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setDeleteConfirm(campaign.id)}>
+                              <Trash2 className="h-3 w-3 text-destructive" />
+                            </Button>
                           </div>
                         </div>
-                        <div className="flex gap-2">
-                          <Button variant="outline" size="sm" className="flex-1" onClick={() => openEditModal(campaign)}>
-                            <Settings className="h-4 w-4 mr-2" /> Configurar
-                          </Button>
-                          <Button variant="default" size="sm" className="flex-1" onClick={() => handleSendCampaign(campaign)}>
-                            <Play className="h-4 w-4 mr-2" /> Disparar
-                          </Button>
-                          <Button variant="ghost" size="icon" onClick={() => setDeleteConfirm(campaign.id)}>
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
             </div>
           ))

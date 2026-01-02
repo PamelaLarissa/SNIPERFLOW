@@ -34,7 +34,7 @@ const navItems = [
   { icon: Users, label: "Central de Leads", path: "/leads" },
   { icon: Calendar, label: "Agendamentos", path: "/schedules" },
   { icon: FileText, label: "Vendas & Propostas", path: "/proposals" },
-  { icon: MessageSquare, label: "WhatsApp API", path: "/whatsapp", badge: "Breve" },
+  { icon: MessageSquare, label: "WhatsApp API", path: "/whatsapp" },
   { icon: Settings, label: "Sistema", path: "/settings" },
 ];
 

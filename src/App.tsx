@@ -10,6 +10,7 @@ import { SettingsPage } from "./pages/Settings";
 import { SchedulesPage } from "./pages/Schedules";
 import { ProposalsPage } from "./pages/Proposals";
 import { LeadDetailsPage } from "./pages/LeadDetails";
+import { WhatsAppPage } from "./pages/WhatsApp";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/campaigns" element={<CampaignsPage />} />
           <Route path="/schedules" element={<SchedulesPage />} />
           <Route path="/proposals" element={<ProposalsPage />} />
+          <Route path="/whatsapp" element={<WhatsAppPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/leads/:id" element={<LeadDetailsPage />} />
 

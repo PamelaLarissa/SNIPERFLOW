@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   RefreshCw,
@@ -9,6 +9,8 @@ import {
   Mail,
   Phone,
   Globe,
+  X,
+  Filter,
 } from "lucide-react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Header } from "@/components/layout/Sidebar";
@@ -20,17 +22,33 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useLeads, useCreateLead, useUpdateLead, type Lead } from "@/hooks/useLeads";
+import { useCampaigns } from "@/hooks/useCampaigns";
 import { useToast } from "@/hooks/use-toast";
 import { kanbanColumnLabels } from "@/lib/constants";
 import { LeadsListView } from "@/components/leads/LeadsListView";
 import { LeadsKanbanView } from "@/components/leads/LeadsKanbanView";
 import { LeadsRadarView } from "@/components/leads/LeadsRadarView";
+import { useSearchParams, useNavigate } from "react-router-dom";
 
 export const LeadsPage = () => {
-  const { data: leads = [], isLoading, refetch } = useLeads();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const campaignFilter = searchParams.get('campaign');
+
+  const { data: allLeads = [], isLoading, refetch } = useLeads();
+  const { data: campaigns = [] } = useCampaigns();
   const createLead = useCreateLead();
   const updateLead = useUpdateLead();
   const { toast } = useToast();
+
+  // Filter leads by campaign if campaignFilter is present
+  const leads = campaignFilter
+    ? allLeads.filter(lead => lead.campaignId === campaignFilter)
+    : allLeads;
+
+  const activeCampaign = campaignFilter
+    ? campaigns.find(c => c.id === campaignFilter)
+    : null;
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
@@ -192,6 +210,36 @@ export const LeadsPage = () => {
         title="Central de Leads"
         subtitle="Gerencie seu funil de vendas, mapa e lista de contatos em um só lugar"
       />
+
+      {/* Campaign Filter Indicator */}
+      {activeCampaign && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-4"
+        >
+          <div className="flex items-center gap-3 p-3 bg-primary/10 border border-primary/30 rounded-lg">
+            <Filter className="h-4 w-4 text-primary" />
+            <div className="flex-1">
+              <p className="text-sm font-bold text-foreground">
+                Filtrando por campanha: <span className="text-primary">{activeCampaign.name}</span>
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Exibindo {leads.length} leads desta campanha
+              </p>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/leads')}
+              className="gap-2"
+            >
+              <X className="h-4 w-4" />
+              Limpar Filtro
+            </Button>
+          </div>
+        </motion.div>
+      )}
 
       <Tabs defaultValue="list" className="space-y-6">
         <div className="flex justify-between items-center">

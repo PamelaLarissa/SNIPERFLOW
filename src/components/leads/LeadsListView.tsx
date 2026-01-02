@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import {
     Search,
@@ -68,12 +68,61 @@ export const LeadsListView = ({
     onEditLead,
 }: LeadsListViewProps) => {
     const [currentPage, setCurrentPage] = useState(1);
+    const [selectedCampaigns, setSelectedCampaigns] = useState<string[]>([]);
+    const [minScore, setMinScore] = useState<number>(0);
+    const [campaignSearchTerm, setCampaignSearchTerm] = useState("");
+    const [campaignDropdownOpen, setCampaignDropdownOpen] = useState(false);
+    const [sourceDropdownOpen, setSourceDropdownOpen] = useState(false);
+    const [selectedSources, setSelectedSources] = useState<string[]>([]);
+
+    const campaignDropdownRef = useRef<HTMLDivElement>(null);
+    const sourceDropdownRef = useRef<HTMLDivElement>(null);
+
     const LEADS_PER_PAGE = 15;
 
-    const filteredLeads = leads.filter(lead =>
-        lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        lead.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        lead.email.toLowerCase().includes(searchTerm.toLowerCase())
+    // Get unique campaigns from leads with better names
+    const uniqueCampaigns = Array.from(new Set(leads.map(l => l.campaignId).filter(Boolean)));
+    const campaignOptions = uniqueCampaigns.map(id => {
+        const campaignLeads = leads.filter(l => l.campaignId === id);
+        const firstLead = campaignLeads[0];
+        // Try to get a meaningful name from the lead's niche or company
+        const name = firstLead?.niche || firstLead?.company || `ID: ${id.slice(0, 8)}`;
+        return { id, name };
+    });
+
+    const filteredCampaignOptions = campaignOptions.filter(c =>
+        c.name.toLowerCase().includes(campaignSearchTerm.toLowerCase())
+    );
+
+    const sources = [
+        'Google', 'Maps', 'Linkedin', 'Instagram',
+        'Junta Comercial', 'Sebrae', 'Reclame Aqui',
+        'Facebook', 'Workana'
+    ];
+
+    // Click outside handler
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (campaignDropdownRef.current && !campaignDropdownRef.current.contains(event.target as Node)) {
+                setCampaignDropdownOpen(false);
+            }
+            if (sourceDropdownRef.current && !sourceDropdownRef.current.contains(event.target as Node)) {
+                setSourceDropdownOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    // Apply all filters
+    let filteredLeads = leads.filter(lead =>
+        (lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            lead.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            lead.email.toLowerCase().includes(searchTerm.toLowerCase())) &&
+        (selectedCampaigns.length === 0 || selectedCampaigns.includes(lead.campaignId || '')) &&
+        (selectedSources.length === 0 || selectedSources.includes(lead.source)) &&
+        (lead.score >= minScore)
     );
 
     const totalPages = Math.ceil(filteredLeads.length / LEADS_PER_PAGE);
@@ -81,6 +130,28 @@ export const LeadsListView = ({
         (currentPage - 1) * LEADS_PER_PAGE,
         currentPage * LEADS_PER_PAGE
     );
+
+    const toggleCampaign = (campaignId: string) => {
+        setSelectedCampaigns(prev =>
+            prev.includes(campaignId)
+                ? prev.filter(id => id !== campaignId)
+                : [...prev, campaignId]
+        );
+    };
+
+    const toggleSource = (source: string) => {
+        setSelectedSources(prev =>
+            prev.includes(source)
+                ? prev.filter(s => s !== source)
+                : [...prev, source]
+        );
+    };
+
+    const clearFilters = () => {
+        setSelectedCampaigns([]);
+        setSelectedSources([]);
+        setMinScore(0);
+    };
 
     return (
         <div className="space-y-4 sm:space-y-6">
@@ -130,45 +201,107 @@ export const LeadsListView = ({
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
+                    className="relative z-40"
                 >
                     <Card variant="glass">
-                        <CardContent className="p-3 sm:p-4">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-                                <div>
-                                    <Label className="text-xs sm:text-sm font-medium mb-2 block">Score Mínimo</Label>
-                                    <Input type="number" placeholder="0" className="bg-secondary/50" />
+                        <CardContent className="p-3 sm:p-4 space-y-4 overflow-visible">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                                {/* Campaign Filter */}
+                                <div className="space-y-2 relative z-50" ref={campaignDropdownRef}>
+                                    <Label className="text-xs sm:text-sm font-medium">Campanhas</Label>
+                                    <div className="relative">
+                                        <Button
+                                            variant="outline"
+                                            className="w-full justify-between bg-secondary/50 text-xs"
+                                            onClick={() => setCampaignDropdownOpen(!campaignDropdownOpen)}
+                                        >
+                                            <span className="truncate">
+                                                {selectedCampaigns.length === 0
+                                                    ? "Selecionar campanhas..."
+                                                    : `${selectedCampaigns.length} selecionada(s)`}
+                                            </span>
+                                            <ChevronDown className={`h-3 w-3 ml-2 transition-transform ${campaignDropdownOpen ? 'rotate-180' : ''}`} />
+                                        </Button>
+                                        {campaignDropdownOpen && (
+                                            <div className="absolute z-[100] w-full mt-1 bg-popover border border-border rounded-md shadow-2xl">
+                                                <div className="p-2">
+                                                    <Input
+                                                        placeholder="Buscar..."
+                                                        value={campaignSearchTerm}
+                                                        onChange={(e) => setCampaignSearchTerm(e.target.value)}
+                                                        className="bg-secondary/50 text-xs h-8"
+                                                    />
+                                                </div>
+                                                <div className="max-h-40 overflow-y-auto p-2 space-y-1">
+                                                    {filteredCampaignOptions.length === 0 ? (
+                                                        <p className="text-xs text-muted-foreground text-center py-2">Nenhuma campanha</p>
+                                                    ) : (
+                                                        filteredCampaignOptions.map(campaign => (
+                                                            <label key={campaign.id} className="flex items-center gap-2 cursor-pointer hover:bg-secondary/50 p-1.5 rounded text-xs">
+                                                                <input
+                                                                    type="checkbox"
+                                                                    checked={selectedCampaigns.includes(campaign.id)}
+                                                                    onChange={() => toggleCampaign(campaign.id)}
+                                                                    className="h-3 w-3 rounded border-border bg-secondary/50 text-primary"
+                                                                />
+                                                                <span className="flex-1 truncate">{campaign.name}</span>
+                                                            </label>
+                                                        ))
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
-                                <div>
-                                    <Label className="text-xs sm:text-sm font-medium mb-2 block">Fonte</Label>
-                                    <Select>
-                                        <SelectTrigger className="bg-secondary/50">
-                                            <SelectValue placeholder="Todas" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="all">Todas</SelectItem>
-                                            <SelectItem value="google">Google</SelectItem>
-                                            <SelectItem value="linkedin">LinkedIn</SelectItem>
-                                            <SelectItem value="maps">Google Maps</SelectItem>
-                                            <SelectItem value="instagram">Instagram</SelectItem>
-                                        </SelectContent>
-                                    </Select>
+
+                                {/* Sources Filter */}
+                                <div className="space-y-2 relative z-50" ref={sourceDropdownRef}>
+                                    <Label className="text-xs sm:text-sm font-medium">Fontes</Label>
+                                    <div className="relative">
+                                        <Button
+                                            variant="outline"
+                                            className="w-full justify-between bg-secondary/50 text-xs"
+                                            onClick={() => setSourceDropdownOpen(!sourceDropdownOpen)}
+                                        >
+                                            <span className="truncate">
+                                                {selectedSources.length === 0
+                                                    ? "Selecionar fontes..."
+                                                    : `${selectedSources.length} selecionada(s)`}
+                                            </span>
+                                            <ChevronDown className={`h-3 w-3 ml-2 transition-transform ${sourceDropdownOpen ? 'rotate-180' : ''}`} />
+                                        </Button>
+                                        {sourceDropdownOpen && (
+                                            <div className="absolute z-[100] w-full mt-1 bg-popover border border-border rounded-md shadow-2xl">
+                                                <div className="max-h-40 overflow-y-auto p-2 space-y-1">
+                                                    {sources.map(source => (
+                                                        <label key={source} className="flex items-center gap-2 cursor-pointer hover:bg-secondary/50 p-1.5 rounded text-xs">
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={selectedSources.includes(source)}
+                                                                onChange={() => toggleSource(source)}
+                                                                className="h-3 w-3 rounded border-border bg-secondary/50 text-primary"
+                                                            />
+                                                            <span className="flex-1">{source}</span>
+                                                        </label>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
-                                <div>
-                                    <Label className="text-xs sm:text-sm font-medium mb-2 block">Status</Label>
-                                    <Select>
-                                        <SelectTrigger className="bg-secondary/50">
-                                            <SelectValue placeholder="Todos" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="all">Todos</SelectItem>
-                                            <SelectItem value="verified">Verificado</SelectItem>
-                                            <SelectItem value="pending">Pendente</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="flex items-end">
-                                    <Button variant="secondary" className="w-full">
-                                        Aplicar Filtros
+
+                                {/* Score Filter */}
+                                <div className="space-y-2">
+                                    <Label className="text-xs sm:text-sm font-medium">Score Mínimo</Label>
+                                    <Input
+                                        type="number"
+                                        placeholder="0"
+                                        value={minScore || ''}
+                                        onChange={(e) => setMinScore(Number(e.target.value) || 0)}
+                                        className="bg-secondary/50"
+                                    />
+                                    <Button variant="ghost" size="sm" onClick={clearFilters} className="w-full text-xs">
+                                        Limpar Filtros
                                     </Button>
                                 </div>
                             </div>
