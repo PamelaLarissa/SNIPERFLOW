@@ -1,9 +1,7 @@
 import { useState } from "react";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Slider } from "@/components/ui/slider";
 import {
   Select,
   SelectContent,
@@ -11,15 +9,30 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { X, Plus, Settings } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { freelanceSources, FreelanceSourceCheckbox } from "./FreelancePlatformSources";
+import {
+  Settings,
+  Gauge,
+  Layers,
+  Building2,
+  Code2,
+  BarChart3,
+  Palette,
+  PenTool,
+  Workflow,
+  Layout,
+  Bot,
+  Briefcase,
+  X,
+  Sparkles,
+  Zap,
+  CheckCircle,
+  Users,
+} from "lucide-react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 export interface AdvancedFiltersData {
-  employeeRange: [number, number];
-  revenueMin: number;
-  revenueMax: number;
+  employeeCategories: ('1-10' | '11-50' | '50+')[];
+  revenueCategories: ('<100k' | '100k-500k' | '>500k')[];
   technologies: string[];
   digitalPresence: {
     adsStatus: 'all' | 'active' | 'inactive';
@@ -52,9 +65,8 @@ export interface AdvancedFiltersData {
 }
 
 export const defaultAdvancedFilters: AdvancedFiltersData = {
-  employeeRange: [1, 100],
-  revenueMin: 0,
-  revenueMax: 50000000,
+  employeeCategories: [],
+  revenueCategories: [],
   technologies: [],
   digitalPresence: {
     adsStatus: 'all',
@@ -84,150 +96,243 @@ export const defaultAdvancedFilters: AdvancedFiltersData = {
   searchMode: 'custom',
 };
 
-export const professionalPresets: Record<string, { label: string; subLabel: string; filters: Partial<AdvancedFiltersData> }> = {
+export const professionalPresets: Record<string, {
+  label: string;
+  subLabel: string;
+  filters: Partial<Omit<AdvancedFiltersData, 'digitalPresence' | 'painPoints'>> & {
+    digitalPresence?: Partial<AdvancedFiltersData['digitalPresence']>;
+    painPoints?: Partial<AdvancedFiltersData['painPoints']>;
+  }
+}> = {
   agency: {
     label: 'Agência',
-    subLabel: 'Mkt / Social Media',
+    subLabel: 'Escala e Gestão',
     filters: {
-      digitalPresence: {
-        adsStatus: 'all',
-        googleQuality: 'low',
-        instagramStatus: 'with',
-        siteTechnology: 'old',
-        pixelStatus: 'with',
-        presenceLevel: 'mature',
-        infrastructureLevel: 'slow'
-      },
-      verificationMode: 'both'
+      technologies: ['RD Station', 'HubSpot', 'Salesforce', 'LinkedIn Ads', 'Meta Ads'],
+      digitalPresence: { instagramStatus: 'with', presenceLevel: 'mature' }
     }
   },
   dev: {
     label: 'Programador',
-    subLabel: 'Web / App / Systems',
+    subLabel: 'Infra e Performance',
     filters: {
-      digitalPresence: {
-        adsStatus: 'all',
-        googleQuality: 'all',
-        instagramStatus: 'all',
-        siteTechnology: 'old',
-        pixelStatus: 'all',
-        presenceLevel: 'precarious',
-        infrastructureLevel: 'legacy'
-      },
-      painPoints: {
-        openComplaints: false,
-        notMobile: true,
-        noChatbot: false
-      }
+      technologies: ['PHP', 'Laravel', 'Node.js', 'Python', 'React', 'Vue', 'Angular', 'Next.js'],
+      digitalPresence: { infrastructureLevel: 'legacy' }
     }
   },
   traffic_manager: {
     label: 'Gestor Tráfego',
-    subLabel: 'Ads / ROI / Tracking',
+    subLabel: 'Ads & ROI',
     filters: {
-      digitalPresence: {
-        adsStatus: 'inactive',
-        googleQuality: 'all',
-        instagramStatus: 'with',
-        siteTechnology: 'modern',
-        pixelStatus: 'without',
-        presenceLevel: 'mature',
-        infrastructureLevel: 'all'
-      }
+      technologies: ['Facebook Ads (Meta)', 'Google Ads', 'Google Tag Manager', 'Shopify', 'WooCommerce', 'Google Analytics'],
+      digitalPresence: { adsStatus: 'active', pixelStatus: 'without' }
     }
   },
   web_designer: {
     label: 'Web Designer',
-    subLabel: 'UI / UX / Redesign',
+    subLabel: 'UI/UX e Visual',
     filters: {
-      digitalPresence: {
-        siteTechnology: 'old',
-        presenceLevel: 'precarious',
-        infrastructureLevel: 'all',
-        adsStatus: 'all',
-        googleQuality: 'all',
-        instagramStatus: 'all',
-        pixelStatus: 'all'
-      },
-      painPoints: {
-        notMobile: true,
-        openComplaints: false,
-        noChatbot: false
-      }
+      technologies: ['WordPress', 'Shopify', 'Wix', 'Squarespace', 'Magento'],
+      digitalPresence: { siteTechnology: 'old' },
+      painPoints: { notMobile: true }
     }
   },
   copywriter: {
     label: 'Copywriter',
-    subLabel: 'Vendas / Conversão',
+    subLabel: 'Vendas e Narrativa',
     filters: {
-      digitalPresence: {
-        adsStatus: 'active',
-        googleQuality: 'all',
-        instagramStatus: 'with',
-        siteTechnology: 'all',
-        pixelStatus: 'all',
-        presenceLevel: 'all',
-        infrastructureLevel: 'all'
-      },
-      advancedSources: ['ReclameAqui']
+      technologies: ['Mailchimp', 'RD Station', 'HubSpot', 'Hotmart', 'ClickFunnels'],
+      digitalPresence: { adsStatus: 'active' }
     }
   },
   automations: {
     label: 'Automações',
-    subLabel: 'CRM / Fluxos / API',
+    subLabel: 'CRM e Processos',
     filters: {
-      painPoints: {
-        noChatbot: true,
-        openComplaints: false,
-        notMobile: false
-      },
-      digitalPresence: {
-        adsStatus: 'all',
-        googleQuality: 'all',
-        instagramStatus: 'all',
-        siteTechnology: 'modern',
-        pixelStatus: 'all',
-        presenceLevel: 'mature',
-        infrastructureLevel: 'all'
-      }
+      technologies: ['RD Station', 'HubSpot', 'Salesforce', 'Mailchimp', 'Zapier', 'Make'],
+      digitalPresence: { presenceLevel: 'mature' },
+      painPoints: { noChatbot: true }
     }
   },
   websites: {
     label: 'WebSites',
-    subLabel: 'Landing Pages / LP',
+    subLabel: 'Presença Digital',
     filters: {
-      digitalPresence: {
-        presenceLevel: 'none',
-        siteTechnology: 'none',
-        adsStatus: 'all',
-        googleQuality: 'all',
-        instagramStatus: 'all',
-        pixelStatus: 'all',
-        infrastructureLevel: 'all'
-      }
+      technologies: ['WordPress', 'PHP', 'Google Analytics', 'Elementor'],
+      digitalPresence: { presenceLevel: 'precarious', siteTechnology: 'old' }
     }
   },
   ai_specialist: {
-    label: 'IA',
-    subLabel: 'GPTs / Agentes',
+    label: 'IA Specialist',
+    subLabel: 'Bots e Dados',
     filters: {
-      painPoints: {
-        openComplaints: true,
-        notMobile: false,
-        noChatbot: true
-      },
-      digitalPresence: {
-        adsStatus: 'active',
-        googleQuality: 'all',
-        instagramStatus: 'all',
-        siteTechnology: 'all',
-        pixelStatus: 'all',
-        presenceLevel: 'mature',
-        infrastructureLevel: 'all'
-      }
+      technologies: ['Zendesk', 'Intercom', 'HubSpot', 'Salesforce', 'Node.js'],
+      digitalPresence: { adsStatus: 'active', presenceLevel: 'mature' },
+      painPoints: { openComplaints: true, noChatbot: true }
+    }
+  },
+  consulting: {
+    label: 'Consultoria',
+    subLabel: 'Estratégia Business',
+    filters: {
+      technologies: ['Salesforce', 'SAP', 'Oracle', 'HubSpot', 'RD Station'],
+      revenueCategories: ['>500k'],
     }
   }
 };
+
+export const profileNiches: Record<string, string[]> = {
+  agency: ['Contas High-Ticket', 'Dominação Local', 'Gestão de Crise', 'Projetos White Label'],
+  dev: ['Sistemas Legados', 'Falhas de Segurança', 'Integração de APIs', 'Apps & Dashboards'],
+  traffic_manager: ['Abandono de Pixel', 'Criação de Anúncios', 'Concorrência Agressiva', 'Escala B2B'],
+  web_designer: ['Retrofit Digital', 'Identidade Visual', 'Design de Ofertas', 'Social Media Aesthetic'],
+  copywriter: ['Quebra de Objeção', 'Funis de vendas', 'VSL & Vídeo Sales', 'Scripts de Prospecção'],
+  automations: ['Triagem de WhatsApp', 'Recuperação de Carrinho', 'Sincronização de CRM', 'Workflow de Vendas'],
+  websites: ['Oceano Azul (Sem Site)', 'Migração de Plataforma', 'Otimização de SEO', 'E-commerce'],
+  ai_specialist: ['Atendimento 24/7', 'Agentes Analistas', 'Fluxos Cognitivos', 'Automação de Conteúdo'],
+  consulting: ['Eficiência Financeira', 'Expansão de Mercado', 'Recrutamento Ativo', 'Planejamento 360º']
+};
+
+export const profileInfos = [
+  { id: 'agency', label: 'Agência', sub: 'Foco: Escala e Gestão', icon: Building2, color: 'text-blue-500' },
+  { id: 'dev', label: 'Programador', sub: 'Foco: Infra e Performance', icon: Code2, color: 'text-emerald-500' },
+  { id: 'traffic_manager', label: 'Tráfego', sub: 'Foco: Ads e ROI', icon: BarChart3, color: 'text-amber-500' },
+  { id: 'web_designer', label: 'Designer', sub: 'Foco: UI/UX e Visual', icon: Palette, color: 'text-pink-500' },
+  { id: 'copywriter', label: 'Copywriter', sub: 'Foco: Vendas e Narrativa', icon: PenTool, color: 'text-purple-500' },
+  { id: 'automations', label: 'Automações', sub: 'Foco: CRM e Processos', icon: Workflow, color: 'text-cyan-500' },
+  { id: 'websites', label: 'WebSites', sub: 'Foco: Presença Digital', icon: Layout, color: 'text-orange-500' },
+  { id: 'ai_specialist', label: 'IA Specialist', sub: 'Foco: Bots e Dados', icon: Bot, color: 'text-rose-500' },
+  { id: 'consulting', label: 'Consultoria', sub: 'Foco: Estratégia Business', icon: Briefcase, color: 'text-slate-500' },
+];
+
+const eliteOpportunities: {
+  id: string;
+  label: string;
+  icon: any;
+  color: string;
+  description: string;
+  explanation: string;
+  filters: {
+    digitalPresence?: Partial<AdvancedFiltersData['digitalPresence']>;
+    painPoints?: Partial<AdvancedFiltersData['painPoints']>;
+    technologies?: string[];
+    advancedSources?: string[];
+    revenueMin?: number;
+    revenueMax?: number;
+  };
+}[] = [
+    {
+      id: 'agency',
+      label: 'Agência (Escala)',
+      icon: Building2,
+      color: 'text-blue-500',
+      description: 'Grandes contas e gestão de tráfego avançada.',
+      explanation: 'Foco em RD Station, HubSpot e rastreadores de anúncios (LinkedIn/Meta).',
+      filters: {
+        technologies: ['RD Station', 'HubSpot', 'Salesforce', 'LinkedIn Ads', 'Meta Ads'],
+        digitalPresence: { instagramStatus: 'with', presenceLevel: 'mature' }
+      }
+    },
+    {
+      id: 'dev',
+      label: 'Programador (Infra)',
+      icon: Code2,
+      color: 'text-green-500',
+      description: 'Sistemas legados e stacks técnicas de alta performance.',
+      explanation: 'Mantém a estrutura técnica precisa: Laravel, Node, React, Next.js.',
+      filters: {
+        technologies: ['PHP', 'Laravel', 'Node.js', 'Python', 'React', 'Vue', 'Angular', 'Next.js'],
+        digitalPresence: { infrastructureLevel: 'legacy' }
+      }
+    },
+    {
+      id: 'traffic_manager',
+      label: 'Tráfego (Ads & ROI)',
+      icon: BarChart3,
+      color: 'text-amber-500',
+      description: 'Investimento em Ads com falhas de rastreamento.',
+      explanation: 'Foca em Google/Meta Ads e GTM para otimizar o ROI do cliente.',
+      filters: {
+        technologies: ['Facebook Ads (Meta)', 'Google Ads', 'Google Tag Manager', 'Shopify', 'WooCommerce', 'Google Analytics'],
+        digitalPresence: { adsStatus: 'active', pixelStatus: 'without' }
+      }
+    },
+    {
+      id: 'web_designer',
+      label: 'Designer (UI/UX)',
+      icon: Palette,
+      color: 'text-purple-500',
+      description: 'Redesign profissional em plataformas populares.',
+      explanation: 'Alvos fáceis para redesign: WordPress, Wix, Squarespace, Shopify.',
+      filters: {
+        technologies: ['WordPress', 'Shopify', 'Wix', 'Squarespace', 'Magento'],
+        painPoints: { notMobile: true },
+        digitalPresence: { siteTechnology: 'old' }
+      }
+    },
+    {
+      id: 'copywriter',
+      label: 'Copywriter (Vendas)',
+      icon: PenTool,
+      color: 'text-orange-500',
+      description: 'Funis de vendas e e-mail marketing sem conversão.',
+      explanation: 'Foca em ferramentas de funil (ClickFunnels) e CRM (RD, HubSpot).',
+      filters: {
+        technologies: ['Mailchimp', 'RD Station', 'HubSpot', 'Hotmart', 'ClickFunnels'],
+        digitalPresence: { adsStatus: 'active' }
+      }
+    },
+    {
+      id: 'automations',
+      label: 'Automações (CRM)',
+      icon: Workflow,
+      color: 'text-cyan-500',
+      description: 'Processos internos manuais em empresas maduras.',
+      explanation: 'Identifica uso de Zapier/Make para automação de CRM e Fluxos.',
+      filters: {
+        technologies: ['RD Station', 'HubSpot', 'Salesforce', 'Mailchimp', 'Zapier', 'Make'],
+        digitalPresence: { presenceLevel: 'mature' },
+        painPoints: { noChatbot: true }
+      }
+    },
+    {
+      id: 'websites',
+      label: 'WebSites (Presença)',
+      icon: Layout,
+      color: 'text-pink-500',
+      description: 'Otimização de performance e conversão visual.',
+      explanation: 'Foco em Elementor e WordPress para vender otimização de sites lentos.',
+      filters: {
+        technologies: ['WordPress', 'PHP', 'Google Analytics', 'Elementor'],
+        digitalPresence: { presenceLevel: 'precarious', siteTechnology: 'old' }
+      }
+    },
+    {
+      id: 'ai_specialist',
+      label: 'IA Specialist (Bots)',
+      icon: Bot,
+      color: 'text-indigo-500',
+      description: 'Atendimento precário em empresas com alto volume.',
+      explanation: 'Filtra Zendesk/Intercom e reclamações para vender IAs de atendimento.',
+      filters: {
+        technologies: ['Zendesk', 'Intercom', 'HubSpot', 'Salesforce', 'Node.js'],
+        painPoints: { openComplaints: true, noChatbot: true }
+      }
+    },
+    {
+      id: 'consulting',
+      label: 'Consultoria (Biz)',
+      icon: Briefcase,
+      color: 'text-red-500',
+      description: 'Leads Enterprise (Grandes Corporações).',
+      explanation: 'Atrai empresas que usam SAP/Oracle e precisam de estratégia business.',
+      filters: {
+        technologies: ['Salesforce', 'SAP', 'Oracle', 'HubSpot', 'RD Station'],
+        revenueMin: 1000000,
+        advancedSources: ['LinkedIn']
+      }
+    }
+  ];
 
 export const availableTechnologies = [
   'WordPress', 'Shopify', 'WooCommerce', 'Magento', 'React', 'Vue',
@@ -235,57 +340,29 @@ export const availableTechnologies = [
   'RD Station', 'HubSpot', 'Salesforce', 'Mailchimp', 'Google Analytics'
 ];
 
-export const advancedSourcesList = [
-  'Workana', '99Freelas', 'GetNinjas', 'ReclameAqui', 'SEBRAE',
-  'Junta Comercial', 'CNPJ Aberto', 'Google My Business', 'Yelp',
-  'Facebook Pages', 'Twitter/X', 'Crunchbase', 'AngelList'
-];
-
-const templateOptions = [
-  { id: 'cold', name: 'Cold Outreach (Primeira abordagem)' },
-  { id: 'followup', name: 'Follow-up (Acompanhamento)' },
-  { id: 'reactivation', name: 'Reativação (Cliente antigo)' },
-  { id: 'referral', name: 'Indicação (Via parceiro)' },
-];
-
 interface AdvancedFiltersProps {
   data: AdvancedFiltersData;
   onChange: (data: AdvancedFiltersData) => void;
   selectedSources?: string[];
-  section?: 'financial' | 'tech'; // New prop to control rendering
+  section?: 'sensors' | 'filters' | 'tech' | 'financial';
+  // Props for unified sensor loop
+  onProfileToggle?: (id: string) => void;
+  activeProfiles?: string[];
 }
 
-export const AdvancedFilters = ({ data, onChange, selectedSources = [], section = 'tech' }: AdvancedFiltersProps) => {
-  const [tagInput, setTagInput] = useState('');
-  const [cnaeInput, setCnaeInput] = useState('');
+export const AdvancedFilters = ({
+  data,
+  onChange,
+  section = 'sensors',
+  onProfileToggle,
+  activeProfiles = []
+}: AdvancedFiltersProps) => {
 
   const updateField = <K extends keyof AdvancedFiltersData>(
     field: K,
     value: AdvancedFiltersData[K]
   ) => {
     onChange({ ...data, [field]: value });
-  };
-
-  const addTag = () => {
-    if (tagInput.trim() && !data.tags.includes(tagInput.trim())) {
-      updateField('tags', [...data.tags, tagInput.trim()]);
-      setTagInput('');
-    }
-  };
-
-  const removeTag = (tag: string) => {
-    updateField('tags', data.tags.filter(t => t !== tag));
-  };
-
-  const addCnae = () => {
-    if (cnaeInput.trim() && !data.cnaes.includes(cnaeInput.trim())) {
-      updateField('cnaes', [...data.cnaes, cnaeInput.trim()]);
-      setCnaeInput('');
-    }
-  };
-
-  const removeCnae = (cnae: string) => {
-    updateField('cnaes', data.cnaes.filter(c => c !== cnae));
   };
 
   const toggleTechnology = (tech: string) => {
@@ -296,541 +373,242 @@ export const AdvancedFilters = ({ data, onChange, selectedSources = [], section 
     }
   };
 
-  const toggleAdvancedSource = (source: string) => {
-    if (data.advancedSources.includes(source)) {
-      updateField('advancedSources', data.advancedSources.filter(s => s !== source));
-    } else {
-      updateField('advancedSources', [...data.advancedSources, source]);
+  const applyEliteFilter = (opportunity: typeof eliteOpportunities[0]) => {
+    // FIX: If the profile is active, toggling the sensor should toggle the profile for precision
+    if (activeProfiles.includes(opportunity.id)) {
+      onProfileToggle?.(opportunity.id);
+      return;
     }
+
+    const newData = { ...data };
+    const isActive = isEliteActive(opportunity);
+
+    if (isActive) {
+      // DE-SELECTING: Remove filters
+      if (opportunity.filters.technologies) {
+        newData.technologies = newData.technologies.filter(t => !opportunity.filters.technologies!.includes(t));
+      }
+
+      if (opportunity.filters.digitalPresence) {
+        // Reset only the fields that were set by this opportunity back to default
+        const newDP = { ...newData.digitalPresence };
+        Object.keys(opportunity.filters.digitalPresence).forEach((key) => {
+          (newDP as any)[key] = (defaultAdvancedFilters.digitalPresence as any)[key];
+        });
+        newData.digitalPresence = newDP;
+      }
+
+      if (opportunity.filters.painPoints) {
+        const newPP = { ...newData.painPoints };
+        Object.keys(opportunity.filters.painPoints).forEach((key) => {
+          (newPP as any)[key] = (defaultAdvancedFilters.painPoints as any)[key];
+        });
+        newData.painPoints = newPP;
+      }
+
+      // Note: mapping revenue/employees back to categories for de-selection
+      if (opportunity.filters.revenueMin !== undefined) {
+        // Simplified: if it set a revenue min, we could uncheck some categories
+        // But for now let's just clear categories if it matches
+        newData.revenueCategories = [];
+      }
+
+    } else {
+      // SELECTING: Apply filters (existing logic)
+      if (opportunity.filters.digitalPresence) {
+        newData.digitalPresence = { ...newData.digitalPresence, ...opportunity.filters.digitalPresence } as any;
+      }
+
+      if (opportunity.filters.painPoints) {
+        newData.painPoints = { ...newData.painPoints, ...opportunity.filters.painPoints } as any;
+      }
+
+      if (opportunity.filters.technologies) {
+        const currentTechs = new Set(newData.technologies);
+        opportunity.filters.technologies.forEach(t => currentTechs.add(t));
+        newData.technologies = Array.from(currentTechs);
+      }
+
+      if (opportunity.filters.advancedSources) {
+        const currentSources = new Set(newData.advancedSources);
+        opportunity.filters.advancedSources.forEach(s => currentSources.add(s));
+        newData.advancedSources = Array.from(currentSources);
+      }
+
+      if (opportunity.filters.revenueMin !== undefined) {
+        // Map numeric revenue to categories
+        if (opportunity.filters.revenueMin >= 1000000) newData.revenueCategories = ['>500k'];
+        else if (opportunity.filters.revenueMin >= 100000) newData.revenueCategories = ['100k-500k'];
+        else newData.revenueCategories = ['<100k'];
+      }
+    }
+
+    onChange(newData);
+  };
+
+  const isEliteActive = (opportunity: typeof eliteOpportunities[0]) => {
+    // Check if the profile ID matches the currently active professional profiles
+    const profileActive = activeProfiles.includes(opportunity.id);
+    if (profileActive) return true;
+
+    const dpOk = !opportunity.filters.digitalPresence || Object.entries(opportunity.filters.digitalPresence).every(([k, v]) => (data.digitalPresence as any)[k] === v);
+    const ppOk = !opportunity.filters.painPoints || Object.entries(opportunity.filters.painPoints).every(([k, v]) => (data.painPoints as any)[k] === v);
+    const techOk = !opportunity.filters.technologies || opportunity.filters.technologies.every(t => data.technologies.includes(t));
+
+    // Check if the categorical filters match the profile requirements
+    let revOk = true;
+    if (opportunity.filters.revenueMin !== undefined) {
+      if (opportunity.filters.revenueMin >= 1000000) revOk = data.revenueCategories.includes('>500k');
+      else if (opportunity.filters.revenueMin >= 100000) revOk = data.revenueCategories.includes('100k-500k');
+    }
+
+    return dpOk && ppOk && techOk && revOk;
   };
 
   return (
     <div className="space-y-6">
+      {/* 1. CALIBRATION CENTER (Profiles + Sensors Integrated) */}
+      {(section === 'sensors' || section === 'tech') && (
+        <div className="space-y-4 p-4 border rounded-xl bg-secondary/10 animate-in fade-in duration-500">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {eliteOpportunities.map((opp) => {
+              const active = isEliteActive(opp);
+              const profile = profileInfos.find(p => p.id === opp.id);
+              const isProfileSelected = activeProfiles.includes(opp.id);
 
-      {/* --- FILTROS DE ELITE (Novidade) --- */}
-      <div className="p-4 rounded-xl border border-primary/30 bg-primary/5 space-y-4 relative overflow-hidden">
-        <div className="absolute top-0 right-0 p-2 opacity-10">
-          <Settings className="h-24 w-24" />
-        </div>
-        <div className="relative z-10">
-          <Label className="text-sm font-bold text-primary flex items-center gap-2 uppercase tracking-wide">
-            💎 Filtros de Elite (Oportunidades de Ouro)
-          </Label>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
+              return (
+                <div key={opp.id} className="flex flex-col gap-2 h-full">
+                  {/* TOP: PROFILE CALIBRATION CARD */}
+                  {profile && (
+                    <button
+                      type="button"
+                      onClick={() => onProfileToggle?.(opp.id)}
+                      className={`flex flex-col items-start gap-2 p-3 rounded-lg border text-left transition-all relative overflow-hidden ${isProfileSelected
+                        ? "border-primary bg-primary/10 ring-1 ring-primary shadow-sm"
+                        : "border-border hover:bg-secondary/50"
+                        }`}
+                    >
+                      <div className="flex items-center gap-2 mb-1 w-full">
+                        <profile.icon className={`h-5 w-5 ${isProfileSelected ? 'text-primary' : profile.color}`} />
+                        <div className="flex flex-col gap-0.5">
+                          <span className="font-bold text-sm leading-snug">{profile.label}</span>
+                          <span className="text-[10px] text-muted-foreground font-medium">{profile.sub}</span>
+                        </div>
+                        {isProfileSelected && <CheckCircle className="h-3 w-3 text-primary ml-auto flex-shrink-0" />}
+                      </div>
+                      <div className="space-y-1 w-full pl-0.5">
+                        {profileNiches[opp.id]?.slice(0, 4).map((ex, idx) => (
+                          <div key={idx} className="flex items-center gap-1.5">
+                            <span className="text-[10px] text-muted-foreground font-medium flex items-center gap-1">
+                              • {ex}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </button>
+                  )}
 
-            {/* Oportunidade: Tráfego Pago */}
-            <div
-              className={`p-3 rounded-lg border flex flex-col gap-2 cursor-pointer transition-all ${data.digitalPresence.pixelStatus === 'without' && data.digitalPresence.adsStatus === 'inactive'
-                ? 'border-amber-500 bg-amber-500/10'
-                : 'border-border bg-background/50 hover:bg-secondary/50'
-                }`}
-              onClick={() => {
-                const isActive = data.digitalPresence.pixelStatus === 'without' && data.digitalPresence.adsStatus === 'inactive';
-                if (!isActive) {
-                  onChange({
-                    ...data,
-                    digitalPresence: {
-                      ...data.digitalPresence,
-                      pixelStatus: 'without',
-                      adsStatus: 'inactive'
-                    }
-                  });
-                } else {
-                  onChange({
-                    ...data,
-                    digitalPresence: {
-                      ...data.digitalPresence,
-                      pixelStatus: 'all',
-                      adsStatus: 'all'
-                    }
-                  });
-                }
-              }}
-            >
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-xs text-amber-600">Gestão de Tráfego</span>
-                <Switch
-                  checked={data.digitalPresence.pixelStatus === 'without' && data.digitalPresence.adsStatus === 'inactive'}
-                  readOnly
-                />
-              </div>
-              <p className="text-[10px] text-muted-foreground">
-                Detecta empresas <strong>sem Pixel</strong> e <strong>sem anúncios</strong>. Cliente ideal para vender gestão.
-              </p>
-            </div>
+                  {/* BOTTOM: ELITE SENSOR CARD */}
+                  <div
+                    onClick={() => applyEliteFilter(opp)}
+                    className={`flex flex-col items-start gap-3 p-4 rounded-xl border text-left transition-all flex-1 h-full cursor-pointer relative overflow-hidden ${active
+                      ? "border-primary bg-primary/15 ring-2 ring-primary/20 shadow-lg shadow-primary/5 scale-[1.02] z-20"
+                      : "border-border hover:bg-secondary/50"
+                      }`}
+                  >
+                    {/* Status Indicator at the very bottom/edge */}
+                    <div className={`absolute top-0 right-0 px-3 py-1 text-[9px] font-black uppercase tracking-widest rounded-bl-lg transition-colors ${active ? 'bg-primary text-primary-foreground animate-pulse' : 'bg-secondary text-muted-foreground'}`}>
+                      {active ? 'Sensor Ativo' : 'Offline'}
+                    </div>
 
-            {/* Oportunidade: Segurança/Infra */}
-            <div
-              className={`p-3 rounded-lg border flex flex-col gap-2 cursor-pointer transition-all ${data.digitalPresence.infrastructureLevel === 'no_ssl'
-                ? 'border-red-500 bg-red-500/10'
-                : 'border-border bg-background/50 hover:bg-secondary/50'
-                }`}
-              onClick={() => {
-                const isActive = data.digitalPresence.infrastructureLevel === 'no_ssl';
-                updateField('digitalPresence', {
-                  ...data.digitalPresence,
-                  infrastructureLevel: isActive ? 'all' : 'no_ssl'
-                });
-              }}
-            >
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-xs text-red-600">Segurança & Site</span>
-                <Switch
-                  checked={data.digitalPresence.infrastructureLevel === 'no_ssl'}
-                  readOnly
-                />
-              </div>
-              <p className="text-[10px] text-muted-foreground">
-                Detecta sites <strong>Inseguros (Sem SSL)</strong>. Alta urgência para venda de sites/segurança.
-              </p>
-            </div>
+                    <div className="space-y-3 w-full flex-1">
+                      <div className="space-y-1">
+                        <span className={`text-[9px] font-black uppercase tracking-wider block ${active ? 'text-primary' : 'text-muted-foreground'}`}>Filtro de Dor:</span>
+                        <p className="text-[11px] text-foreground font-bold leading-relaxed italic">“{opp.description}”</p>
+                      </div>
 
-            {/* Oportunidade: Redesign */}
-            <div
-              className={`p-3 rounded-lg border flex flex-col gap-2 cursor-pointer transition-all ${data.digitalPresence.siteTechnology === 'old'
-                ? 'border-purple-500 bg-purple-500/10'
-                : 'border-border bg-background/50 hover:bg-secondary/50'
-                }`}
-              onClick={() => {
-                const isActive = data.digitalPresence.siteTechnology === 'old';
-                updateField('digitalPresence', {
-                  ...data.digitalPresence,
-                  siteTechnology: isActive ? 'all' : 'old'
-                });
-              }}
-            >
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-xs text-purple-600">Web Design</span>
-                <Switch
-                  checked={data.digitalPresence.siteTechnology === 'old'}
-                  readOnly
-                />
-              </div>
-              <p className="text-[10px] text-muted-foreground">
-                Detecta sites com <strong>tecnologia antiga</strong> ou visual datado. Ideal para vender Redesign.
-              </p>
-            </div>
+                      <div className="space-y-1">
+                        <span className={`text-[9px] font-black uppercase tracking-wider block ${active ? 'text-primary' : 'text-muted-foreground'}`}>Stack Alvo:</span>
+                        <div className="flex flex-wrap gap-1">
+                          {opp.filters.technologies?.map(t => (
+                            <span key={t} className={`text-[9px] border px-1.5 py-0.5 rounded font-black transition-colors ${active ? 'bg-primary/10 border-primary/30 text-primary' : 'bg-secondary/80 text-secondary-foreground border-border/50'}`}>{t}</span>
+                          ))}
+                        </div>
+                      </div>
 
+                      <div className={`pt-2 border-t space-y-1 ${active ? 'border-primary/20' : 'border-primary/5'}`}>
+                        <span className={`text-[9px] font-black uppercase tracking-wider block ${active ? 'text-primary' : 'text-muted-foreground'}`}>Inteligência:</span>
+                        <p className="text-[10px] leading-tight text-muted-foreground font-medium">{opp.explanation}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
-      </div>
-
-      {/* SECTION: FINANCIAL (Shown only if section === 'financial') */}
-      {section === 'financial' && (
-        <>
-          {/* Faixa de Funcionários (Contextual: Somente para Google/Maps/LinkedIn) */}
-          {(selectedSources.includes('Google') || selectedSources.includes('Maps') || selectedSources.includes('LinkedIn')) && (
-            <div>
-              <Label className="text-sm font-medium mb-3 block">
-                Faixa de Funcionários: {data.employeeRange[0]} - {data.employeeRange[1]}
-              </Label>
-              <Slider
-                value={data.employeeRange}
-                onValueChange={(value) => updateField('employeeRange', value as [number, number])}
-                min={1}
-                max={500}
-                step={5}
-                className="mt-2"
-              />
-            </div>
-          )}
-
-          {/* Faixa de Faturamento (Contextual: Google/Maps) */}
-          {(selectedSources.includes('Google') || selectedSources.includes('Maps')) && (
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label className="text-sm font-medium mb-2 block">Faturamento Mínimo (R$)</Label>
-                <Input
-                  type="number"
-                  min={0}
-                  className="bg-secondary/50"
-                  value={data.revenueMin}
-                  onChange={(e) => updateField('revenueMin', parseInt(e.target.value) || 0)}
-                  placeholder="0"
-                />
-              </div>
-              <div>
-                <Label className="text-sm font-medium mb-2 block">Faturamento Máximo (R$)</Label>
-                <Input
-                  type="number"
-                  min={0}
-                  className="bg-secondary/50"
-                  value={data.revenueMax}
-                  onChange={(e) => updateField('revenueMax', parseInt(e.target.value) || 0)}
-                  placeholder="50.000.000"
-                />
-              </div>
-            </div>
-          )}
-        </>
       )}
 
-      {/* SECTION: TECH (Shown only if section === 'tech') */}
-      {section === 'tech' && (
-        <>
-
-          {/* Dados de Empresa & Inteligência */}
-          <div className="space-y-4 pt-2">
-            <Label className="text-xs font-bold text-muted-foreground uppercase flex items-center gap-2">
-              <Settings className="h-3 w-3 text-primary" />
-              Inteligência de Negócio
-            </Label>
+      {/* 3. INTELIGÊNCIA DE NEGÓCIO & CONFIGS */}
+      {(section === 'filters' || section === 'financial') && (
+        <div className="space-y-6">
+          <div className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="flex items-center justify-between p-3 rounded-xl border border-border bg-secondary/5">
                 <div className="space-y-0.5">
-                  <span className="text-sm font-medium">Situação Ativa</span>
-                  <p className="text-[10px] text-muted-foreground">Filtro de Receita Federal</p>
+                  <span className="text-sm font-medium">Situação Ativa (RF)</span>
+                  <p className="text-[10px] text-muted-foreground">Ocultar baixadas/inativas</p>
                 </div>
-                <Switch
-                  checked={data.onlyActiveStatus}
-                  onCheckedChange={(checked) => updateField('onlyActiveStatus', checked)}
-                />
+                <Switch checked={data.onlyActiveStatus} onCheckedChange={(checked) => updateField('onlyActiveStatus', checked)} />
               </div>
-              <div className="flex items-center justify-between p-3 rounded-xl border border-primary/20 bg-primary/5">
-                <div className="space-y-0.5">
-                  <span className="text-sm font-medium text-primary">Contato Decisor</span>
-                  <p className="text-[10px] text-muted-foreground">Sócio / Proprietário</p>
+              {/* Decisores (Switch) */}
+              <div className="flex items-center justify-between p-3 rounded-lg border bg-background/50 hover:bg-secondary/20 transition-all cursor-pointer" onClick={() => updateField('decisionMakerContact', !data.decisionMakerContact)}>
+                <div className="flex items-center gap-3">
+                  <div className={`p-2 rounded-lg bg-primary/10 text-primary`}>
+                    <Users className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold">Apenas Decisores</p>
+                    <p className="text-[10px] text-muted-foreground">Filtra contatos de sócios e diretores</p>
+                  </div>
                 </div>
-                <Switch
-                  checked={data.decisionMakerContact}
-                  onCheckedChange={(checked) => updateField('decisionMakerContact', checked)}
-                />
+                <Switch checked={data.decisionMakerContact} onCheckedChange={(val) => updateField('decisionMakerContact', val)} />
               </div>
-            </div>
-
-            {/* CNAE Selector */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium block">CNAE (Ramo de Atividade)</Label>
-              <div className="flex gap-2 mb-2">
-                <Input
-                  placeholder="Ex: 6201-5/00 ou nome..."
-                  className="bg-secondary/50"
-                  value={cnaeInput}
-                  onChange={(e) => setCnaeInput(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addCnae())}
-                />
-                <Button type="button" variant="outline" size="icon" onClick={addCnae}>
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-              {data.cnaes.length > 0 && (
-                <div className="flex flex-wrap gap-1.5">
-                  {data.cnaes.map(cnae => (
-                    <Badge key={cnae} variant="verified" className="pl-2 pr-1">
-                      {cnae}
-                      <button
-                        type="button"
-                        onClick={() => removeCnae(cnae)}
-                        className="ml-1 hover:bg-destructive/20 rounded p-0.5"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </Badge>
-                  ))}
-                </div>
-              )}
             </div>
           </div>
 
-          {/* Tecnologias Utilizadas */}
-          <div>
-            <Label className="text-sm font-medium mb-2 block">Tecnologias Utilizadas</Label>
-            <div className="flex flex-wrap gap-2">
-              {availableTechnologies.map(tech => (
-                <Badge
-                  key={tech}
-                  variant={data.technologies.includes(tech) ? "default" : "outline"}
-                  className="cursor-pointer transition-all"
-                  onClick={() => toggleTechnology(tech)}
-                >
-                  {tech}
-                </Badge>
-              ))}
-            </div>
-          </div>
-
-          <div className="space-y-4">
-
-            {/* Presença Digital (Objective Based) */}
-            <div className="flex items-center justify-between p-3 rounded-xl border border-primary/20 bg-primary/5">
-              <div className="space-y-0.5">
-                <span className="text-sm font-bold text-primary">Presença Digital</span>
-                <p className="text-[10px] text-muted-foreground uppercase">Objetivo da Venda</p>
+          <div className="space-y-6 pt-6 border-t border-border/50">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Modo de Varredura</Label>
+                <div className="flex gap-2">
+                  <Select value={data.verificationMode} onValueChange={(value) => updateField('verificationMode', value as any)}>
+                    <SelectTrigger className="bg-secondary/50 flex-1"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="both">E-mail + WhatsApp</SelectItem>
+                      <SelectItem value="email">Só E-mail</SelectItem>
+                      <SelectItem value="whatsapp">Só Whats</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-              <ToggleGroup
-                type="single"
-                value={data.digitalPresence.presenceLevel}
-                onValueChange={(value) => value && updateField('digitalPresence', { ...data.digitalPresence, presenceLevel: value as any })}
-                className="bg-background/50 p-1 rounded-lg"
-              >
-                <ToggleGroupItem value="none" className="text-[10px] h-7 px-2">Inexistente (Site Novo)</ToggleGroupItem>
-                <ToggleGroupItem value="precarious" className="text-[10px] h-7 px-2">Precária (Reforma)</ToggleGroupItem>
-                <ToggleGroupItem value="mature" className="text-[10px] h-7 px-2">Madura (Expansão)</ToggleGroupItem>
-                <ToggleGroupItem value="all" className="text-[10px] h-7 px-2">Todas</ToggleGroupItem>
-              </ToggleGroup>
-            </div>
-
-            {/* Infraestrutura Técnica */}
-            <div className="flex items-center justify-between p-3 rounded-xl border border-accent/20 bg-accent/5">
-              <div className="space-y-0.5">
-                <span className="text-sm font-bold text-accent">Infraestrutura Técnica</span>
-                <p className="text-[10px] text-muted-foreground uppercase">Dores Técnicas</p>
-              </div>
-              <ToggleGroup
-                type="single"
-                value={data.digitalPresence.infrastructureLevel}
-                onValueChange={(value) => value && updateField('digitalPresence', { ...data.digitalPresence, infrastructureLevel: value as any })}
-                className="bg-background/50 p-1 rounded-lg"
-              >
-                <ToggleGroupItem value="no_ssl" className="text-[10px] h-7 px-2">Sem SSL</ToggleGroupItem>
-                <ToggleGroupItem value="slow" className="text-[10px] h-7 px-2">Lento</ToggleGroupItem>
-                <ToggleGroupItem value="legacy" className="text-[10px] h-7 px-2">Defasado</ToggleGroupItem>
-                <ToggleGroupItem value="all" className="text-[10px] h-7 px-2">Todas</ToggleGroupItem>
-              </ToggleGroup>
-            </div>
-
-            {/* Rastreamento (Pixel) */}
-            <div className="flex items-center justify-between p-3 rounded-xl border border-verified/20 bg-verified/5">
-              <div className="space-y-0.5">
-                <span className="text-sm font-bold text-verified">Rastreamento & ROI</span>
-                <p className="text-[10px] text-muted-foreground uppercase">Foco em Tráfego</p>
-              </div>
-              <ToggleGroup
-                type="single"
-                value={data.digitalPresence.pixelStatus}
-                onValueChange={(value) => value && updateField('digitalPresence', { ...data.digitalPresence, pixelStatus: value as any })}
-                className="bg-background/50 p-1 rounded-lg"
-              >
-                <ToggleGroupItem value="without" className="text-[10px] h-7 px-2">Sem Pixel (Venda Gestão)</ToggleGroupItem>
-                <ToggleGroupItem value="with" className="text-[10px] h-7 px-2">Com Pixel (Venda ROI)</ToggleGroupItem>
-                <ToggleGroupItem value="all" className="text-[10px] h-7 px-2">Ambos</ToggleGroupItem>
-              </ToggleGroup>
-            </div>
-
-
-            <div className="space-y-3 mt-4">
-              {/* Status de Anúncios */}
-              <div className="flex items-center justify-between p-3 rounded-lg border border-border bg-secondary/5">
-                <span className="text-sm font-medium">Anúncios</span>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Frequência</Label>
                 <ToggleGroup
                   type="single"
-                  value={data.digitalPresence.adsStatus}
-                  onValueChange={(value) => value && updateField('digitalPresence', { ...data.digitalPresence, adsStatus: value as any })}
+                  value={data.updateFrequency}
+                  onValueChange={(value) => value && updateField('updateFrequency', value as any)}
+                  className="bg-secondary/30 p-1 rounded-lg w-full"
                 >
-                  <ToggleGroupItem value="active" className="text-[10px] h-7 px-2">Ativos</ToggleGroupItem>
-                  <ToggleGroupItem value="inactive" className="text-[10px] h-7 px-2">Inativos</ToggleGroupItem>
-                  <ToggleGroupItem value="all" className="text-[10px] h-7 px-2">Todos</ToggleGroupItem>
-                </ToggleGroup>
-              </div>
-
-              {/* Redes Sociais */}
-              <div className="flex items-center justify-between p-3 rounded-lg border border-border bg-secondary/5">
-                <span className="text-sm font-medium">Instagram</span>
-                <ToggleGroup
-                  type="single"
-                  value={data.digitalPresence.instagramStatus}
-                  onValueChange={(value) => value && updateField('digitalPresence', { ...data.digitalPresence, instagramStatus: value as any })}
-                >
-                  <ToggleGroupItem value="with" className="text-[10px] h-7 px-2">Com</ToggleGroupItem>
-                  <ToggleGroupItem value="without" className="text-[10px] h-7 px-2">Sem</ToggleGroupItem>
-                  <ToggleGroupItem value="all" className="text-[10px] h-7 px-2">Ambos</ToggleGroupItem>
+                  <ToggleGroupItem value="daily" className="text-xs flex-1">Diária</ToggleGroupItem>
+                  <ToggleGroupItem value="thrice_weekly" className="text-xs flex-1">3x/Sem</ToggleGroupItem>
+                  <ToggleGroupItem value="weekly" className="text-xs flex-1">Semanal</ToggleGroupItem>
                 </ToggleGroup>
               </div>
             </div>
           </div>
-
-          {/* Outros Critérios */}
-          <div>
-            <Label className="text-sm font-medium mb-3 block">Outros Critérios</Label>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between p-2 rounded-lg border border-border">
-                <span className="text-sm">Reclamações abertas</span>
-                <Switch
-                  checked={data.painPoints.openComplaints}
-                  onCheckedChange={(checked) =>
-                    updateField('painPoints', { ...data.painPoints, openComplaints: checked })
-                  }
-                />
-              </div>
-              <div className="flex items-center justify-between p-2 rounded-lg border border-border">
-                <span className="text-sm">Site não-mobile</span>
-                <Switch
-                  checked={data.painPoints.notMobile}
-                  onCheckedChange={(checked) =>
-                    updateField('painPoints', { ...data.painPoints, notMobile: checked })
-                  }
-                />
-              </div>
-              <div className="flex items-center justify-between p-2 rounded-lg border border-border">
-                <span className="text-sm">Sem Chatbot/Automação</span>
-                <Switch
-                  checked={data.painPoints.noChatbot}
-                  onCheckedChange={(checked) =>
-                    updateField('painPoints', { ...data.painPoints, noChatbot: checked })
-                  }
-                />
-              </div>
-            </div>
-          </div>
-
-
-          {/* Tags / Palavras-chave */}
-          <div>
-            <Label className="text-sm font-medium mb-2 block">Tags / Palavras-chave</Label>
-            <div className="flex gap-2 mb-2">
-              <Input
-                placeholder="Ex: clínica, odontologia..."
-                className="bg-secondary/50"
-                value={tagInput}
-                onChange={(e) => setTagInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
-              />
-              <Button type="button" variant="outline" size="icon" onClick={addTag}>
-                <Plus className="h-4 w-4" />
-              </Button>
-            </div>
-            {data.tags.length > 0 && (
-              <div className="flex flex-wrap gap-1.5">
-                {data.tags.map(tag => (
-                  <Badge key={tag} variant="secondary" className="pl-2 pr-1">
-                    {tag}
-                    <button
-                      type="button"
-                      onClick={() => removeTag(tag)}
-                      className="ml-1 hover:bg-destructive/20 rounded p-0.5"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </Badge>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Idioma do Conteúdo */}
-          <div>
-            <Label className="text-sm font-medium mb-2 block">Idioma do Conteúdo</Label>
-            <Select
-              value={data.contentLanguage}
-              onValueChange={(value) => updateField('contentLanguage', value)}
-            >
-              <SelectTrigger className="bg-secondary/50">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="pt-BR">Português (BR)</SelectItem>
-                <SelectItem value="en-US">English (US)</SelectItem>
-                <SelectItem value="es-ES">Español</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Modo de Verificação */}
-          <div>
-            <Label className="text-sm font-medium mb-3 block">Modo de Verificação</Label>
-            <div className="flex gap-2">
-              {[
-                { id: 'email', label: 'Somente E-mail OK' },
-                { id: 'whatsapp', label: 'Somente WhatsApp OK' },
-                { id: 'both', label: 'Ambos' },
-              ].map(option => (
-                <label
-                  key={option.id}
-                  className={`flex-1 p-2 text-center text-sm rounded-lg border cursor-pointer transition-all ${data.verificationMode === option.id
-                    ? 'border-primary bg-primary/10'
-                    : 'border-border hover:bg-secondary/50'
-                    }`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    updateField('verificationMode', option.id as 'email' | 'whatsapp' | 'both');
-                  }}
-                >
-                  <input
-                    type="radio"
-                    name="verificationMode"
-                    value={option.id}
-                    checked={data.verificationMode === option.id}
-                    onChange={() => { }}
-                    className="sr-only"
-                  />
-                  {option.label}
-                </label>
-              ))}
-            </div>
-          </div>
-
-          {/* Intervalo de Busca (km) */}
-          <div>
-            <Label className="text-sm font-medium mb-3 block">
-              Intervalo de Busca: {data.searchRadius} km
-            </Label>
-            <Slider
-              value={[data.searchRadius]}
-              onValueChange={(value) => updateField('searchRadius', value[0])}
-              min={0}
-              max={200}
-              step={5}
-              className="mt-2"
-            />
-          </div>
-
-          {/* Frequência de Atualização */}
-          <div>
-            <Label className="text-sm font-medium mb-3 block">Frequência de Atualização</Label>
-            <div className="flex gap-2">
-              {[
-                { id: 'daily', label: 'Diária' },
-                { id: 'thrice_weekly', label: '3× semana' },
-                { id: 'weekly', label: 'Semanal' },
-              ].map(option => (
-                <label
-                  key={option.id}
-                  className={`flex-1 p-2 text-center text-sm rounded-lg border cursor-pointer transition-all ${data.updateFrequency === option.id
-                    ? 'border-primary bg-primary/10'
-                    : 'border-border hover:bg-secondary/50'
-                    }`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    updateField('updateFrequency', option.id as 'daily' | 'thrice_weekly' | 'weekly');
-                  }}
-                >
-                  <input
-                    type="radio"
-                    name="updateFrequency"
-                    value={option.id}
-                    checked={data.updateFrequency === option.id}
-                    onChange={() => { }}
-                    className="sr-only"
-                  />
-                  {option.label}
-                </label>
-              ))}
-            </div>
-          </div>
-
-          {/* Template de Abordagem */}
-          <div>
-            <Label className="text-sm font-medium mb-2 block">Template de Abordagem</Label>
-            <Select
-              value={data.approachTemplate}
-              onValueChange={(value) => updateField('approachTemplate', value)}
-            >
-              <SelectTrigger className="bg-secondary/50">
-                <SelectValue placeholder="Selecione um template..." />
-              </SelectTrigger>
-              <SelectContent>
-                {templateOptions.map(template => (
-                  <SelectItem key={template.id} value={template.id}>
-                    {template.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </>
+        </div>
       )}
-    </div >
+    </div>
   );
 };

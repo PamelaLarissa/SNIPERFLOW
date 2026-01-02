@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
   Users,
-  Target,
   ChevronLeft,
   ChevronRight,
   LogOut,
@@ -12,12 +11,9 @@ import {
   Bell,
   Menu,
   X,
-  Map,
   Calendar,
-  Kanban,
   FileText,
-  TestTube2,
-  History,
+  MessageSquare,
   Settings
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -33,15 +29,12 @@ interface SidebarProps {
 
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
-  { icon: Users, label: "Leads", path: "/leads" },
-  { icon: Target, label: "Campanhas", path: "/campaigns" },
-  { icon: Map, label: "Mapa Radar", path: "/radar" },
+  { icon: Zap, label: "Motor de Prospecção", path: "/campaigns" },
+  { icon: Users, label: "Central de Leads", path: "/leads" },
   { icon: Calendar, label: "Agendamentos", path: "/schedules" },
-  { icon: Kanban, label: "Kanban", path: "/kanban" },
-  { icon: FileText, label: "Propostas", path: "/proposals" },
-  { icon: TestTube2, label: "Teste A/B", path: "/ab-test" },
-  { icon: History, label: "Logs de E-mail", path: "/email-logs" },
-  { icon: Settings, label: "Configurações", path: "/settings" },
+  { icon: FileText, label: "Vendas & Propostas", path: "/proposals" },
+  { icon: MessageSquare, label: "WhatsApp API", path: "/whatsapp", badge: "Breve" },
+  { icon: Settings, label: "Sistema", path: "/settings" },
 ];
 
 export const Sidebar = ({ collapsed = false, onCollapse, mobileOpen, onMobileClose }: SidebarProps) => {
@@ -107,7 +100,12 @@ export const Sidebar = ({ collapsed = false, onCollapse, mobileOpen, onMobileClo
                           />
                         )}
                         <item.icon className={cn("h-5 w-5 shrink-0", isActive && "text-primary")} />
-                        <span className="truncate">{item.label}</span>
+                        <span className="truncate flex-1">{item.label}</span>
+                        {item.badge && (
+                          <Badge variant="glow" className="text-[10px] h-4 px-1 leading-none">
+                            {item.badge}
+                          </Badge>
+                        )}
                       </Button>
                     </Link>
                   );
@@ -175,14 +173,19 @@ export const Sidebar = ({ collapsed = false, onCollapse, mobileOpen, onMobileClo
                 <item.icon className={cn("h-5 w-5 shrink-0", isActive && "text-primary")} />
                 <AnimatePresence>
                   {!collapsed && (
-                    <motion.span
+                    <motion.div
                       initial={{ opacity: 0, width: 0 }}
                       animate={{ opacity: 1, width: "auto" }}
                       exit={{ opacity: 0, width: 0 }}
-                      className="overflow-hidden whitespace-nowrap"
+                      className="overflow-hidden whitespace-nowrap flex items-center gap-2 flex-1"
                     >
-                      {item.label}
-                    </motion.span>
+                      <span>{item.label}</span>
+                      {item.badge && (
+                        <Badge variant="glow" className="text-[8px] h-3.5 px-1 leading-none uppercase font-bold">
+                          {item.badge}
+                        </Badge>
+                      )}
+                    </motion.div>
                   )}
                 </AnimatePresence>
               </Button>
