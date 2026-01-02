@@ -7,12 +7,8 @@ import { DashboardPage } from "./pages/Dashboard";
 import { LeadsPage } from "./pages/Leads";
 import { CampaignsPage } from "./pages/Campaigns";
 import { SettingsPage } from "./pages/Settings";
-import RadarPage from "./pages/Radar";
 import { SchedulesPage } from "./pages/Schedules";
-import { KanbanPage } from "./pages/Kanban";
 import { ProposalsPage } from "./pages/Proposals";
-import { ABTestPage } from "./pages/ABTest";
-import { EmailLogsPage } from "./pages/EmailLogs";
 import { LeadDetailsPage } from "./pages/LeadDetails";
 import NotFound from "./pages/NotFound";
 
@@ -29,14 +25,17 @@ const App = () => (
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/leads" element={<LeadsPage />} />
           <Route path="/campaigns" element={<CampaignsPage />} />
-          <Route path="/radar" element={<RadarPage />} />
           <Route path="/schedules" element={<SchedulesPage />} />
-          <Route path="/kanban" element={<KanbanPage />} />
           <Route path="/proposals" element={<ProposalsPage />} />
-          <Route path="/ab-test" element={<ABTestPage />} />
-          <Route path="/email-logs" element={<EmailLogsPage />} />
-          <Route path="/leads/:id" element={<LeadDetailsPage />} />
           <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/leads/:id" element={<LeadDetailsPage />} />
+
+          {/* Legacy Redirects to Unified Hubs */}
+          <Route path="/kanban" element={<Navigate to="/leads" replace />} />
+          <Route path="/radar" element={<Navigate to="/leads" replace />} />
+          <Route path="/ab-test" element={<Navigate to="/settings" replace />} />
+          <Route path="/email-logs" element={<Navigate to="/settings" replace />} />
+
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

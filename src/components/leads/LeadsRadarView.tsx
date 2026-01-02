@@ -101,7 +101,7 @@ export const LeadsRadarView = ({ leads: allLeads, onViewLead }: LeadsRadarViewPr
                             </div>
                             <div className="flex items-center gap-2">
                                 <div className="w-3 h-3 rounded-full bg-muted-foreground" />
-                                <span>Baixa (<50)</span>
+                                <span>Baixa (&lt;50)</span>
                             </div>
                         </div>
                     </div>

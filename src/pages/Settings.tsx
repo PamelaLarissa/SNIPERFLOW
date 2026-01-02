@@ -8,10 +8,11 @@ import {
   Mail,
   Bell,
   Shield,
-  Key,
   Zap,
   Building,
-  Loader2
+  Loader2,
+  TestTube2,
+  History
 } from "lucide-react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Header } from "@/components/layout/Sidebar";
@@ -21,6 +22,8 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
+import { ABTestView } from "@/components/settings/ABTestView";
+import { EmailLogsView } from "@/components/settings/EmailLogsView";
 
 export const SettingsPage = () => {
   const [workspaceName, setWorkspaceName] = useState("Minha Agência");
@@ -106,76 +109,64 @@ export const SettingsPage = () => {
   return (
     <DashboardLayout>
       <Header
-        title="Configurações"
-        subtitle="Personalize sua experiência no LeadScan 365"
+        title="Sistema e Configurações"
+        subtitle="Gerencie sua conta, configurações técnicas e ferramentas do sistema"
       />
 
       <Tabs defaultValue="workspace" className="space-y-4 sm:space-y-6">
-        <TabsList className="bg-secondary/50 border border-border p-1 flex-wrap h-auto gap-1">
-          <TabsTrigger value="workspace" className="gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3">
-            <Building className="h-3 w-3 sm:h-4 sm:w-4" />
-            <span className="hidden xs:inline">Workspace</span>
-            <span className="xs:hidden">WS</span>
-          </TabsTrigger>
-          <TabsTrigger value="whitelabel" className="gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3">
-            <Palette className="h-3 w-3 sm:h-4 sm:w-4" />
-            <span className="hidden xs:inline">White-Label</span>
-            <span className="xs:hidden">WL</span>
-          </TabsTrigger>
-          <TabsTrigger value="integrations" className="gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3">
-            <Zap className="h-3 w-3 sm:h-4 sm:w-4" />
-            <span className="hidden sm:inline">Integrações</span>
-            <span className="sm:hidden">Int</span>
-          </TabsTrigger>
-          <TabsTrigger value="notifications" className="gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3">
-            <Bell className="h-3 w-3 sm:h-4 sm:w-4" />
-            <span className="hidden sm:inline">Notificações</span>
-            <span className="sm:hidden">Not</span>
-          </TabsTrigger>
-          <TabsTrigger value="email" className="gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3">
-            <Mail className="h-3 w-3 sm:h-4 sm:w-4" />
-            <span className="hidden sm:inline">E-mail (SMTP)</span>
-            <span className="sm:hidden">Mail</span>
-          </TabsTrigger>
-        </TabsList>
+        <div className="overflow-x-auto pb-2">
+          <TabsList className="bg-secondary/50 border border-border p-1 w-max">
+            <TabsTrigger value="workspace" className="gap-2 px-4 whitespace-nowrap">
+              <Building className="h-4 w-4" />
+              Workspace
+            </TabsTrigger>
+            <TabsTrigger value="whitelabel" className="gap-2 px-4 whitespace-nowrap">
+              <Palette className="h-4 w-4" />
+              White-Label
+            </TabsTrigger>
+            <TabsTrigger value="integrations" className="gap-2 px-4 whitespace-nowrap">
+              <Zap className="h-4 w-4" />
+              Integrações
+            </TabsTrigger>
+            <TabsTrigger value="notifications" className="gap-2 px-4 whitespace-nowrap">
+              <Bell className="h-4 w-4" />
+              Notificações
+            </TabsTrigger>
+            <TabsTrigger value="email" className="gap-2 px-4 whitespace-nowrap">
+              <Mail className="h-4 w-4" />
+              E-mail (SMTP)
+            </TabsTrigger>
+            <TabsTrigger value="abtest" className="gap-2 px-4 whitespace-nowrap">
+              <TestTube2 className="h-4 w-4" />
+              Teste A/B
+            </TabsTrigger>
+            <TabsTrigger value="logs" className="gap-2 px-4 whitespace-nowrap">
+              <History className="h-4 w-4" />
+              Logs de E-mail
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="workspace">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-6"
-          >
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
             <Card variant="glass">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Building className="h-5 w-5 text-primary" />
                   Informações do Workspace
                 </CardTitle>
-                <CardDescription>
-                  Configure as informações básicas da sua organização
-                </CardDescription>
+                <CardDescription>Configure as informações básicas da sua organização</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
                   <label className="text-sm font-medium mb-2 block">Nome do Workspace</label>
-                  <Input
-                    value={workspaceName}
-                    onChange={(e) => setWorkspaceName(e.target.value)}
-                    className="bg-secondary/50 max-w-md"
-                  />
+                  <Input value={workspaceName} onChange={(e) => setWorkspaceName(e.target.value)} className="bg-secondary/50 max-w-md" />
                 </div>
                 <div>
                   <label className="text-sm font-medium mb-2 block">E-mail de Contato</label>
-                  <Input
-                    type="email"
-                    placeholder="contato@suaempresa.com"
-                    className="bg-secondary/50 max-w-md"
-                  />
+                  <Input type="email" placeholder="contato@suaempresa.com" className="bg-secondary/50 max-w-md" />
                 </div>
-                <Button onClick={handleSave}>
-                  <Save className="h-4 w-4 mr-2" />
-                  Salvar Alterações
-                </Button>
+                <Button onClick={handleSave}><Save className="h-4 w-4 mr-2" />Salvar Alterações</Button>
               </CardContent>
             </Card>
 
@@ -189,14 +180,12 @@ export const SettingsPage = () => {
               <CardContent>
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-lg bg-primary/10 border border-primary/20">
                   <div>
-                    <h4 className="font-semibold text-base sm:text-lg">Plano Pro</h4>
-                    <p className="text-xs sm:text-sm text-muted-foreground">2.000 leads/mês • 3 nichos • 3 localidades • API</p>
+                    <h4 className="font-semibold text-base">Plano Pro</h4>
+                    <p className="text-xs text-muted-foreground">2.000 leads/mês • 3 nichos • 3 localidades • API</p>
                   </div>
                   <div className="text-left sm:text-right">
-                    <p className="text-xl sm:text-2xl font-bold">R$ 197<span className="text-xs sm:text-sm font-normal text-muted-foreground">/mês</span></p>
-                    <Button variant="outline" size="sm" className="mt-2 w-full sm:w-auto">
-                      Upgrade para Agência
-                    </Button>
+                    <p className="text-xl font-bold">R$ 197<span className="text-sm font-normal text-muted-foreground">/mês</span></p>
+                    <Button variant="outline" size="sm" className="mt-2 w-full sm:w-auto">Upgrade para Agência</Button>
                   </div>
                 </div>
               </CardContent>
@@ -205,103 +194,48 @@ export const SettingsPage = () => {
         </TabsContent>
 
         <TabsContent value="whitelabel">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="grid grid-cols-1 lg:grid-cols-2 gap-6"
-          >
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card variant="glass">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Palette className="h-5 w-5 text-primary" />
-                  Personalização Visual
-                </CardTitle>
-                <CardDescription>
-                  Personalize a aparência para seus clientes
-                </CardDescription>
+                <CardTitle className="flex items-center gap-2"><Palette className="h-5 w-5 text-primary" />Personalização Visual</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div>
                   <label className="text-sm font-medium mb-2 block">Logo</label>
                   <div className="flex items-center gap-4">
-                    <div className="w-20 h-20 rounded-xl bg-secondary/50 border border-dashed border-border flex items-center justify-center">
-                      <Upload className="h-6 w-6 text-muted-foreground" />
+                    <div className="w-16 h-16 rounded-xl bg-secondary/50 border border-dashed border-border flex items-center justify-center">
+                      <Upload className="h-5 w-5 text-muted-foreground" />
                     </div>
-                    <div>
-                      <Button variant="outline" size="sm">
-                        Fazer Upload
-                      </Button>
-                      <p className="text-xs text-muted-foreground mt-1">PNG, SVG até 2MB</p>
-                    </div>
+                    <Button variant="outline" size="sm">Fazer Upload</Button>
                   </div>
                 </div>
-
                 <div>
                   <label className="text-sm font-medium mb-2 block">Cor Primária</label>
                   <div className="flex items-center gap-3">
-                    <input
-                      type="color"
-                      value={primaryColor}
-                      onChange={(e) => setPrimaryColor(e.target.value)}
-                      className="w-12 h-12 rounded-lg cursor-pointer border-0"
-                    />
-                    <Input
-                      value={primaryColor}
-                      onChange={(e) => setPrimaryColor(e.target.value)}
-                      className="bg-secondary/50 max-w-[120px] uppercase"
-                    />
+                    <input type="color" value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} className="w-10 h-10 rounded-lg cursor-pointer border-0" />
+                    <Input value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} className="bg-secondary/50 max-w-[120px] uppercase" />
                   </div>
                 </div>
-
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Subdomínio Personalizado</label>
+                  <label className="text-sm font-medium mb-2 block">Subdomínio</label>
                   <div className="flex items-center gap-2">
-                    <Input
-                      placeholder="suaempresa"
-                      className="bg-secondary/50 max-w-[200px]"
-                    />
-                    <span className="text-muted-foreground">.leadscan365.com</span>
+                    <Input placeholder="suaempresa" className="bg-secondary/50 max-w-[160px]" />
+                    <span className="text-sm text-muted-foreground">.leadscan365.com</span>
                   </div>
                 </div>
-
-                <Button onClick={handleSave}>
-                  <Save className="h-4 w-4 mr-2" />
-                  Salvar Alterações
-                </Button>
+                <Button onClick={handleSave}><Save className="h-4 w-4 mr-2" />Salvar Alterações</Button>
               </CardContent>
             </Card>
-
             <Card variant="glass">
-              <CardHeader>
-                <CardTitle>Preview</CardTitle>
-                <CardDescription>Veja como ficará para seus clientes</CardDescription>
-              </CardHeader>
+              <CardHeader><CardTitle>Preview</CardTitle></CardHeader>
               <CardContent>
-                <div
-                  className="p-6 rounded-xl border border-border"
-                  style={{
-                    background: `linear-gradient(135deg, ${primaryColor}10 0%, transparent 100%)`
-                  }}
-                >
-                  <div className="flex items-center gap-3 mb-4">
-                    <div
-                      className="w-10 h-10 rounded-xl flex items-center justify-center"
-                      style={{ background: primaryColor }}
-                    >
-                      <Zap className="h-6 w-6 text-white" />
-                    </div>
-                    <span className="font-bold text-lg">{workspaceName}</span>
+                <div className="p-6 rounded-xl border border-border" style={{ background: `linear-gradient(135deg, ${primaryColor}10 0%, transparent 100%)` }}>
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: primaryColor }}><Zap className="h-4 w-4 text-white" /></div>
+                    <span className="font-bold">{workspaceName}</span>
                   </div>
-                  <div className="space-y-2">
-                    <div className="h-3 bg-secondary/50 rounded w-3/4" />
-                    <div className="h-3 bg-secondary/50 rounded w-1/2" />
-                  </div>
-                  <Button
-                    className="mt-4"
-                    style={{ background: primaryColor }}
-                  >
-                    Botão de Ação
-                  </Button>
+                  <div className="space-y-2 mb-4"><div className="h-2 bg-secondary/50 rounded w-3/4" /><div className="h-2 bg-secondary/50 rounded w-1/2" /></div>
+                  <Button size="sm" style={{ background: primaryColor }}>Ação</Button>
                 </div>
               </CardContent>
             </Card>
@@ -309,31 +243,22 @@ export const SettingsPage = () => {
         </TabsContent>
 
         <TabsContent value="integrations">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="grid grid-cols-1 md:grid-cols-2 gap-4"
-          >
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {[
-              { name: 'Google Sheets', description: 'Sincronize leads automaticamente', connected: true },
-              { name: 'Slack', description: 'Receba notificações de novos leads', connected: true },
-              { name: 'Trello', description: 'Crie cards automaticamente', connected: false },
-              { name: 'Webhook', description: 'Envie dados para qualquer API', connected: false },
-              { name: 'PipeDrive', description: 'Integração com CRM', connected: false },
-              { name: 'HubSpot', description: 'Sincronize contatos e deals', connected: false },
-            ].map((integration) => (
-              <Card key={integration.name} variant="glass">
+              { name: 'Google Sheets', connected: true },
+              { name: 'Slack', connected: true },
+              { name: 'Trello', connected: false },
+              { name: 'Webhook', connected: false },
+              { name: 'PipeDrive', connected: false },
+              { name: 'HubSpot', connected: false },
+            ].map((int) => (
+              <Card key={int.name} variant="glass">
                 <CardContent className="p-4 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center">
-                      <Globe className="h-5 w-5 text-muted-foreground" />
-                    </div>
-                    <div>
-                      <h4 className="font-medium">{integration.name}</h4>
-                      <p className="text-sm text-muted-foreground">{integration.description}</p>
-                    </div>
+                    <div className="w-8 h-8 rounded bg-secondary flex items-center justify-center"><Globe className="h-4 w-4 text-muted-foreground" /></div>
+                    <span className="font-medium text-sm">{int.name}</span>
                   </div>
-                  <Switch checked={integration.connected} />
+                  <Switch checked={int.connected} />
                 </CardContent>
               </Card>
             ))}
@@ -341,120 +266,57 @@ export const SettingsPage = () => {
         </TabsContent>
 
         <TabsContent value="notifications">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="max-w-3xl">
             <Card variant="glass">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Bell className="h-5 w-5 text-primary" />
-                  Preferências de Notificação
-                </CardTitle>
-              </CardHeader>
+              <CardHeader><CardTitle className="flex items-center gap-2"><Bell className="h-5 w-5 text-primary" />Preferências</CardTitle></CardHeader>
               <CardContent className="space-y-4">
                 {[
-                  { label: 'Novos leads encontrados', description: 'Receber alerta quando novos leads forem encontrados', enabled: true },
-                  { label: 'Relatório diário', description: 'Resumo diário de atividades por e-mail', enabled: true },
-                  { label: 'Leads de alta qualidade', description: 'Alerta imediato para leads com score > 80', enabled: true },
-                  { label: 'Erros de verificação', description: 'Notificar quando houver falhas na verificação', enabled: false },
-                  { label: 'Atualizações do sistema', description: 'Novidades e melhorias da plataforma', enabled: false },
-                ].map((notification) => (
-                  <div key={notification.label} className="flex items-center justify-between p-4 rounded-lg bg-secondary/30 border border-border/50">
-                    <div>
-                      <h4 className="font-medium">{notification.label}</h4>
-                      <p className="text-sm text-muted-foreground">{notification.description}</p>
-                    </div>
-                    <Switch defaultChecked={notification.enabled} />
+                  { label: 'Novos leads', desc: 'Alertas de novos leads encontrados' },
+                  { label: 'Relatório diário', desc: 'Resumo por e-mail' },
+                ].map((n) => (
+                  <div key={n.label} className="flex items-center justify-between p-3 rounded-lg bg-secondary/30">
+                    <div><h4 className="font-medium text-sm">{n.label}</h4><p className="text-xs text-muted-foreground">{n.desc}</p></div>
+                    <Switch defaultChecked />
                   </div>
                 ))}
-                <Button onClick={handleSave} className="mt-4">
-                  <Save className="h-4 w-4 mr-2" />
-                  Salvar Preferências
-                </Button>
+                <Button onClick={handleSave} size="sm"><Save className="h-4 w-4 mr-2" />Salvar</Button>
               </CardContent>
             </Card>
           </motion.div>
         </TabsContent>
 
         <TabsContent value="email">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-6"
-          >
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
             <Card variant="glass">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Mail className="h-5 w-5 text-primary" />
-                  Configuração SMTP
-                </CardTitle>
-                <CardDescription>
-                  Configure seu servidor de e-mail para envio de campanhas automáticas.
-                </CardDescription>
+                <CardTitle className="flex items-center gap-2"><Mail className="h-5 w-5 text-primary" />SMTP</CardTitle>
+                <CardDescription>Configure seu servidor de e-mail para campanhas.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Host SMTP</label>
-                    <Input
-                      placeholder="smtp.gmail.com"
-                      className="bg-secondary/50"
-                      value={smtpConfig.host}
-                      onChange={(e) => setSmtpConfig({ ...smtpConfig, host: e.target.value })}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Porta</label>
-                    <Input
-                      type="number"
-                      placeholder="587"
-                      className="bg-secondary/50"
-                      value={smtpConfig.port}
-                      onChange={(e) => setSmtpConfig({ ...smtpConfig, port: parseInt(e.target.value) || 587 })}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Usuário</label>
-                    <Input
-                      placeholder="seu@email.com"
-                      className="bg-secondary/50"
-                      value={smtpConfig.user}
-                      onChange={(e) => setSmtpConfig({ ...smtpConfig, user: e.target.value })}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Senha</label>
-                    <Input
-                      type="password"
-                      placeholder="••••••••"
-                      className="bg-secondary/50"
-                      value={smtpConfig.pass}
-                      onChange={(e) => setSmtpConfig({ ...smtpConfig, pass: e.target.value })}
-                    />
-                  </div>
-                  <div className="space-y-2 md:col-span-2">
-                    <label className="text-sm font-medium">Nome do Remetente</label>
-                    <Input
-                      placeholder="LeadScan 365"
-                      className="bg-secondary/50"
-                      value={smtpConfig.from}
-                      onChange={(e) => setSmtpConfig({ ...smtpConfig, from: e.target.value })}
-                    />
-                  </div>
+                  <div className="space-y-1"><label className="text-xs font-medium">Host</label><Input value={smtpConfig.host} onChange={e => setSmtpConfig({ ...smtpConfig, host: e.target.value })} /></div>
+                  <div className="space-y-1"><label className="text-xs font-medium">Porta</label><Input type="number" value={smtpConfig.port} onChange={e => setSmtpConfig({ ...smtpConfig, port: parseInt(e.target.value) || 587 })} /></div>
+                  <div className="space-y-1"><label className="text-xs font-medium">Usuário</label><Input value={smtpConfig.user} onChange={e => setSmtpConfig({ ...smtpConfig, user: e.target.value })} /></div>
+                  <div className="space-y-1"><label className="text-xs font-medium">Senha</label><Input type="password" value={smtpConfig.pass} onChange={e => setSmtpConfig({ ...smtpConfig, pass: e.target.value })} /></div>
                 </div>
-                <div className="flex gap-3 pt-4">
-                  <Button onClick={handleSaveSmtp} disabled={isSaving}>
-                    {isSaving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
-                    Salvar Configuração
-                  </Button>
-                  <Button variant="outline" onClick={handleTestConnection} disabled={isTesting}>
-                    {isTesting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                    Testar Conexão
-                  </Button>
+                <div className="flex gap-2 pt-2">
+                  <Button onClick={handleSaveSmtp} disabled={isSaving} size="sm">{isSaving && <Loader2 className="h-3 w-3 mr-2 animate-spin" />}Salvar</Button>
+                  <Button variant="outline" onClick={handleTestConnection} disabled={isTesting} size="sm">{isTesting && <Loader2 className="h-3 w-3 mr-2 animate-spin" />}Testar</Button>
                 </div>
               </CardContent>
             </Card>
+          </motion.div>
+        </TabsContent>
+
+        <TabsContent value="abtest">
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+            <ABTestView />
+          </motion.div>
+        </TabsContent>
+
+        <TabsContent value="logs">
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+            <EmailLogsView />
           </motion.div>
         </TabsContent>
       </Tabs>
