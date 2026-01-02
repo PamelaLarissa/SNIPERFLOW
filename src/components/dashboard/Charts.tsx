@@ -1,11 +1,11 @@
 import { motion } from "framer-motion";
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
   ResponsiveContainer,
   AreaChart,
   Area,
@@ -14,6 +14,7 @@ import {
   Cell
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Zap, Bot } from "lucide-react";
 
 interface ScoreChartProps {
   data: { range: string; count: number }[];
@@ -36,12 +37,12 @@ export const ScoreDistributionChart = ({ data }: ScoreChartProps) => {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={data} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis 
-                  dataKey="range" 
+                <XAxis
+                  dataKey="range"
                   tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
                   axisLine={{ stroke: 'hsl(var(--border))' }}
                 />
-                <YAxis 
+                <YAxis
                   tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
                   axisLine={{ stroke: 'hsl(var(--border))' }}
                 />
@@ -54,9 +55,9 @@ export const ScoreDistributionChart = ({ data }: ScoreChartProps) => {
                   }}
                   labelStyle={{ color: 'hsl(var(--foreground))' }}
                 />
-                <Bar 
-                  dataKey="count" 
-                  fill="hsl(var(--primary))" 
+                <Bar
+                  dataKey="count"
+                  fill="hsl(var(--primary))"
                   radius={[4, 4, 0, 0]}
                 />
               </BarChart>
@@ -90,17 +91,17 @@ export const LeadsTrendChart = ({ data }: TrendChartProps) => {
               <AreaChart data={data} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
                 <defs>
                   <linearGradient id="leadGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis 
-                  dataKey="date" 
+                <XAxis
+                  dataKey="date"
                   tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
                   axisLine={{ stroke: 'hsl(var(--border))' }}
                 />
-                <YAxis 
+                <YAxis
                   tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
                   axisLine={{ stroke: 'hsl(var(--border))' }}
                 />
@@ -112,12 +113,12 @@ export const LeadsTrendChart = ({ data }: TrendChartProps) => {
                     color: 'hsl(var(--foreground))',
                   }}
                 />
-                <Area 
-                  type="monotone" 
-                  dataKey="leads" 
-                  stroke="hsl(var(--primary))" 
+                <Area
+                  type="monotone"
+                  dataKey="leads"
+                  stroke="hsl(var(--primary))"
                   strokeWidth={2}
-                  fill="url(#leadGradient)" 
+                  fill="url(#leadGradient)"
                 />
               </AreaChart>
             </ResponsiveContainer>
@@ -149,9 +150,9 @@ const groupFreelanceSources = (data: { source: string; count: number }[]) => {
   const freelanceTotal = data
     .filter(item => freelancePlatforms.includes(item.source))
     .reduce((acc, item) => acc + item.count, 0);
-  
+
   const otherSources = data.filter(item => !freelancePlatforms.includes(item.source));
-  
+
   if (freelanceTotal > 0) {
     return [...otherSources, { source: 'Freelance', count: freelanceTotal }];
   }
@@ -160,7 +161,7 @@ const groupFreelanceSources = (data: { source: string; count: number }[]) => {
 
 export const LeadsBySourceChart = ({ data }: SourceChartProps) => {
   const groupedData = groupFreelanceSources(data);
-  
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -187,9 +188,9 @@ export const LeadsBySourceChart = ({ data }: SourceChartProps) => {
                   nameKey="source"
                 >
                   {groupedData.map((item, index) => (
-                    <Cell 
-                      key={`cell-${index}`} 
-                      fill={item.source === 'Freelance' ? FREELANCE_COLOR : COLORS[index % COLORS.length]} 
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={item.source === 'Freelance' ? FREELANCE_COLOR : COLORS[index % COLORS.length]}
                     />
                   ))}
                 </Pie>
@@ -207,8 +208,8 @@ export const LeadsBySourceChart = ({ data }: SourceChartProps) => {
           <div className="flex flex-wrap justify-center gap-3 mt-4">
             {groupedData.map((item, index) => (
               <div key={item.source} className="flex items-center gap-2 text-sm">
-                <div 
-                  className="w-3 h-3 rounded-full" 
+                <div
+                  className="w-3 h-3 rounded-full"
                   style={{ backgroundColor: item.source === 'Freelance' ? FREELANCE_COLOR : COLORS[index % COLORS.length] }}
                 />
                 <span className="text-muted-foreground">{item.source}</span>
@@ -220,3 +221,97 @@ export const LeadsBySourceChart = ({ data }: SourceChartProps) => {
     </motion.div>
   );
 };
+
+interface EcosystemChartProps {
+  data: { name: string; value: number }[];
+}
+
+export const LeadsByEcosystemChart = ({ data }: EcosystemChartProps) => {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: 0.7 }}
+      className="h-full"
+    >
+      <Card variant="glass" className="h-full">
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold text-primary flex items-center gap-2">
+            <Zap className="h-4 w-4" />
+            Radar de Ecossistemas
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-3 sm:p-6">
+          <div className="h-[220px] sm:h-[280px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={data} layout="vertical" margin={{ top: 5, right: 30, left: 40, bottom: 5 }}>
+                <XAxis type="number" hide />
+                <YAxis
+                  dataKey="name"
+                  type="category"
+                  tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }}
+                  width={80}
+                />
+                <Tooltip
+                  cursor={{ fill: 'transparent' }}
+                  contentStyle={{
+                    backgroundColor: 'hsl(var(--card))',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px',
+                  }}
+                />
+                <Bar
+                  dataKey="value"
+                  fill="hsl(var(--accent))"
+                  radius={[0, 4, 4, 0]}
+                  barSize={12}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+};
+
+interface TechChartProps {
+  data: { name: string; count: number }[];
+}
+
+export const TechnologiesDetectedChart = ({ data }: TechChartProps) => {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: 0.8 }}
+      className="h-full"
+    >
+      <Card variant="glass" className="h-full">
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold text-primary flex items-center gap-2">
+            <Bot className="h-4 w-4" />
+            Sensores de Tecnologia
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-3 sm:p-6 text-center">
+          <div className="flex flex-wrap justify-center gap-2">
+            {data.map((tech) => (
+              <div key={tech.name} className="flex flex-col items-center p-3 rounded-lg bg-secondary/30 border border-border/50 min-w-[100px] flex-1">
+                <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">{tech.name}</span>
+                <span className="text-xl font-black text-foreground mt-1">{tech.count}</span>
+                <div className="w-full bg-secondary h-1 rounded-full mt-2 overflow-hidden">
+                  <div
+                    className="bg-primary h-full rounded-full"
+                    style={{ width: `${Math.min(100, (tech.count / 100) * 100)}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+};
+

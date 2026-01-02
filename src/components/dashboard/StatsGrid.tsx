@@ -1,9 +1,11 @@
 import { motion } from "framer-motion";
-import { 
-  Users, 
-  CheckCircle, 
-  TrendingUp, 
+import {
+  Users,
+  CheckCircle,
+  TrendingUp,
   Zap,
+  Target,
+  Loader2,
   ArrowUpRight,
   ArrowDownRight
 } from "lucide-react";
@@ -20,7 +22,7 @@ interface StatCardProps {
 
 const StatCard = ({ title, value, change, icon, delay = 0 }: StatCardProps) => {
   const isPositive = change && change > 0;
-  
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -59,39 +61,39 @@ const StatCard = ({ title, value, change, icon, delay = 0 }: StatCardProps) => {
 
 interface StatsGridProps {
   totalLeads: number;
-  verifiedLeads: number;
-  avgScore: number;
-  activeCampaigns: number;
+  opportunities: number;
+  activeMissions: number;
+  creditsRemaining: number;
 }
 
-export const StatsGrid = ({ totalLeads, verifiedLeads, avgScore, activeCampaigns }: StatsGridProps) => {
+export const StatsGrid = ({ totalLeads, opportunities, activeMissions, creditsRemaining }: StatsGridProps) => {
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
       <StatCard
-        title="Total de Leads"
-        value={totalLeads.toLocaleString('pt-BR')}
-        change={12.5}
-        icon={<Users className="h-5 w-5" />}
+        title="Mísseis em Voo"
+        value={activeMissions}
+        change={activeMissions > 0 ? 100 : 0}
+        icon={<Loader2 className={cn("h-5 w-5", activeMissions > 0 && "animate-spin text-primary")} />}
         delay={0}
       />
       <StatCard
-        title="Leads Verificados"
-        value={verifiedLeads.toLocaleString('pt-BR')}
-        change={8.3}
-        icon={<CheckCircle className="h-5 w-5" />}
+        title="Alvos Abatidos"
+        value={totalLeads.toLocaleString('pt-BR')}
+        change={12.5}
+        icon={<Target className="h-5 w-5 text-accent" />}
         delay={0.1}
       />
       <StatCard
-        title="Score Médio"
-        value={avgScore}
-        change={5.2}
-        icon={<TrendingUp className="h-5 w-5" />}
+        title="Oportunidades de Ouro"
+        value={opportunities.toLocaleString('pt-BR')}
+        change={18.3}
+        icon={<Zap className="h-5 w-5 text-amber-500" />}
         delay={0.2}
       />
       <StatCard
-        title="Campanhas Ativas"
-        value={activeCampaigns}
-        icon={<Zap className="h-5 w-5" />}
+        title="Saldo de Mísseis"
+        value={creditsRemaining}
+        icon={<Zap className="h-5 w-5 text-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.3)]" />}
         delay={0.3}
       />
     </div>
