@@ -117,7 +117,7 @@ export const StatsGrid = ({
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
       <StatCard
-        title="Alvos Abatidos"
+        title="Alvos Neutralizados"
         value={totalAlvos}
         change={12.5}
         icon={<Users className="h-5 w-5 text-primary" />}
@@ -125,7 +125,7 @@ export const StatsGrid = ({
         delay={0}
       />
       <StatCard
-        title="Mísseis em Voo"
+        title="Operações em Curso"
         value={activeMissions}
         change={activeMissions > 0 ? 100 : 0}
         icon={<Rocket className="h-5 w-5 text-accent" />}
@@ -141,18 +141,18 @@ export const StatsGrid = ({
             }}
           >
             <Plus className="h-3 w-3" />
-            Nova Campanha
+            Nova Missão
           </Button>
         }
         delay={0.1}
       />
       <StatCard
-        title="Saldo de Mísseis"
+        title="Arsenal Disponível"
         value={creditsRemaining}
         subtitle={
           <div className="flex items-center gap-1">
             <span className="text-emerald-500 font-bold">{usedCredits}</span>
-            <span className="text-muted-foreground font-semibold">Munições lançadas</span>
+            <span className="text-muted-foreground font-semibold">Munições gastas</span>
           </div>
         }
         icon={<Zap className="h-5 w-5 text-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.3)]" />}
@@ -167,7 +167,7 @@ export const StatsGrid = ({
             }}
           >
             <Plus className="h-3 w-3" />
-            Recarregar Arsenal
+            Solicitar Munição
           </Button>
         }
         delay={0.2}

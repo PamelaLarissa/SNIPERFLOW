@@ -172,7 +172,7 @@ export const LeadsListView = ({
                         <div className="relative flex-1">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                             <Input
-                                placeholder="Buscar leads..."
+                                placeholder="Explorar alvos..."
                                 value={searchTerm}
                                 onChange={(e) => onSearchChange(e.target.value)}
                                 className="pl-10 bg-secondary/50"
@@ -180,22 +180,22 @@ export const LeadsListView = ({
                         </div>
                         <Button variant="outline" onClick={onFilterToggle} className="shrink-0">
                             <Filter className="h-4 w-4 sm:mr-2" />
-                            <span className="hidden sm:inline">Filtros</span>
+                            <span className="hidden sm:inline">Critérios Táticos</span>
                             <ChevronDown className={`h-4 w-4 ml-1 sm:ml-2 transition-transform ${filterOpen ? 'rotate-180' : ''}`} />
                         </Button>
                     </div>
                     <div className="flex gap-2 sm:gap-3">
                         <Button variant="outline" className="flex-1 sm:flex-none" onClick={onRefresh}>
                             <RefreshCw className="h-4 w-4 sm:mr-2" />
-                            <span className="hidden sm:inline">Atualizar</span>
+                            <span className="hidden sm:inline">Recon</span>
                         </Button>
                         <Button variant="outline" onClick={onExport} className="flex-1 sm:flex-none">
                             <Download className="h-4 w-4 sm:mr-2" />
-                            <span className="hidden sm:inline">Exportar CSV</span>
+                            <span className="hidden sm:inline">Baixar Intel</span>
                         </Button>
                         <Button variant="glow" onClick={onCreateOpen} className="flex-1 sm:flex-none">
                             <Plus className="h-4 w-4 sm:mr-2" />
-                            <span className="hidden sm:inline">Novo Lead</span>
+                            <span className="hidden sm:inline">Identificar Alvo</span>
                         </Button>
                     </div>
                 </div>
@@ -223,7 +223,7 @@ export const LeadsListView = ({
                                         >
                                             <span className="truncate">
                                                 {selectedCampaigns.length === 0
-                                                    ? "Selecionar campanhas..."
+                                                    ? "Filtrar Missões..."
                                                     : `${selectedCampaigns.length} selecionada(s)`}
                                             </span>
                                             <ChevronDown className={`h-3 w-3 ml-2 transition-transform ${campaignDropdownOpen ? 'rotate-180' : ''}`} />
@@ -271,7 +271,7 @@ export const LeadsListView = ({
                                         >
                                             <span className="truncate">
                                                 {selectedSources.length === 0
-                                                    ? "Selecionar fontes..."
+                                                    ? "Filtrar Origem..."
                                                     : `${selectedSources.length} selecionada(s)`}
                                             </span>
                                             <ChevronDown className={`h-3 w-3 ml-2 transition-transform ${sourceDropdownOpen ? 'rotate-180' : ''}`} />
@@ -307,7 +307,7 @@ export const LeadsListView = ({
                                         className="bg-secondary/50"
                                     />
                                     <Button variant="ghost" size="sm" onClick={clearFilters} className="w-full text-xs">
-                                        Limpar Filtros
+                                        Resetar Critérios
                                     </Button>
                                 </div>
                             </div>
@@ -324,14 +324,14 @@ export const LeadsListView = ({
                     className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3 rounded-lg bg-primary/10 border border-primary/20"
                 >
                     <span className="text-sm font-medium">
-                        {selectedLeads.length} lead(s) selecionado(s)
+                        {selectedLeads.length} alvo(s) marcados
                     </span>
                     <div className="flex gap-2 w-full sm:w-auto">
                         <Button variant="ghost" size="sm" onClick={onClearSelection} className="flex-1 sm:flex-none">
-                            Limpar seleção
+                            Desmarcar
                         </Button>
                         <Button size="sm" onClick={onExportSelected} className="flex-1 sm:flex-none">
-                            Exportar selecionados
+                            Extrair Dados
                         </Button>
                     </div>
                 </motion.div>

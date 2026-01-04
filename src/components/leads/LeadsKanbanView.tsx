@@ -80,12 +80,12 @@ export const LeadsKanbanView = ({
         if (newStatus) {
             onMoveLead(selectedForAi, newStatus);
             toast({
-                title: "IA detectou intenção!",
-                description: `Movido automaticamente para "${kanbanColumnLabels[newStatus]}"`,
+                title: "Intel Tática Confirmada!",
+                description: `Alvo redistribuído para "${kanbanColumnLabels[newStatus]}"`,
             });
         } else {
             toast({
-                title: "Nenhuma intenção detectada",
+                title: "Nenhum padrão tático identificado",
                 description: "Tente palavras como 'quero', 'proposta', 'fechado'",
                 variant: "destructive",
             });
@@ -108,12 +108,12 @@ export const LeadsKanbanView = ({
                             <div className="flex-1">
                                 <Label className="text-sm font-medium mb-2 flex items-center gap-2">
                                     <Sparkles className="h-4 w-4 text-primary" />
-                                    Análise AI - Simular mensagem do lead
+                                    Análise Tática - Simular Interceptação
                                 </Label>
                                 <div className="flex gap-2">
                                     <Select value={selectedForAi || ''} onValueChange={setSelectedForAi}>
                                         <SelectTrigger className="bg-secondary/50 w-full sm:w-48">
-                                            <SelectValue placeholder="Selecione lead" />
+                                            <SelectValue placeholder="Selecionar Alvo" />
                                         </SelectTrigger>
                                         <SelectContent>
                                             {leads.map(lead => (
@@ -134,11 +134,11 @@ export const LeadsKanbanView = ({
                             </div>
                             <Button onClick={handleAiAnalysis} disabled={!selectedForAi || !aiInput.trim()}>
                                 <Sparkles className="h-4 w-4 mr-2" />
-                                Analisar
+                                Decodificar
                             </Button>
                         </div>
                         <p className="text-xs text-muted-foreground mt-2">
-                            Palavras-chave: "quero", "interesse" → Qualificado | "proposta" → Proposta | "fechado", "aceito" → Ganho | "não quero" → Perdido
+                            Padrões de Intel: "quero", "interesse" → Alvo Confirmado | "proposta" → Proposta | "fechado", "aceito" → Missão Cumprida | "não quero" → Baixa Confirmada
                         </p>
                     </CardContent>
                 </Card>

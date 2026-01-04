@@ -20,6 +20,8 @@ interface ScoreChartProps {
   data: { range: string; count: number }[];
 }
 
+// Replacing titles in Chart components
+// Score Chart
 export const ScoreDistributionChart = ({ data }: ScoreChartProps) => {
   return (
     <motion.div
@@ -30,9 +32,11 @@ export const ScoreDistributionChart = ({ data }: ScoreChartProps) => {
     >
       <Card variant="glass" className="h-full">
         <CardHeader>
-          <CardTitle className="text-lg font-semibold">Distribuição de Score</CardTitle>
+          <CardTitle className="text-lg font-semibold">Classificação Tática (Score)</CardTitle>
         </CardHeader>
         <CardContent className="p-3 sm:p-6">
+// ... content truncated for brevity in replace call, but I will target specific blocks to avoid huge replacements
+          // Actually, I will just use multi_replace for accuracy in Charts.tsx as it is a large file.
           <div className="h-[220px] sm:h-[280px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={data} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
@@ -88,14 +92,14 @@ export const LeadsTrendChart = ({ data }: TrendChartProps) => {
     >
       <Card variant="glass" className="h-full flex flex-col">
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg font-semibold">Leads Deste Mês</CardTitle>
+          <CardTitle className="text-lg font-semibold">Alvos Neutralizados (Ciclo)</CardTitle>
           <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/50">
             <div className="flex flex-col">
-              <span className="text-xs text-muted-foreground uppercase tracking-wider font-bold">Mês Atual</span>
+              <span className="text-xs text-muted-foreground uppercase tracking-wider font-bold">Ciclo Atual</span>
               <span className="text-2xl font-black text-primary">{currentMonthTotal}</span>
             </div>
             <div className="flex flex-col text-right">
-              <span className="text-xs text-muted-foreground uppercase tracking-wider font-bold">Mês Passado</span>
+              <span className="text-xs text-muted-foreground uppercase tracking-wider font-bold">Ciclo Anterior</span>
               <span className="text-2xl font-black text-muted-foreground">{previousMonthTotal}</span>
             </div>
           </div>
@@ -198,7 +202,7 @@ export const LeadsBySourceChart = ({ data }: SourceChartProps) => {
     >
       <Card variant="glass" className="h-full flex flex-col">
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg font-semibold">Leads por Fonte</CardTitle>
+          <CardTitle className="text-lg font-semibold">Origem da Inteligência</CardTitle>
         </CardHeader>
         <CardContent className="p-3 sm:p-4 flex-1 flex flex-col">
           <div className="h-[160px] sm:h-[180px] flex items-center justify-center">

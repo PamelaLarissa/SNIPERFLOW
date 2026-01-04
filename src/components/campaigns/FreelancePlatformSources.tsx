@@ -27,16 +27,16 @@ interface FreelanceBadgeProps {
 
 export const FreelanceBadge = ({ source, showIcon = true }: FreelanceBadgeProps) => {
   const sourceInfo = getFreelanceSourceInfo(source);
-  
+
   if (!sourceInfo) return null;
-  
+
   return (
-    <Badge 
-      variant="outline" 
+    <Badge
+      variant="outline"
       className={`${sourceInfo.color} font-medium text-xs`}
     >
       {showIcon && <Briefcase className="h-3 w-3 mr-1" />}
-      Freelancer
+      Alvo Freelance
     </Badge>
   );
 };
@@ -49,15 +49,14 @@ interface FreelanceSourceCheckboxProps {
 
 export const FreelanceSourceCheckbox = ({ source, checked, onChange }: FreelanceSourceCheckboxProps) => {
   return (
-    <label 
-      className={`flex items-center gap-2 p-2 rounded-lg border cursor-pointer transition-all ${
-        checked 
-          ? 'border-primary bg-primary/10' 
+    <label
+      className={`flex items-center gap-2 p-2 rounded-lg border cursor-pointer transition-all ${checked
+          ? 'border-primary bg-primary/10'
           : 'border-border hover:bg-secondary/50'
-      }`}
+        }`}
     >
-      <input 
-        type="checkbox" 
+      <input
+        type="checkbox"
         checked={checked}
         onChange={() => onChange(source.id)}
         className="rounded border-border"

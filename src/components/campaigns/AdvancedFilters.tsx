@@ -556,8 +556,8 @@ export const AdvancedFilters = ({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="flex items-center justify-between p-4 rounded-xl border border-border bg-secondary/5">
                 <div className="space-y-1">
-                  <span className="text-base font-bold">Situação Ativa (RF)</span>
-                  <p className="text-xs text-muted-foreground font-medium">Ocultar baixadas/inativas</p>
+                  <span className="text-base font-bold">Status Operacional (RF)</span>
+                  <p className="text-xs text-muted-foreground font-medium">Ocultar baixas/inativas</p>
                 </div>
                 <Switch checked={data.onlyActiveStatus} onCheckedChange={(checked) => updateField('onlyActiveStatus', checked)} />
               </div>
@@ -568,7 +568,7 @@ export const AdvancedFilters = ({
                     <Users className="h-5 w-5" />
                   </div>
                   <div>
-                    <p className="text-base font-black">Apenas Decisores</p>
+                    <p className="text-base font-black">Alvos de Alto Valor (Decisores)</p>
                     <p className="text-xs text-muted-foreground font-medium">Filtra contatos de sócios e diretores</p>
                   </div>
                 </div>
@@ -580,7 +580,7 @@ export const AdvancedFilters = ({
           <div className="space-y-6 pt-6 border-t border-border/50">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-3">
-                <Label className="text-base font-bold">Modo de Varredura</Label>
+                <Label className="text-base font-bold">Protocolo de Varredura</Label>
                 <div className="flex gap-2">
                   <Select value={data.verificationMode} onValueChange={(value) => updateField('verificationMode', value as any)}>
                     <SelectTrigger className="bg-secondary/50 flex-1 h-11 text-sm font-semibold"><SelectValue /></SelectTrigger>
@@ -593,7 +593,7 @@ export const AdvancedFilters = ({
                 </div>
               </div>
               <div className="space-y-3">
-                <Label className="text-base font-bold">Frequência</Label>
+                <Label className="text-base font-bold">Cadência de Reconhecimento</Label>
                 <ToggleGroup
                   type="single"
                   value={data.updateFrequency}

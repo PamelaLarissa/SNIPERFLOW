@@ -11,6 +11,10 @@ interface Mission {
     status: 'scanning' | 'enriching' | 'finishing';
 }
 
+// In ActiveMissions.tsx (context provided in memory)
+// Wait, I need to do these one by one or carefully.
+// I will start with ActiveMissions.tsx since it is small.
+
 export const ActiveMissions = ({ missions }: { missions: Mission[] }) => {
     return (
         <Card variant="glass" className="h-full border-primary/20 bg-primary/5">
@@ -23,7 +27,7 @@ export const ActiveMissions = ({ missions }: { missions: Mission[] }) => {
             <CardContent className="space-y-4">
                 {missions.length === 0 ? (
                     <div className="py-8 text-center text-muted-foreground text-xs italic">
-                        Nenhum míssil ativo no momento...
+                        Nenhuma operação em curso na zona de combate...
                     </div>
                 ) : (
                     missions.map((mission) => (
@@ -32,7 +36,7 @@ export const ActiveMissions = ({ missions }: { missions: Mission[] }) => {
                                 <div className="space-y-0.5">
                                     <p className="text-xs font-bold text-foreground">{mission.name}</p>
                                     <p className="text-[10px] text-muted-foreground flex items-center gap-1">
-                                        {mission.status === 'scanning' ? 'Varrendo Google/Maps...' : 'Enriquecendo Dados...'}
+                                        {mission.status === 'scanning' ? 'Varrendo Setor...' : 'Processando Intel...'}
                                         <Loader2 className="h-2 w-2 animate-spin" />
                                     </p>
                                 </div>

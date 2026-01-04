@@ -113,7 +113,7 @@ export const LeadsRadarView = ({ leads: allLeads, onViewLead }: LeadsRadarViewPr
                             className="absolute top-16 right-4 w-64"
                         >
                             <Card variant="glass" className="p-4">
-                                <Label className="text-xs mb-2 block">Score Mínimo: {minScore}</Label>
+                                <Label className="text-xs mb-2 block">Qualificação Mínima: {minScore}</Label>
                                 <Input
                                     type="range"
                                     min="0"
@@ -123,7 +123,7 @@ export const LeadsRadarView = ({ leads: allLeads, onViewLead }: LeadsRadarViewPr
                                     className="mb-4"
                                 />
                                 <Button variant="secondary" size="sm" className="w-full" onClick={() => setMinScore(0)}>
-                                    Resetar Filtros
+                                    Resetar Radares
                                 </Button>
                             </Card>
                         </motion.div>
@@ -136,9 +136,9 @@ export const LeadsRadarView = ({ leads: allLeads, onViewLead }: LeadsRadarViewPr
                 <CardHeader className="p-4 border-b border-border/50">
                     <CardTitle className="text-sm font-bold flex items-center gap-2">
                         <Users className="h-4 w-4 text-primary" />
-                        Leads Georreferenciados
+                        Alvos Georreferenciados
                     </CardTitle>
-                    <Badge variant="outline" className="w-fit">{filteredLeads.length} no mapa</Badge>
+                    <Badge variant="outline" className="w-fit">{filteredLeads.length} no radar</Badge>
                 </CardHeader>
                 <CardContent className="p-0 flex-1 overflow-y-auto">
                     {selectedLead ? (
@@ -160,7 +160,7 @@ export const LeadsRadarView = ({ leads: allLeads, onViewLead }: LeadsRadarViewPr
                             <div className="space-y-3">
                                 <div className="flex items-center gap-2 text-xs">
                                     <Badge variant={getScoreVariant(selectedLead.score)} className="w-full justify-center py-1">
-                                        Score: {selectedLead.score}
+                                        Nível Tático: {selectedLead.score}
                                     </Badge>
                                 </div>
                                 <div className="grid grid-cols-1 gap-2">
@@ -183,11 +183,11 @@ export const LeadsRadarView = ({ leads: allLeads, onViewLead }: LeadsRadarViewPr
 
                             <div className="pt-4 border-t border-border/50 space-y-2">
                                 <Button variant="glow" size="sm" className="w-full text-[10px]" onClick={() => onViewLead(selectedLead)}>
-                                    Ficha Completa
+                                    Dossiê Completo
                                     <ChevronRight className="h-3 w-3 ml-1" />
                                 </Button>
                                 <Button variant="outline" size="sm" className="w-full text-[10px]" onClick={() => setSelectedLead(null)}>
-                                    Voltar para Lista
+                                    Retornar à Base
                                 </Button>
                             </div>
                         </motion.div>
@@ -214,7 +214,7 @@ export const LeadsRadarView = ({ leads: allLeads, onViewLead }: LeadsRadarViewPr
                             {filteredLeads.length === 0 && (
                                 <div className="text-center py-10 px-4">
                                     <Info className="h-8 w-8 mx-auto mb-2 text-muted-foreground opacity-20" />
-                                    <p className="text-xs text-muted-foreground">Nenhum lead encontrado nesta região com os filtros atuais.</p>
+                                    <p className="text-xs text-muted-foreground">Nenhum alvo detectado neste setor com os parâmetros atuais.</p>
                                 </div>
                             )}
                         </div>

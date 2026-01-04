@@ -36,7 +36,7 @@ const getScoreLabel = (score: number) => {
   return "Baixo";
 };
 
-export const LeadsTable = ({ leads, title = "Feed de Abates (Últimos Alvos)", showViewAll = true, onViewAll }: LeadsTableProps) => {
+export const LeadsTable = ({ leads, title = "Feed de Neutralização (Últimos Alvos)", showViewAll = true, onViewAll }: LeadsTableProps) => {
   const getTheWound = (lead: Lead) => {
     if (lead.score >= 90) return { label: "Sem Pixel / SEO Fraco", color: "text-red-500 bg-red-500/10 border-red-500/20" };
     if (lead.score >= 70) return { label: "Site Lento (Mobile)", color: "text-amber-500 bg-amber-500/10 border-amber-500/20" };
@@ -62,7 +62,7 @@ export const LeadsTable = ({ leads, title = "Feed de Abates (Últimos Alvos)", s
           </div>
           {showViewAll && (
             <Button variant="ghost" size="sm" onClick={onViewAll} className="text-primary h-8 font-bold text-xs uppercase tracking-wider">
-              Central de Leads
+              Central de Alvos
               <ExternalLink className="h-3 w-3 ml-1" />
             </Button>
           )}
@@ -75,7 +75,7 @@ export const LeadsTable = ({ leads, title = "Feed de Abates (Últimos Alvos)", s
                   <th className="text-left py-4 px-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Empresa / Alvo</th>
                   <th className="text-left py-4 px-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">A Ferida (Pain)</th>
                   <th className="text-center py-4 px-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Score</th>
-                  <th className="text-right py-4 px-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Ataque Rápido</th>
+                  <th className="text-right py-4 px-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Incursão Rápida</th>
                 </tr>
               </thead>
               <tbody>
@@ -144,7 +144,7 @@ export const LeadsTable = ({ leads, title = "Feed de Abates (Últimos Alvos)", s
                             variant="outline"
                             size="icon"
                             className="h-8 w-8 rounded-full border-accent/30 hover:bg-accent hover:text-accent-foreground text-accent"
-                            title="Ataque via WhatsApp"
+                            title="Iniciar Infiltração (WhatsApp)"
                           >
                             <MessageCircle className="h-4 w-4" />
                           </Button>
@@ -152,7 +152,7 @@ export const LeadsTable = ({ leads, title = "Feed de Abates (Últimos Alvos)", s
                             variant="outline"
                             size="icon"
                             className="h-8 w-8 rounded-full border-primary/30 hover:bg-primary hover:text-primary-foreground text-primary"
-                            title="Ataque via E-mail"
+                            title="Disparar Míssil (E-mail)"
                           >
                             <Mail className="h-4 w-4" />
                           </Button>
