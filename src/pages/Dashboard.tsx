@@ -59,6 +59,7 @@ export const DashboardPage = () => {
           usedCredits={stats?.usedCredits}
           onTargetsClick={() => navigate('/leads')}
           onMissionsClick={() => navigate('/campaigns?status=active')}
+          onNewCampaignClick={() => navigate('/campaigns?new=true')}
           onReloadClick={() => navigate('/billing')}
         />
         {/* Row 2: Live Operations & Main Analytics */}

@@ -100,6 +100,7 @@ interface StatsGridProps {
   usedCredits?: number;
   onTargetsClick?: () => void;
   onMissionsClick?: () => void;
+  onNewCampaignClick?: () => void;
   onReloadClick?: () => void;
 }
 
@@ -110,6 +111,7 @@ export const StatsGrid = ({
   usedCredits = 0,
   onTargetsClick,
   onMissionsClick,
+  onNewCampaignClick,
   onReloadClick
 }: StatsGridProps) => {
   return (
@@ -128,6 +130,20 @@ export const StatsGrid = ({
         change={activeMissions > 0 ? 100 : 0}
         icon={<Rocket className="h-5 w-5 text-accent" />}
         onClick={onMissionsClick}
+        action={
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-7 px-2 gap-1.5 rounded-full border-accent/50 hover:bg-accent/10 text-accent text-[10px] font-black uppercase tracking-tight"
+            onClick={(e) => {
+              e.stopPropagation();
+              onNewCampaignClick?.();
+            }}
+          >
+            <Plus className="h-3 w-3" />
+            Nova Campanha
+          </Button>
+        }
         delay={0.1}
       />
       <StatCard

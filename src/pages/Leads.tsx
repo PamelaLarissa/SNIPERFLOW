@@ -11,6 +11,7 @@ import {
   Globe,
   X,
   Filter,
+  Zap,
 } from "lucide-react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Header } from "@/components/layout/Sidebar";
@@ -257,6 +258,14 @@ export const LeadsPage = () => {
               Ações em Massa ({selectedLeads.length})
             </Button>
           )}
+          <Button
+            variant="outline"
+            onClick={() => navigate('/campaigns?new=true')}
+            className="gap-2 border-primary/50 text-primary hover:bg-primary/10 transition-all hover:scale-105 active:scale-95 shadow-sm"
+          >
+            <Zap className="h-4 w-4" />
+            Nova Campanha
+          </Button>
           <Button variant="glow" onClick={() => setIsCreateOpen(true)} className="gap-2">
             <Plus className="h-4 w-4" />
             Novo Alvo
@@ -314,7 +323,7 @@ export const LeadsPage = () => {
       <Dialog open={isCreateOpen} onOpenChange={(open) => { setIsCreateOpen(open); if (!open) resetForm(); }}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Novo Lead</DialogTitle>
+            <DialogTitle>Novo Alvo</DialogTitle>
             <DialogDescription>Adicione manualmente ou busque por CNPJ para autopreencher</DialogDescription>
           </DialogHeader>
 
@@ -360,7 +369,7 @@ export const LeadsPage = () => {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsCreateOpen(false)}>Cancelar</Button>
-            <Button onClick={handleCreateLead}>Criar Lead</Button>
+            <Button onClick={handleCreateLead}>Criar Alvo</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -369,7 +378,7 @@ export const LeadsPage = () => {
         <Dialog open={!!editingLead} onOpenChange={open => !open && setEditingLead(null)}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
-              <DialogTitle>Editar Lead</DialogTitle>
+              <DialogTitle>Editar Alvo</DialogTitle>
             </DialogHeader>
             <div className="grid grid-cols-2 gap-4 py-4">
               <div className="space-y-2">
@@ -406,7 +415,7 @@ export const LeadsPage = () => {
         <Dialog open={!!viewingLead} onOpenChange={open => !open && setViewingLead(null)}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Detalhes do Lead</DialogTitle>
+              <DialogTitle>Detalhes do Alvo</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
               <div className="flex items-center gap-4">

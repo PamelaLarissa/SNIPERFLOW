@@ -489,14 +489,14 @@ export const AdvancedFilters = ({
                         }`}
                     >
                       <div className="flex items-center gap-2 mb-1 w-full">
-                        <profile.icon className={`h-6 w-6 ${isProfileSelected ? 'text-primary' : profile.color}`} />
-                        <div className="flex flex-col gap-0.5">
-                          <span className="font-black text-base sm:text-lg leading-tight tracking-tight">{profile.label}</span>
-                          <span className="text-xs text-muted-foreground font-bold">{profile.sub}</span>
+                        <profile.icon className={`h-5 w-5 ${isProfileSelected ? 'text-primary' : profile.color}`} />
+                        <div className="flex flex-col gap-1">
+                          <span className="font-extrabold text-base leading-snug">{profile.label}</span>
+                          <span className="text-xs text-muted-foreground font-semibold">{profile.sub}</span>
                         </div>
                         {isProfileSelected && <CheckCircle className="h-4 w-4 text-primary ml-auto flex-shrink-0" />}
                       </div>
-                      <div className="space-y-1.5 w-full pl-0.5 mt-1">
+                      <div className="space-y-1.5 w-full pl-0.5">
                         {profileNiches[opp.id]?.slice(0, 4).map((ex, idx) => (
                           <div key={idx} className="flex items-center gap-1.5">
                             <span className="text-xs text-muted-foreground font-semibold flex items-center gap-1">
@@ -517,28 +517,28 @@ export const AdvancedFilters = ({
                       }`}
                   >
                     {/* Status Indicator at the very bottom/edge */}
-                    <div className={`absolute top-0 right-0 px-4 py-1.5 text-[11px] font-black uppercase tracking-widest rounded-bl-xl transition-colors ${active ? 'bg-primary text-primary-foreground animate-pulse shadow-lg' : 'bg-secondary text-muted-foreground'}`}>
+                    <div className={`absolute top-0 right-0 px-4 py-1.5 text-xs font-black uppercase tracking-widest rounded-bl-lg transition-colors ${active ? 'bg-primary text-primary-foreground animate-pulse' : 'bg-secondary text-muted-foreground'}`}>
                       {active ? 'Sensor Ativo' : 'Offline'}
                     </div>
 
-                    <div className="space-y-4 w-full flex-1">
+                    <div className="space-y-3 w-full flex-1">
                       <div className="space-y-1">
-                        <span className={`text-[10px] font-black uppercase tracking-wider block ${active ? 'text-primary' : 'text-muted-foreground'}`}>Filtro de Dor:</span>
-                        <p className="text-sm text-foreground font-black leading-relaxed italic">“{opp.description}”</p>
+                        <span className={`text-xs font-black uppercase tracking-wider block ${active ? 'text-primary' : 'text-muted-foreground'}`}>Filtro de Dor:</span>
+                        <p className="text-sm text-foreground font-extrabold leading-relaxed italic">“{opp.description}”</p>
                       </div>
 
                       <div className="space-y-1.5">
-                        <span className={`text-[10px] font-black uppercase tracking-wider block ${active ? 'text-primary' : 'text-muted-foreground'}`}>Stack Alvo:</span>
+                        <span className={`text-xs font-black uppercase tracking-wider block ${active ? 'text-primary' : 'text-muted-foreground'}`}>Stack Alvo:</span>
                         <div className="flex flex-wrap gap-1.5">
                           {opp.filters.technologies?.map(t => (
-                            <span key={t} className={`text-[11px] border px-2 py-0.5 rounded font-black transition-colors ${active ? 'bg-primary/10 border-primary/30 text-primary' : 'bg-secondary/80 text-secondary-foreground border-border/50'}`}>{t}</span>
+                            <span key={t} className={`text-[10px] border px-2 py-1 rounded font-black transition-colors ${active ? 'bg-primary/10 border-primary/30 text-primary' : 'bg-secondary/80 text-secondary-foreground border-border/50'}`}>{t}</span>
                           ))}
                         </div>
                       </div>
 
                       <div className={`pt-3 border-t space-y-1.5 ${active ? 'border-primary/20' : 'border-primary/5'}`}>
-                        <span className={`text-[10px] font-black uppercase tracking-wider block ${active ? 'text-primary' : 'text-muted-foreground'}`}>Inteligência:</span>
-                        <p className="text-xs leading-snug text-muted-foreground font-bold">{opp.explanation}</p>
+                        <span className={`text-xs font-black uppercase tracking-wider block ${active ? 'text-primary' : 'text-muted-foreground'}`}>Inteligência:</span>
+                        <p className="text-sm leading-tight text-muted-foreground font-semibold">{opp.explanation}</p>
                       </div>
                     </div>
                   </div>
@@ -554,22 +554,22 @@ export const AdvancedFilters = ({
         <div className="space-y-6">
           <div className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="flex items-center justify-between p-3 rounded-xl border border-border bg-secondary/5">
-                <div className="space-y-0.5">
-                  <span className="text-sm font-medium">Situação Ativa (RF)</span>
-                  <p className="text-[10px] text-muted-foreground">Ocultar baixadas/inativas</p>
+              <div className="flex items-center justify-between p-4 rounded-xl border border-border bg-secondary/5">
+                <div className="space-y-1">
+                  <span className="text-base font-bold">Situação Ativa (RF)</span>
+                  <p className="text-xs text-muted-foreground font-medium">Ocultar baixadas/inativas</p>
                 </div>
                 <Switch checked={data.onlyActiveStatus} onCheckedChange={(checked) => updateField('onlyActiveStatus', checked)} />
               </div>
               {/* Decisores (Switch) */}
-              <div className="flex items-center justify-between p-3 rounded-lg border bg-background/50 hover:bg-secondary/20 transition-all cursor-pointer" onClick={() => updateField('decisionMakerContact', !data.decisionMakerContact)}>
-                <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg bg-primary/10 text-primary`}>
-                    <Users className="h-4 w-4" />
+              <div className="flex items-center justify-between p-4 rounded-lg border bg-background/50 hover:bg-secondary/20 transition-all cursor-pointer" onClick={() => updateField('decisionMakerContact', !data.decisionMakerContact)}>
+                <div className="flex items-center gap-4">
+                  <div className={`p-2.5 rounded-lg bg-primary/10 text-primary`}>
+                    <Users className="h-5 w-5" />
                   </div>
                   <div>
-                    <p className="text-sm font-bold">Apenas Decisores</p>
-                    <p className="text-[10px] text-muted-foreground">Filtra contatos de sócios e diretores</p>
+                    <p className="text-base font-black">Apenas Decisores</p>
+                    <p className="text-xs text-muted-foreground font-medium">Filtra contatos de sócios e diretores</p>
                   </div>
                 </div>
                 <Switch checked={data.decisionMakerContact} onCheckedChange={(val) => updateField('decisionMakerContact', val)} />
@@ -579,30 +579,30 @@ export const AdvancedFilters = ({
 
           <div className="space-y-6 pt-6 border-t border-border/50">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Modo de Varredura</Label>
+              <div className="space-y-3">
+                <Label className="text-base font-bold">Modo de Varredura</Label>
                 <div className="flex gap-2">
                   <Select value={data.verificationMode} onValueChange={(value) => updateField('verificationMode', value as any)}>
-                    <SelectTrigger className="bg-secondary/50 flex-1"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="bg-secondary/50 flex-1 h-11 text-sm font-semibold"><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="both">E-mail + WhatsApp</SelectItem>
-                      <SelectItem value="email">Só E-mail</SelectItem>
-                      <SelectItem value="whatsapp">Só Whats</SelectItem>
+                      <SelectItem value="both" className="text-sm">E-mail + WhatsApp</SelectItem>
+                      <SelectItem value="email" className="text-sm">Só E-mail</SelectItem>
+                      <SelectItem value="whatsapp" className="text-sm">Só Whats</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Frequência</Label>
+              <div className="space-y-3">
+                <Label className="text-base font-bold">Frequência</Label>
                 <ToggleGroup
                   type="single"
                   value={data.updateFrequency}
                   onValueChange={(value) => value && updateField('updateFrequency', value as any)}
-                  className="bg-secondary/30 p-1 rounded-lg w-full"
+                  className="bg-secondary/30 p-1.5 rounded-lg w-full"
                 >
-                  <ToggleGroupItem value="daily" className="text-xs flex-1">Diária</ToggleGroupItem>
-                  <ToggleGroupItem value="thrice_weekly" className="text-xs flex-1">3x/Sem</ToggleGroupItem>
-                  <ToggleGroupItem value="weekly" className="text-xs flex-1">Semanal</ToggleGroupItem>
+                  <ToggleGroupItem value="daily" className="text-sm font-bold flex-1">Diária</ToggleGroupItem>
+                  <ToggleGroupItem value="thrice_weekly" className="text-sm font-bold flex-1">3x/Sem</ToggleGroupItem>
+                  <ToggleGroupItem value="weekly" className="text-sm font-bold flex-1">Semanal</ToggleGroupItem>
                 </ToggleGroup>
               </div>
             </div>
