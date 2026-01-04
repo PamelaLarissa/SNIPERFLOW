@@ -83,8 +83,8 @@ export const LeadsPage = () => {
   const handleExportCSV = () => {
     const list = selectedLeads.length > 0 ? selectedLeads : (searchTerm ? leads.filter(l => l.name.toLowerCase().includes(searchTerm.toLowerCase())).map(l => l.id) : leads.map(l => l.id));
     toast({
-      title: "Exportação iniciada",
-      description: `${list.length} alvos serão exportados`,
+      title: "Extração de Dados Iniciada",
+      description: `${list.length} alvos sendo exportados para relatório tático.`,
     });
   };
 
@@ -128,7 +128,7 @@ export const LeadsPage = () => {
   const handleCreateLead = () => {
     createLead.mutate({
       ...formData,
-      name: formData.name || 'Novo Alvo',
+      name: formData.name || 'Alvo Não Identificado',
       source: 'manual',
     });
     setIsCreateOpen(false);
@@ -150,7 +150,7 @@ export const LeadsPage = () => {
   const handleSearchCNPJ = async () => {
     const cleanCNPJ = cnpjSearch.replace(/\D/g, '');
     if (cleanCNPJ.length !== 14) {
-      toast({ title: "CNPJ Inválido", description: "O CNPJ deve ter 14 dígitos.", variant: "destructive" });
+      toast({ title: "CNPJ Inválido", description: "O código deve ter 14 dígitos.", variant: "destructive" });
       return;
     }
     setIsSearchingCNPJ(true);
@@ -183,12 +183,12 @@ export const LeadsPage = () => {
           zipCode: data.zip_code,
           cityState: `${data.city} - ${data.state}`,
         }));
-        toast({ title: "Dados encontrados!", description: "Informações preenchidas automaticamente." });
+        toast({ title: "Intel Coletada!", description: "Dados do alvo preenchidos com sucesso." });
       } else {
         throw new Error(data.error || "Erro na busca");
       }
     } catch (error) {
-      toast({ title: "Erro na busca", description: error.message, variant: "destructive" });
+      toast({ title: "Falha na Inteligência", description: (error as Error).message, variant: "destructive" });
     } finally {
       setIsSearchingCNPJ(false);
     }
@@ -197,7 +197,7 @@ export const LeadsPage = () => {
   if (isLoading) {
     return (
       <DashboardLayout>
-        <Header title="Central de Alvos" subtitle="Carregando..." />
+        <Header title="Base de Alvos" subtitle="Carregando inteligência..." />
         <div className="flex items-center justify-center h-64">
           <RefreshCw className="h-8 w-8 animate-spin text-primary" />
         </div>
@@ -208,8 +208,8 @@ export const LeadsPage = () => {
   return (
     <DashboardLayout>
       <Header
-        title={activeCampaign ? `Alvos da Missão: ${activeCampaign.name}` : "Central de Alvos"}
-        subtitle={activeCampaign ? "Visualize os alvos capturados nesta missão" : "Gerencie e qualifique seus alvos prospectados"}
+        title={activeCampaign ? `Alvos da Missão: ${activeCampaign.name}` : "Base de Alvos"}
+        subtitle={activeCampaign ? "Visualize os alvos engajados nesta missão." : "Gerencie e qualifique seus alvos mapeados."}
       />
 
       {/* Campaign Filter Indicator */}
@@ -223,10 +223,10 @@ export const LeadsPage = () => {
             <Filter className="h-4 w-4 text-primary" />
             <div className="flex-1">
               <p className="text-sm font-bold text-foreground">
-                Filtrando por campanha: <span className="text-primary">{activeCampaign.name}</span>
+                Filtro de Missão Ativo: <span className="text-primary">{activeCampaign.name}</span>
               </p>
               <p className="text-xs text-muted-foreground">
-                Exibindo {leads.length} alvos desta campanha
+                Exibindo {leads.length} alvos desta operação.
               </p>
             </div>
             <Button
@@ -246,7 +246,7 @@ export const LeadsPage = () => {
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Buscar alvos por nome, empresa ou e-mail..."
+            placeholder="Rastrear por nome, empresa ou e-mail..."
             className="pl-10 bg-secondary/50"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -255,7 +255,7 @@ export const LeadsPage = () => {
         <div className="flex flex-wrap items-center gap-2">
           {selectedLeads.length > 0 && (
             <Button variant="outline" size="sm" className="h-9 gap-2">
-              Ações em Massa ({selectedLeads.length})
+              Ações Táticas ({selectedLeads.length})
             </Button>
           )}
           <Button
@@ -264,11 +264,11 @@ export const LeadsPage = () => {
             className="gap-2 border-primary/50 text-primary hover:bg-primary/10 transition-all hover:scale-105 active:scale-95 shadow-sm"
           >
             <Zap className="h-4 w-4" />
-            Nova Campanha
+            Nova Missão
           </Button>
           <Button variant="glow" onClick={() => setIsCreateOpen(true)} className="gap-2">
             <Plus className="h-4 w-4" />
-            Novo Alvo
+            Inserir Alvo
           </Button>
         </div>
       </div>
@@ -276,9 +276,9 @@ export const LeadsPage = () => {
       <Tabs defaultValue="list" className="space-y-6">
         <div className="flex justify-between items-center">
           <TabsList className="bg-secondary/50 p-1">
-            <TabsTrigger value="list" className="px-6">Lista</TabsTrigger>
-            <TabsTrigger value="kanban" className="px-6">Kanban</TabsTrigger>
-            <TabsTrigger value="radar" className="px-6">Mapa Radar</TabsTrigger>
+            <TabsTrigger value="list" className="px-6">Relatório (Lista)</TabsTrigger>
+            <TabsTrigger value="kanban" className="px-6">Quadro Tático (Kanban)</TabsTrigger>
+            <TabsTrigger value="radar" className="px-6">Radar (Mapa)</TabsTrigger>
           </TabsList>
         </div>
 
@@ -368,88 +368,93 @@ export const LeadsPage = () => {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsCreateOpen(false)}>Cancelar</Button>
-            <Button onClick={handleCreateLead}>Criar Alvo</Button>
+            <Button variant="outline" onClick={() => setIsCreateOpen(false)}>Abortar</Button>
+            <Button onClick={handleCreateLead}>Registrar Alvo</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {editingLead && (
-        <Dialog open={!!editingLead} onOpenChange={open => !open && setEditingLead(null)}>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Editar Alvo</DialogTitle>
-            </DialogHeader>
-            <div className="grid grid-cols-2 gap-4 py-4">
-              <div className="space-y-2">
-                <Label>Nome</Label>
-                <Input value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
-              </div>
-              <div className="space-y-2">
-                <Label>Empresa</Label>
-                <Input value={formData.company} onChange={e => setFormData({ ...formData, company: e.target.value })} />
-              </div>
-              <div className="space-y-2">
-                <Label>Status</Label>
-                <Select value={formData.status} onValueChange={v => setFormData({ ...formData, status: v as Lead['status'] })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {Object.entries(kanbanColumnLabels).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Score</Label>
-                <Input type="number" value={formData.score} onChange={e => setFormData({ ...formData, score: parseInt(e.target.value) || 0 })} />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setEditingLead(null)}>Cancelar</Button>
-              <Button onClick={handleEditLead}>Salvar</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      )}
 
-      {viewingLead && (
-        <Dialog open={!!viewingLead} onOpenChange={open => !open && setViewingLead(null)}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Detalhes do Alvo</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-bold">
-                  {viewingLead.name.charAt(0)}
+      {
+        editingLead && (
+          <Dialog open={!!editingLead} onOpenChange={open => !open && setEditingLead(null)}>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>Editar Intel do Alvo</DialogTitle>
+              </DialogHeader>
+              <div className="grid grid-cols-2 gap-4 py-4">
+                <div className="space-y-2">
+                  <Label>Nome</Label>
+                  <Input value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
                 </div>
-                <div>
-                  <h3 className="font-bold">{viewingLead.name}</h3>
-                  <p className="text-sm text-muted-foreground">{viewingLead.company}</p>
+                <div className="space-y-2">
+                  <Label>Empresa</Label>
+                  <Input value={formData.company} onChange={e => setFormData({ ...formData, company: e.target.value })} />
                 </div>
-                <Badge className="ml-auto">{viewingLead.score}</Badge>
-              </div>
-              <div className="grid grid-cols-2 gap-2 text-sm pt-4 border-t">
-                <div className="flex flex-col">
-                  <span className="text-muted-foreground">E-mail</span>
-                  <span className="text-foreground truncate">{viewingLead.email}</span>
+                <div className="space-y-2">
+                  <Label>Status</Label>
+                  <Select value={formData.status} onValueChange={v => setFormData({ ...formData, status: v as Lead['status'] })}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(kanbanColumnLabels).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
                 </div>
-                <div className="flex flex-col">
-                  <span className="text-muted-foreground">Tel</span>
-                  <span className="text-foreground">{viewingLead.phone}</span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-muted-foreground">Nicho</span>
-                  <span className="text-foreground">{viewingLead.niche}</span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-muted-foreground">Status</span>
-                  <span className="text-foreground capitalize">{kanbanColumnLabels[viewingLead.status || 'new']}</span>
+                <div className="space-y-2">
+                  <Label>Score</Label>
+                  <Input type="number" value={formData.score} onChange={e => setFormData({ ...formData, score: parseInt(e.target.value) || 0 })} />
                 </div>
               </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-      )}
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setEditingLead(null)}>Abortar</Button>
+                <Button onClick={handleEditLead}>Atualizar Intel</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        )
+      }
+
+      {
+        viewingLead && (
+          <Dialog open={!!viewingLead} onOpenChange={open => !open && setViewingLead(null)}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Dossiê do Alvo</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-bold">
+                    {viewingLead.name.charAt(0)}
+                  </div>
+                  <div>
+                    <h3 className="font-bold">{viewingLead.name}</h3>
+                    <p className="text-sm text-muted-foreground">{viewingLead.company}</p>
+                  </div>
+                  <Badge className="ml-auto">{viewingLead.score}</Badge>
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-sm pt-4 border-t">
+                  <div className="flex flex-col">
+                    <span className="text-muted-foreground">E-mail</span>
+                    <span className="text-foreground truncate">{viewingLead.email}</span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-muted-foreground">Tel</span>
+                    <span className="text-foreground">{viewingLead.phone}</span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-muted-foreground">Nicho</span>
+                    <span className="text-foreground">{viewingLead.niche}</span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-muted-foreground">Status</span>
+                    <span className="text-foreground capitalize">{kanbanColumnLabels[viewingLead.status || 'new']}</span>
+                  </div>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+        )
+      }
     </DashboardLayout>
   );
 };

@@ -109,8 +109,8 @@ export const SettingsPage = () => {
   return (
     <DashboardLayout>
       <Header
-        title="Sistema e Configurações"
-        subtitle="Gerencie sua conta, configurações técnicas e ferramentas do sistema"
+        title="Centro de Comando & Logística"
+        subtitle="Ajustes de sistema, arsenal e preferências táticas"
       />
 
       <Tabs defaultValue="workspace" className="space-y-4 sm:space-y-6">
@@ -118,31 +118,31 @@ export const SettingsPage = () => {
           <TabsList className="bg-secondary/50 border border-border p-1 w-max">
             <TabsTrigger value="workspace" className="gap-2 px-4 whitespace-nowrap">
               <Building className="h-4 w-4" />
-              Workspace
+              Base de Operações
             </TabsTrigger>
             <TabsTrigger value="whitelabel" className="gap-2 px-4 whitespace-nowrap">
               <Palette className="h-4 w-4" />
-              White-Label
+              Camuflagem Tática
             </TabsTrigger>
             <TabsTrigger value="integrations" className="gap-2 px-4 whitespace-nowrap">
               <Zap className="h-4 w-4" />
-              Integrações
+              Alianças Estratégicas
             </TabsTrigger>
             <TabsTrigger value="notifications" className="gap-2 px-4 whitespace-nowrap">
               <Bell className="h-4 w-4" />
-              Notificações
+              Sistema de Alerta
             </TabsTrigger>
             <TabsTrigger value="email" className="gap-2 px-4 whitespace-nowrap">
               <Mail className="h-4 w-4" />
-              E-mail (SMTP)
+              Canal de Comunicação (SMTP)
             </TabsTrigger>
             <TabsTrigger value="abtest" className="gap-2 px-4 whitespace-nowrap">
               <TestTube2 className="h-4 w-4" />
-              Teste A/B
+              Simulações de Combate (A/B)
             </TabsTrigger>
             <TabsTrigger value="logs" className="gap-2 px-4 whitespace-nowrap">
               <History className="h-4 w-4" />
-              Logs de E-mail
+              Registros de Transmissão
             </TabsTrigger>
           </TabsList>
         </div>
@@ -153,18 +153,18 @@ export const SettingsPage = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Building className="h-5 w-5 text-primary" />
-                  Informações do Workspace
+                  Dados da Base Operacional
                 </CardTitle>
                 <CardDescription>Configure as informações básicas da sua organização</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Nome do Workspace</label>
+                  <label className="text-sm font-medium mb-2 block">Nome de Guerra (Workspace)</label>
                   <Input value={workspaceName} onChange={(e) => setWorkspaceName(e.target.value)} className="bg-secondary/50 max-w-md" />
                 </div>
                 <div>
                   <label className="text-sm font-medium mb-2 block">E-mail de Contato</label>
-                  <Input type="email" placeholder="contato@suaempresa.com" className="bg-secondary/50 max-w-md" />
+                  <Input type="email" placeholder="comando@suaempresa.com" className="bg-secondary/50 max-w-md" />
                 </div>
                 <Button onClick={handleSave}><Save className="h-4 w-4 mr-2" />Salvar Alterações</Button>
               </CardContent>
@@ -174,18 +174,18 @@ export const SettingsPage = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Shield className="h-5 w-5 text-primary" />
-                  Plano Atual
+                  Patente Atual
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-lg bg-primary/10 border border-primary/20">
                   <div>
-                    <h4 className="font-semibold text-base">Plano Pro</h4>
-                    <p className="text-xs text-muted-foreground">2.000 leads/mês • 3 nichos • 3 localidades • API</p>
+                    <h4 className="font-semibold text-base">Plano Pro (Operador de Elite)</h4>
+                    <p className="text-xs text-muted-foreground">2.000 alvos/mês • 3 nichos • 3 zonas de guerra • API</p>
                   </div>
                   <div className="text-left sm:text-right">
                     <p className="text-xl font-bold">R$ 197<span className="text-sm font-normal text-muted-foreground">/mês</span></p>
-                    <Button variant="outline" size="sm" className="mt-2 w-full sm:w-auto">Upgrade para Agência</Button>
+                    <Button variant="outline" size="sm" className="mt-2 w-full sm:w-auto">Solicitar Promoção</Button>
                   </div>
                 </div>
               </CardContent>
@@ -197,11 +197,11 @@ export const SettingsPage = () => {
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card variant="glass">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2"><Palette className="h-5 w-5 text-primary" />Personalização Visual</CardTitle>
+                <CardTitle className="flex items-center gap-2"><Palette className="h-5 w-5 text-primary" />Personalização Tática</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Logo</label>
+                  <label className="text-sm font-medium mb-2 block">Insígnia (Logo)</label>
                   <div className="flex items-center gap-4">
                     <div className="w-16 h-16 rounded-xl bg-secondary/50 border border-dashed border-border flex items-center justify-center">
                       <Upload className="h-5 w-5 text-muted-foreground" />
@@ -210,24 +210,24 @@ export const SettingsPage = () => {
                   </div>
                 </div>
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Cor Primária</label>
+                  <label className="text-sm font-medium mb-2 block">Cor do Uniforme (Primária)</label>
                   <div className="flex items-center gap-3">
                     <input type="color" value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} className="w-10 h-10 rounded-lg cursor-pointer border-0" />
                     <Input value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} className="bg-secondary/50 max-w-[120px] uppercase" />
                   </div>
                 </div>
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Subdomínio</label>
+                  <label className="text-sm font-medium mb-2 block">Frequência Segura (Subdomínio)</label>
                   <div className="flex items-center gap-2">
-                    <Input placeholder="suaempresa" className="bg-secondary/50 max-w-[160px]" />
-                    <span className="text-sm text-muted-foreground">.leadscan365.com</span>
+                    <Input placeholder="seucomando" className="bg-secondary/50 max-w-[160px]" />
+                    <span className="text-sm text-muted-foreground">.sniperflow.com</span>
                   </div>
                 </div>
                 <Button onClick={handleSave}><Save className="h-4 w-4 mr-2" />Salvar Alterações</Button>
               </CardContent>
             </Card>
             <Card variant="glass">
-              <CardHeader><CardTitle>Preview</CardTitle></CardHeader>
+              <CardHeader><CardTitle>Preview Operacional</CardTitle></CardHeader>
               <CardContent>
                 <div className="p-6 rounded-xl border border-border" style={{ background: `linear-gradient(135deg, ${primaryColor}10 0%, transparent 100%)` }}>
                   <div className="flex items-center gap-2 mb-4">
@@ -235,7 +235,7 @@ export const SettingsPage = () => {
                     <span className="font-bold">{workspaceName}</span>
                   </div>
                   <div className="space-y-2 mb-4"><div className="h-2 bg-secondary/50 rounded w-3/4" /><div className="h-2 bg-secondary/50 rounded w-1/2" /></div>
-                  <Button size="sm" style={{ background: primaryColor }}>Ação</Button>
+                  <Button size="sm" style={{ background: primaryColor }}>Iniciar Ataque</Button>
                 </div>
               </CardContent>
             </Card>
@@ -268,18 +268,18 @@ export const SettingsPage = () => {
         <TabsContent value="notifications">
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="max-w-3xl">
             <Card variant="glass">
-              <CardHeader><CardTitle className="flex items-center gap-2"><Bell className="h-5 w-5 text-primary" />Preferências</CardTitle></CardHeader>
+              <CardHeader><CardTitle className="flex items-center gap-2"><Bell className="h-5 w-5 text-primary" />Protocolos de Alerta</CardTitle></CardHeader>
               <CardContent className="space-y-4">
                 {[
-                  { label: 'Novos leads', desc: 'Alertas de novos leads encontrados' },
-                  { label: 'Relatório diário', desc: 'Resumo por e-mail' },
+                  { label: 'Novos alvos detectados', desc: 'Alertas de novas oportunidades na zona' },
+                  { label: 'Briefing Diário de Missão', desc: 'Resumo tático por e-mail' },
                 ].map((n) => (
                   <div key={n.label} className="flex items-center justify-between p-3 rounded-lg bg-secondary/30">
                     <div><h4 className="font-medium text-sm">{n.label}</h4><p className="text-xs text-muted-foreground">{n.desc}</p></div>
                     <Switch defaultChecked />
                   </div>
                 ))}
-                <Button onClick={handleSave} size="sm"><Save className="h-4 w-4 mr-2" />Salvar</Button>
+                <Button onClick={handleSave} size="sm"><Save className="h-4 w-4 mr-2" />Salvar Alterações</Button>
               </CardContent>
             </Card>
           </motion.div>
@@ -289,8 +289,8 @@ export const SettingsPage = () => {
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
             <Card variant="glass">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2"><Mail className="h-5 w-5 text-primary" />SMTP</CardTitle>
-                <CardDescription>Configure seu servidor de e-mail para campanhas.</CardDescription>
+                <CardTitle className="flex items-center gap-2"><Mail className="h-5 w-5 text-primary" />Configuração SMTP</CardTitle>
+                <CardDescription>Configure seu servidor de disparo para operações.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -300,8 +300,8 @@ export const SettingsPage = () => {
                   <div className="space-y-1"><label className="text-xs font-medium">Senha</label><Input type="password" value={smtpConfig.pass} onChange={e => setSmtpConfig({ ...smtpConfig, pass: e.target.value })} /></div>
                 </div>
                 <div className="flex gap-2 pt-2">
-                  <Button onClick={handleSaveSmtp} disabled={isSaving} size="sm">{isSaving && <Loader2 className="h-3 w-3 mr-2 animate-spin" />}Salvar</Button>
-                  <Button variant="outline" onClick={handleTestConnection} disabled={isTesting} size="sm">{isTesting && <Loader2 className="h-3 w-3 mr-2 animate-spin" />}Testar</Button>
+                  <Button onClick={handleSaveSmtp} disabled={isSaving} size="sm">{isSaving && <Loader2 className="h-3 w-3 mr-2 animate-spin" />}Salvar Configuração</Button>
+                  <Button variant="outline" onClick={handleTestConnection} disabled={isTesting} size="sm">{isTesting && <Loader2 className="h-3 w-3 mr-2 animate-spin" />}Testar Conexão</Button>
                 </div>
               </CardContent>
             </Card>

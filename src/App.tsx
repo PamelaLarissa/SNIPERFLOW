@@ -12,6 +12,7 @@ import { ProposalsPage } from "./pages/Proposals";
 import { LeadDetailsPage } from "./pages/LeadDetails";
 import { WhatsAppPage } from "./pages/WhatsApp";
 import { BillingPage } from "./pages/Billing";
+import { AdminUsersPage } from "./pages/AdminUsers";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,8 +32,10 @@ const App = () => (
           <Route path="/proposals" element={<ProposalsPage />} />
           <Route path="/whatsapp" element={<WhatsAppPage />} />
           <Route path="/billing" element={<BillingPage />} />
+          <Route path="/billing" element={<BillingPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/leads/:id" element={<LeadDetailsPage />} />
+          <Route path="/admin/users" element={<AdminUsersPage />} />
 
           {/* Legacy Redirects to Unified Hubs */}
           <Route path="/kanban" element={<Navigate to="/leads" replace />} />

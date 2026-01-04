@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { 
-  FileText, 
-  Plus, 
-  Download, 
-  Eye, 
-  Edit, 
+import {
+  FileText,
+  Plus,
+  Download,
+  Eye,
+  Edit,
   Trash2,
   Send,
   CheckCircle,
@@ -65,12 +65,12 @@ export const ProposalsPage = () => {
   const addProduct = (productName: string) => {
     const product = defaultProducts.find(p => p.name === productName);
     if (!product) return;
-    
+
     const existing = formData.products.find(p => p.name === productName);
     if (existing) {
       setFormData({
         ...formData,
-        products: formData.products.map(p => 
+        products: formData.products.map(p =>
           p.name === productName ? { ...p, quantity: p.quantity + 1 } : p
         )
       });
@@ -111,20 +111,20 @@ export const ProposalsPage = () => {
   const getStatusBadge = (status: Proposal['status']) => {
     switch (status) {
       case 'accepted':
-        return <Badge variant="verified">Aceita</Badge>;
+        return <Badge variant="verified">Missão Cumprida</Badge>;
       case 'rejected':
-        return <Badge variant="destructive">Recusada</Badge>;
+        return <Badge variant="destructive">Abortada</Badge>;
       case 'sent':
-        return <Badge variant="pending">Enviada</Badge>;
+        return <Badge variant="pending">Em Trânsito</Badge>;
       default:
-        return <Badge variant="outline">Rascunho</Badge>;
+        return <Badge variant="outline">Planejamento</Badge>;
     }
   };
 
   if (isLoading) {
     return (
       <DashboardLayout>
-        <Header title="Propostas" subtitle="Crie e gerencie propostas comerciais" />
+        <Header title="Relatórios de Combate" subtitle="Carregando estratégias..." />
         <div className="flex items-center justify-center h-64">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
@@ -134,9 +134,9 @@ export const ProposalsPage = () => {
 
   return (
     <DashboardLayout>
-      <Header 
-        title="Propostas" 
-        subtitle="Crie e gerencie propostas comerciais" 
+      <Header
+        title="Propostas de Missão"
+        subtitle="Elabore e envie estratégias comerciais para seus alvos."
       />
 
       <div className="space-y-4 sm:space-y-6">
@@ -149,15 +149,15 @@ export const ProposalsPage = () => {
           <div className="flex gap-2 flex-wrap">
             <Badge variant="outline" className="text-sm">
               <FileText className="h-3 w-3 mr-1" />
-              {proposals.length} propostas
+              {proposals.length} docs
             </Badge>
             <Badge variant="verified" className="text-sm">
-              {proposals.filter(p => p.status === 'accepted').length} aceitas
+              {proposals.filter(p => p.status === 'accepted').length} vitórias
             </Badge>
           </div>
           <Button variant="glow" onClick={() => { resetForm(); setIsCreateOpen(true); }}>
             <Plus className="h-4 w-4 mr-2" />
-            Nova Proposta
+            Nova Estratégia
           </Button>
         </motion.div>
 
@@ -166,7 +166,7 @@ export const ProposalsPage = () => {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
             <Card variant="stat">
               <CardContent className="p-4">
-                <p className="text-xs text-muted-foreground">Total Propostas</p>
+                <p className="text-xs text-muted-foreground">Total de Docs</p>
                 <p className="text-2xl font-bold mt-1">{proposals.length}</p>
               </CardContent>
             </Card>
@@ -174,7 +174,7 @@ export const ProposalsPage = () => {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
             <Card variant="stat">
               <CardContent className="p-4">
-                <p className="text-xs text-muted-foreground">Aceitas</p>
+                <p className="text-xs text-muted-foreground">Vitórias</p>
                 <p className="text-2xl font-bold mt-1 text-accent">
                   {proposals.filter(p => p.status === 'accepted').length}
                 </p>
@@ -184,7 +184,7 @@ export const ProposalsPage = () => {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
             <Card variant="stat">
               <CardContent className="p-4">
-                <p className="text-xs text-muted-foreground">Pendentes</p>
+                <p className="text-xs text-muted-foreground">Em Curso</p>
                 <p className="text-2xl font-bold mt-1 text-primary">
                   {proposals.filter(p => p.status === 'sent' || p.status === 'draft').length}
                 </p>
@@ -194,7 +194,7 @@ export const ProposalsPage = () => {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
             <Card variant="stat">
               <CardContent className="p-4">
-                <p className="text-xs text-muted-foreground">Valor Total</p>
+                <p className="text-xs text-muted-foreground">Potencial Bélico</p>
                 <p className="text-xl sm:text-2xl font-bold mt-1">
                   R$ {proposals.filter(p => p.status === 'accepted').reduce((a, p) => a + p.total, 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </p>
@@ -223,7 +223,7 @@ export const ProposalsPage = () => {
                     </div>
                     {getStatusBadge(proposal.status)}
                   </div>
-                  
+
                   <div className="space-y-1 mb-3">
                     {proposal.products.slice(0, 2).map((product, idx) => (
                       <div key={idx} className="flex justify-between text-xs sm:text-sm">
@@ -232,13 +232,13 @@ export const ProposalsPage = () => {
                       </div>
                     ))}
                     {proposal.products.length > 2 && (
-                      <p className="text-xs text-muted-foreground">+ {proposal.products.length - 2} item(s)</p>
+                      <p className="text-xs text-muted-foreground">+ {proposal.products.length - 2} recurso(s)</p>
                     )}
                   </div>
 
                   {proposal.discount > 0 && (
                     <div className="flex justify-between text-xs sm:text-sm text-accent mb-2">
-                      <span>Desconto</span>
+                      <span>Incentivo Tático</span>
                       <span>-{proposal.discount}%</span>
                     </div>
                   )}
@@ -249,14 +249,14 @@ export const ProposalsPage = () => {
                   </div>
 
                   <div className="flex gap-2 mt-4 pt-3 border-t border-border">
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       className="flex-1"
                       onClick={() => setViewingProposal(proposal)}
                     >
                       <Eye className="h-3 w-3 mr-1" />
-                      Ver
+                      Inspecionar
                     </Button>
                   </div>
                 </CardContent>
@@ -270,15 +270,15 @@ export const ProposalsPage = () => {
       <Dialog open={isCreateOpen} onOpenChange={(open) => { setIsCreateOpen(open); if (!open) resetForm(); }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Nova Proposta</DialogTitle>
-            <DialogDescription>Crie uma proposta comercial para seu lead</DialogDescription>
+            <DialogTitle>Nova Estratégia</DialogTitle>
+            <DialogDescription>Crie uma proposta tática para engajar o alvo</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label className="text-sm font-medium mb-2 block">Lead</Label>
+              <Label className="text-sm font-medium mb-2 block">Alvo</Label>
               <Select value={formData.leadId} onValueChange={(v) => setFormData(prev => ({ ...prev, leadId: v }))}>
                 <SelectTrigger className="bg-secondary/50">
-                  <SelectValue placeholder="Selecione um lead" />
+                  <SelectValue placeholder="Selecione um alvo" />
                 </SelectTrigger>
                 <SelectContent>
                   {leads.map(lead => (
@@ -289,12 +289,12 @@ export const ProposalsPage = () => {
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div>
-              <Label className="text-sm font-medium mb-2 block">Adicionar Produto</Label>
+              <Label className="text-sm font-medium mb-2 block">Adicionar Recurso</Label>
               <Select onValueChange={addProduct}>
                 <SelectTrigger className="bg-secondary/50">
-                  <SelectValue placeholder="Selecione um produto" />
+                  <SelectValue placeholder="Selecione um recurso" />
                 </SelectTrigger>
                 <SelectContent>
                   {defaultProducts.map(product => (
@@ -308,7 +308,7 @@ export const ProposalsPage = () => {
 
             {formData.products.length > 0 && (
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Produtos Selecionados</Label>
+                <Label className="text-sm font-medium">Recursos Selecionados</Label>
                 {formData.products.map((product, idx) => (
                   <div key={idx} className="flex items-center justify-between p-2 rounded-lg bg-secondary/30">
                     <div className="flex items-center gap-2">
@@ -317,9 +317,9 @@ export const ProposalsPage = () => {
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-medium">R$ {(product.price * product.quantity).toFixed(2)}</span>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
+                      <Button
+                        variant="ghost"
+                        size="icon"
                         className="h-6 w-6 text-destructive"
                         onClick={() => removeProduct(product.name)}
                       >
@@ -333,8 +333,8 @@ export const ProposalsPage = () => {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label className="text-sm font-medium mb-2 block">Desconto (%)</Label>
-                <Input 
+                <Label className="text-sm font-medium mb-2 block">Incentivo (%)</Label>
+                <Input
                   type="number"
                   min="0"
                   max="50"
@@ -344,7 +344,7 @@ export const ProposalsPage = () => {
                 />
               </div>
               <div>
-                <Label className="text-sm font-medium mb-2 block">Total</Label>
+                <Label className="text-sm font-medium mb-2 block">Total da Operação</Label>
                 <div className="h-10 px-3 rounded-md bg-secondary/50 flex items-center font-bold text-primary">
                   R$ {calculateTotal().toFixed(2)}
                 </div>
@@ -352,10 +352,10 @@ export const ProposalsPage = () => {
             </div>
           </div>
           <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 pt-4">
-            <Button variant="outline" onClick={() => setIsCreateOpen(false)}>Cancelar</Button>
+            <Button variant="outline" onClick={() => setIsCreateOpen(false)}>Abortar</Button>
             <Button onClick={handleCreate} disabled={createProposal.isPending}>
               {createProposal.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              Criar Proposta
+              Gerar Documento
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -365,7 +365,7 @@ export const ProposalsPage = () => {
       <Dialog open={!!viewingProposal} onOpenChange={(open) => { if (!open) setViewingProposal(null); }}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>Detalhes da Proposta</DialogTitle>
+            <DialogTitle>Detalhes da Estratégia</DialogTitle>
           </DialogHeader>
           {viewingProposal && (
             <div className="space-y-4">
@@ -378,7 +378,7 @@ export const ProposalsPage = () => {
                 </div>
                 {getStatusBadge(viewingProposal.status)}
               </div>
-              
+
               <div className="border-t border-border pt-4 space-y-2">
                 {viewingProposal.products.map((product, idx) => (
                   <div key={idx} className="flex justify-between">
@@ -390,13 +390,13 @@ export const ProposalsPage = () => {
 
               {viewingProposal.discount > 0 && (
                 <div className="flex justify-between text-accent">
-                  <span>Desconto</span>
+                  <span>Incentivo Tático</span>
                   <span>-{viewingProposal.discount}%</span>
                 </div>
               )}
 
               <div className="flex justify-between items-center pt-4 border-t border-border text-lg font-bold">
-                <span>Total</span>
+                <span>Total Confirmado</span>
                 <span className="text-primary">R$ {viewingProposal.total.toFixed(2)}</span>
               </div>
             </div>

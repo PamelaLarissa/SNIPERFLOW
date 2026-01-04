@@ -47,7 +47,9 @@ import {
   Factory,
   Truck,
   Camera,
-  Users
+  Users,
+  ChevronDown,
+  Wallet
 } from "lucide-react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Header } from "@/components/layout/Sidebar";
@@ -56,6 +58,19 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   Dialog,
   DialogContent,
@@ -95,15 +110,15 @@ import { useSearchParams, Link } from "react-router-dom";
 
 // --- INTELLIGENCE DATA ---
 const detailedSources = [
-  { name: 'Google', icon: Globe, color: 'text-blue-500', details: ['Visibilidade Orgânica / SEO', 'Domínio e Autoridade', 'Tecnologias do Site', 'Páginas Indexadas'] },
-  { name: 'Maps', icon: MapPin, color: 'text-red-500', details: ['Visibilidade Local', 'Reviews e Reputação', 'SEO Local (Pack)', 'Horários e Fotos'] },
-  { name: 'LinkedIn', icon: Globe, color: 'text-sky-600', details: ['Decisores e Sócios', 'Tamanho da Empresa', 'Vagas em Aberto', 'Investimento em Ads'] },
-  { name: 'Instagram', icon: InstaIcon, color: 'text-pink-500', details: ['Engajamento e Seguidores', 'Frequência de Posts', 'Qualidade Visual', 'Links na Bio'] },
-  { name: 'Junta Comercial', icon: Globe, color: 'text-slate-600', details: ['Histórico da Empresa', 'Capital Social / Porte', 'Filiais', 'Documentos Oficiais'] },
-  { name: 'SEBRAE', icon: Globe, color: 'text-blue-700', details: ['Porte da Empresa', 'Nível de Maturidade Digital', 'Potencial de Crescimento', 'Programas Participados'] },
-  { name: 'ReclameAqui', icon: SearchIcon, color: 'text-orange-600', details: ['Reputação da Marca', 'Principais Reclamações', 'Tempo de Resposta', 'Índice de Solução'] },
-  { name: 'Facebook', icon: Globe, color: 'text-blue-600', details: ['Pixel e Rastreamento', 'Atividade Recente', 'Anúncios Ativos', 'Avaliações de Usuários'] },
-  { name: 'Workana', icon: MousePointer2, color: 'text-emerald-500', details: ['Projetos Publicados', 'Ticket Médio', 'Frequência de Contratação', 'Tecnologias Contratadas'] },
+  { name: 'Google', icon: Globe, color: 'hsl(215, 95%, 55%)', details: ['Visibilidade Orgânica / SEO', 'Domínio e Autoridade', 'Tecnologias do Site', 'Páginas Indexadas'] },
+  { name: 'Maps', icon: MapPin, color: 'hsl(140, 70%, 40%)', details: ['Visibilidade Local', 'Reviews e Reputação', 'SEO Local (Pack)', 'Horários e Fotos'] },
+  { name: 'LinkedIn', icon: Globe, color: 'hsl(175, 80%, 40%)', details: ['Decisores e Sócios', 'Tamanho da Empresa', 'Vagas em Aberto', 'Investimento em Ads'] },
+  { name: 'Instagram', icon: InstaIcon, color: 'hsl(330, 85%, 55%)', details: ['Engajamento e Seguidores', 'Frequência de Posts', 'Qualidade Visual', 'Links na Bio'] },
+  { name: 'Junta Comercial', icon: Globe, color: 'hsl(25, 95%, 50%)', details: ['Histórico da Empresa', 'Capital Social / Porte', 'Filiais', 'Documentos Oficiais'] },
+  { name: 'SEBRAE', icon: Globe, color: 'hsl(45, 95%, 45%)', details: ['Porte da Empresa', 'Nível de Maturidade Digital', 'Potencial de Crescimento', 'Programas Participados'] },
+  { name: 'ReclameAqui', icon: SearchIcon, color: 'hsl(0, 90%, 60%)', details: ['Reputação da Marca', 'Principais Reclamações', 'Tempo de Resposta', 'Índice de Solução'] },
+  { name: 'Facebook', icon: Globe, color: 'hsl(255, 85%, 60%)', details: ['Pixel e Rastreamento', 'Atividade Recente', 'Anúncios Ativos', 'Avaliações de Usuários'] },
+  { name: 'Workana', icon: MousePointer2, color: 'hsl(290, 80%, 50%)', details: ['Projetos Publicados', 'Ticket Médio', 'Frequência de Contratação', 'Tecnologias Contratadas'] },
 ];
 
 // profileNiches and profileInfos have been moved to AdvancedFilters.tsx
@@ -114,19 +129,22 @@ const detailedSources = [
 // Initial empty array, to be populated by API inside component
 // const brazilLocations is removed from here to be state inside component
 
+import { Wrench } from "lucide-react";
+
 const ecosystems = [
-  { id: 'health', label: 'Saúde e Bem-estar', icon: Stethoscope, niches: ['Academias / Crossfit', 'Consultórios Médicos', 'Clínicas Médicas', 'Clínicas de Estética', 'Dentistas', 'Nutricionistas', 'Psicólogos', 'Laboratórios', 'Fisioterapeutas', 'Veterinários'] },
+  { id: 'health', label: 'Saúde e Bem-estar', icon: Stethoscope, niches: ['Academias / Crossfit', 'Consultórios Médicos', 'Clínicas Médicas', 'Clínicas de Estética', 'Dentistas', 'Nutricionistas', 'Psicólogos', 'Laboratórios', 'Fisioterapeutas', 'Veterinários', 'Fonoaudiologia', 'Terapia Ocupacional', 'Home Care', 'Quiropraxia', 'Pilates'] },
   { id: 'legal', label: 'Jurídico e Financeiro', icon: Scale, niches: ['Advocacia', 'Contabilidade', 'Consultoria', 'Seguros', 'Cartórios', 'Peritos', 'Despachantes', 'Cobrança', 'Investimentos', 'Auditoria'] },
-  { id: 'retail', label: 'Varejo Local', icon: ShoppingBag, niches: ['Shopping Centers', 'Pet Shops', 'Lojas de Roupas', 'Floriculturas', 'Supermercados', 'Óticas', 'Joalherias', 'Calçados', 'Materiais Constr.', 'Papelarias'] },
-  { id: 'food', label: 'Gastronomia', icon: Utensils, niches: ['Mercearias / Minimercados', 'Restaurantes', 'Hamburguerias', 'Pizzarias', 'Padarias', 'Bares', 'Cafeterias', 'Buffets', 'Delivery', 'Confeitarias'] },
-  { id: 'auto', label: 'Automotivo', icon: Car, niches: ['Mecânicas', 'Concessionárias', 'Lojas de Pneus', 'Estética Auto', 'Auto Peças', 'Locadoras', 'Blindadoras', 'Vistorias', 'Funilarias', 'Auto Elétrica'] },
-  { id: 'real_estate', label: 'Imobiliário e Casa', icon: Home, niches: ['Imobiliárias', 'Construtoras', 'Arquitetos', 'Móveis', 'Energia Solar', 'Marcenarias', 'Decoradores', 'Condomínios', 'Engenharia', 'Paisagismo'] },
-  { id: 'education', label: 'Educação e Ensino', icon: GraduationCap, niches: ['Escolas (Pv)', 'Idiomas', 'Faculdades', 'Cursos Livres', 'Treinamentos', 'Música', 'Creches', 'Reforço', 'EAD / Online', 'Intercâmbio'] },
-  { id: 'beauty', label: 'Beleza e Serviços', icon: Scissors, niches: ['Salões Beleza', 'Barbearias', 'Spas', 'Tatuagem', 'Depilação', 'Manicures', 'Sobrancelhas', 'Maquiadores', 'Podologia', 'Massagem'] },
-  { id: 'b2b', label: 'Indústria e B2B', icon: Factory, niches: ['Indústrias', 'Atacadistas', 'Distribuidores', 'Móveis (Fab)', 'Têxtil', 'Usinas', 'Metalúrgicas', 'Gráficas', 'Embalagens', 'Brindes Corp.'] },
-  { id: 'tech', label: 'Tecnologia e Startups', icon: Code2, niches: ['Software', 'Startups', 'Marketing', 'Internet (ISP)', 'Consultoria TI', 'Data Centers', 'E-commerce', 'SaaS', 'Telecom', 'Infoprodutos'] },
-  { id: 'logistics', label: 'Logística e Transportes', icon: Truck, niches: ['Transportadoras', 'Mudanças', 'Log. Reversa', 'Entregas', 'Armazéns', 'Guinchos', 'Import/Export', 'Frota', 'Portos/Aéreo', 'Motoboy'] },
-  { id: 'events', label: 'Eventos e Turismo', icon: Camera, niches: ['Turismo', 'Casas de Festas', 'Organizadores', 'Hotéis', 'Fotógrafos', 'Vídeo', 'Buffet Infantil', 'Decoração', 'DJs e Bandas', 'Formaturas'] },
+  { id: 'technical', label: 'Serviços Técnicos', icon: Wrench, niches: ['Refrigeração e Climatização (HVAC)', 'Instalação de Ar Condicionado', 'Eletricistas', 'Encanadores e Hidráulica', 'Assistência Técnica Celular', 'Assistência Técnica TV/Eletro', 'Segurança Eletrônica e Câmeras', 'Automação Residencial', 'Marido de Aluguel', 'Chaveiro 24h', 'Dedetizadoras', 'Desentupidoras', 'Energia Solar e Fotovoltaica'] },
+  { id: 'retail', label: 'Varejo Local', icon: ShoppingBag, niches: ['Shopping Centers', 'Pet Shops', 'Lojas de Roupas', 'Floriculturas', 'Supermercados', 'Óticas', 'Joalherias', 'Calçados', 'Materiais de Construção', 'Ferragens', 'Distribuidora de Peças', 'Lojas de Informática', 'Moveis Planejados', 'Colchoarias'] },
+  { id: 'food', label: 'Gastronomia', icon: Utensils, niches: ['Mercearias / Minimercados', 'Restaurantes', 'Hamburguerias', 'Pizzarias', 'Padarias', 'Bares', 'Cafeterias', 'Buffets', 'Delivery', 'Confeitarias', 'Açougues', 'Distribuidora de Bebidas'] },
+  { id: 'auto', label: 'Automotivo', icon: Car, niches: ['Mecânicas', 'Concessionárias', 'Lojas de Pneus', 'Estética Auto', 'Auto Peças', 'Locadoras', 'Blindadoras', 'Vistorias', 'Funilarias', 'Auto Elétrica', 'Centro Automotivo', 'Martelinho de Ouro'] },
+  { id: 'real_estate', label: 'Imobiliário e Casa', icon: Home, niches: ['Imobiliárias', 'Construtoras', 'Arquitetos', 'Móveis', 'Energia Solar', 'Marcenarias', 'Decoradores', 'Condomínios', 'Engenharia', 'Paisagismo', 'Administradora de Condomínios', 'Vistoria de Imóveis', 'Empreiteiras'] },
+  { id: 'education', label: 'Educação e Ensino', icon: GraduationCap, niches: ['Escolas (Pv)', 'Idiomas', 'Faculdades', 'Cursos Livres', 'Treinamentos', 'Música', 'Creches', 'Reforço', 'EAD / Online', 'Intercâmbio', 'Escolas de Dança', 'Autoescolas'] },
+  { id: 'beauty', label: 'Beleza e Serviços', icon: Scissors, niches: ['Salões Beleza', 'Barbearias', 'Spas', 'Tatuagem', 'Depilação', 'Manicures', 'Sobrancelhas', 'Maquiadores', 'Podologia', 'Massagem', 'Micropigmentação'] },
+  { id: 'b2b', label: 'Indústria e B2B', icon: Factory, niches: ['Indústrias', 'Atacadistas', 'Distribuidores', 'Móveis (Fab)', 'Têxtil', 'Usinas', 'Metalúrgicas', 'Gráficas', 'Embalagens', 'Brindes Corp.', 'Equipamentos Industriais'] },
+  { id: 'tech', label: 'Tecnologia e Startups', icon: Code2, niches: ['Software', 'Startups', 'Marketing', 'Internet (ISP)', 'Consultoria TI', 'Data Centers', 'E-commerce', 'SaaS', 'Telecom', 'Infoprodutos', 'Assistência Técnica TI'] },
+  { id: 'logistics', label: 'Logística e Transportes', icon: Truck, niches: ['Transportadoras', 'Mudanças', 'Log. Reversa', 'Entregas', 'Armazéns', 'Guinchos', 'Import/Export', 'Frota', 'Portos/Aéreo', 'Motoboy', 'Logística Promocional'] },
+  { id: 'events', label: 'Eventos e Turismo', icon: Camera, niches: ['Turismo', 'Casas de Festas', 'Organizadores', 'Hotéis', 'Fotógrafos', 'Vídeo', 'Buffet Infantil', 'Decoração', 'DJs e Bandas', 'Formaturas', 'Agências de Viagem'] },
 ];
 
 const allNiches: string[] = [
@@ -223,7 +241,15 @@ export const CampaignsPage = () => {
   const [selectedVariantId, setSelectedVariantId] = useState<string>("");
   const { data: variants = [] } = useMessageVariants(selectedCampaignForSend?.id);
   const { data: allLeads = [] } = useLeads();
+
   const { toast } = useToast();
+
+  // --- CREDIT SYSTEM STATE ---
+  const [targetLeads, setTargetLeads] = useState([50]); // Default 50 leads
+  const [userCredits, setUserCredits] = useState(2500); // Mock User Balance
+  const [rescanCampaign, setRescanCampaign] = useState<Campaign | null>(null);
+
+  const calculateCost = (leads: number) => leads * 1; // 1 Credit per Lead (Simple Logic)
 
   const handleSendCampaign = (campaign: Campaign) => {
     setSelectedCampaignForSend(campaign);
@@ -719,7 +745,10 @@ export const CampaignsPage = () => {
                                   </div>
                                 )}
                                 <div className="flex items-center gap-2 mb-1">
-                                  <source.icon className={`h-6 w-6 ${campaignData.sources.includes(source.name) ? 'text-primary' : source.color}`} />
+                                  <source.icon
+                                    className="h-6 w-6"
+                                    style={{ color: source.color }}
+                                  />
                                   <span className="font-black text-base leading-tight">{source.name}</span>
                                 </div>
                                 <div className="space-y-1 w-full">
@@ -1055,12 +1084,13 @@ export const CampaignsPage = () => {
                         <div className="flex flex-col gap-1.5 border-b pb-3">
                           <div className="flex items-center gap-3 text-primary font-semibold">
                             <Settings className="h-6 w-6" />
-                            <span className="text-xl font-black">Passo 4: Filtros de Varredura</span>
+                            <span className="text-xl font-black">Passo 4: Protocolos de Varredura</span>
                           </div>
                           <p className="text-sm text-muted-foreground font-bold">
-                            Configure o modo de validação de contatos e a frequência de atualização da campanha.
+                            Configure os critérios de validação e a frequência de reconhecimento de campo.
                           </p>
                         </div>
+
 
                         <div className="space-y-6 p-6 border rounded-2xl bg-secondary/10">
                           <AdvancedFilters
@@ -1068,6 +1098,81 @@ export const CampaignsPage = () => {
                             onChange={(newData) => setCampaignData(prev => ({ ...prev, ...newData }))}
                             section="filters"
                           />
+                        </div>
+                      </div>
+
+                      {/* STEP 5: CREDIT USAGE & LIMITS */}
+                      <div className="space-y-8 min-h-[250px]">
+                        <div className="flex flex-col gap-1.5 border-b pb-3">
+                          <div className="flex items-center gap-3 text-primary font-semibold">
+                            <Wallet className="h-6 w-6" />
+                            <span className="text-xl font-black">Passo 5: Escopo & Munição</span>
+                          </div>
+                          <p className="text-sm text-muted-foreground font-bold">
+                            Defina quantos alvos deseja engajar nesta operação e verifique a munição (créditos).
+                          </p>
+                        </div>
+
+                        <div className="space-y-6 p-6 border rounded-2xl bg-secondary/10 relative overflow-hidden">
+                          {/* BG Effect */}
+                          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+
+                          <div className="flex items-center justify-between">
+                            <div className="space-y-1">
+                              <Label className="text-base font-black flex items-center gap-2">
+                                <Target className="h-4 w-4 text-primary" />
+                                Quantidade de Alvos
+                              </Label>
+                              <p className="text-xs text-muted-foreground">Quantos contatos novos extrair?</p>
+                            </div>
+                            <div className="text-right">
+                              <span className="text-2xl font-black text-primary">{targetLeads[0]}</span>
+                              <span className="text-xs text-muted-foreground font-bold uppercase ml-1">Alvos</span>
+                            </div>
+                          </div>
+
+                          <Slider
+                            value={targetLeads}
+                            onValueChange={setTargetLeads}
+                            max={1000}
+                            step={10}
+                            className="py-4"
+                          />
+
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-4 border-t border-border/50">
+                            <div className="p-3 rounded-xl bg-background/50 border border-border flex flex-col items-center justify-center text-center">
+                              <span className="text-xs text-muted-foreground font-bold uppercase">Custo da Missão</span>
+                              <div className="flex items-center gap-1 mt-1 text-foreground">
+                                <Wallet className="h-4 w-4 text-primary" />
+                                <span className="text-xl font-black">{calculateCost(targetLeads[0])}</span>
+                                <span className="text-[10px] font-bold text-muted-foreground">Créditos</span>
+                              </div>
+                            </div>
+
+                            <div className="p-3 rounded-xl bg-background/50 border border-border flex flex-col items-center justify-center text-center">
+                              <span className="text-xs text-muted-foreground font-bold uppercase">Munição Atual</span>
+                              <div className="flex items-center gap-1 mt-1 text-emerald-500">
+                                <span className="text-xl font-black">{userCredits}</span>
+                                <span className="text-[10px] font-bold text-muted-foreground">Disponíveis</span>
+                              </div>
+                            </div>
+
+                            <div className="p-3 rounded-xl bg-background/50 border border-border flex flex-col items-center justify-center text-center col-span-2 sm:col-span-1">
+                              <span className="text-xs text-muted-foreground font-bold uppercase">Munição Restante</span>
+                              <div className={`flex items-center gap-1 mt-1 ${userCredits - calculateCost(targetLeads[0]) < 0 ? 'text-destructive' : 'text-primary'}`}>
+                                <span className="text-xl font-black">{userCredits - calculateCost(targetLeads[0])}</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {userCredits - calculateCost(targetLeads[0]) < 0 && (
+                            <Alert variant="destructive" className="mt-4 bg-destructive/10 border-destructive/20 text-destructive">
+                              <AlertTriangle className="h-4 w-4" />
+                              <AlertDescription className="font-bold">
+                                Munição insuficiente para esta operação. Reduza o escopo ou reabasteça.
+                              </AlertDescription>
+                            </Alert>
+                          )}
                         </div>
                       </div>
 
@@ -1081,7 +1186,7 @@ export const CampaignsPage = () => {
                       onClick={() => setIsCreateOpen(false)}
                       className="gap-2 text-xs sm:text-sm"
                     >
-                      Cancelar
+                      Abortar
                     </Button>
 
                     <Button
@@ -1112,7 +1217,7 @@ export const CampaignsPage = () => {
             <div key={status} className="space-y-4">
               <h3 className="text-lg font-semibold capitalize flex items-center gap-2">
                 {status === 'active' && <span className="w-2 h-2 rounded-full bg-emerald-500" />}
-                {status === 'active' ? 'Ativas' : status === 'paused' ? 'Pausadas' : 'Concluídas'}
+                {status === 'active' ? 'Em Combate (Ativas)' : status === 'paused' ? 'Em Espera (Pausadas)' : 'Missões Cumpridas'}
                 <span className="text-sm font-normal text-muted-foreground">({statusCampaigns.length})</span>
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -1132,68 +1237,100 @@ export const CampaignsPage = () => {
                                 <span className="text-xs text-muted-foreground">{campaign.location}</span>
                               </div>
                             </div>
-                            <Badge
-                              variant={campaign.status === 'active' ? 'verified' : campaign.status === 'paused' ? 'outline' : 'secondary'}
-                              className="flex items-center gap-1"
-                            >
-                              {campaign.status === 'active' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />}
-                              {campaign.status === 'active' ? 'Ativo' : campaign.status === 'paused' ? 'Pausado' : 'Concluído'}
-                            </Badge>
+
+                            {/* STATUS DROPDOWN */}
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className={`h-6 px-2 text-xs font-bold uppercase tracking-wider border ${campaign.status === 'active' ? 'border-emerald-500/50 text-emerald-500 bg-emerald-500/10 hover:bg-emerald-500/20' :
+                                    campaign.status === 'paused' ? 'border-amber-500/50 text-amber-500 bg-amber-500/10 hover:bg-amber-500/20' :
+                                      'border-muted-foreground/30 text-muted-foreground bg-secondary/50'
+                                    }`}
+                                >
+                                  {campaign.status === 'active' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5 animate-pulse" />}
+                                  {campaign.status === 'active' ? 'Em Combate' : campaign.status === 'paused' ? 'Em Espera' : 'Finalizada'}
+                                  <ChevronDown className="h-3 w-3 ml-1 opacity-50" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => updateCampaign.mutate({ id: campaign.id, status: 'active' })}>
+                                  <span className="w-2 h-2 rounded-full bg-emerald-500 mr-2" /> Retomar Missão
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => updateCampaign.mutate({ id: campaign.id, status: 'paused' })}>
+                                  <span className="w-2 h-2 rounded-full bg-amber-500 mr-2" /> Cessar Fogo (Pausar)
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => updateCampaign.mutate({ id: campaign.id, status: 'completed' })}>
+                                  <span className="w-2 h-2 rounded-full bg-slate-500 mr-2" /> Dar Baixa (Encerrar)
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </div>
 
-                          {/* Metrics */}
+                          {/* OPTIMIZED METRICS */}
                           <div className="grid grid-cols-3 gap-2 text-sm">
-                            <div className="p-3 bg-primary/10 border border-primary/20 rounded-lg flex flex-col items-center justify-center">
-                              <span className="font-black text-2xl text-primary">{campaign.leadsFound}</span>
-                              <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Capturados</span>
+                            <div className="p-2.5 bg-primary/5 border border-primary/10 rounded-lg flex flex-col items-center justify-center text-center">
+                              <span className="font-black text-xl text-primary leading-none mb-1">{campaign.leadsFound}</span>
+                              <span className="text-[9px] text-muted-foreground font-extrabold uppercase tracking-tight leading-tight">Alvos</span>
                             </div>
-                            <div className="p-3 bg-accent/10 border border-accent/20 rounded-lg flex flex-col items-center justify-center">
-                              <span className="font-black text-2xl text-accent">{campaign.leadsVerified}</span>
-                              <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Verificados</span>
+                            <div className="p-2.5 bg-accent/5 border border-accent/10 rounded-lg flex flex-col items-center justify-center text-center">
+                              <span className="font-black text-xl text-accent leading-none mb-1">{campaign.leadsVerified}</span>
+                              <span className="text-[9px] text-muted-foreground font-extrabold uppercase tracking-tight leading-tight">Confirmados</span>
                             </div>
-                            <div className="p-3 bg-secondary/50 border border-border rounded-lg flex flex-col items-center justify-center">
-                              <span className="font-black text-2xl text-foreground">{qualifiedLeads}%</span>
-                              <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Qualidade</span>
+                            <div className="p-2.5 bg-secondary/50 border border-border rounded-lg flex flex-col items-center justify-center text-center">
+                              <span className="font-black text-xl text-foreground leading-none mb-1">{qualifiedLeads}%</span>
+                              <span className="text-[9px] text-muted-foreground font-extrabold uppercase tracking-tight leading-tight">Precisão</span>
                             </div>
                           </div>
 
-                          {/* Actions */}
+                          {/* PRIMARY ACTIONS - LEADS & SEARCH */}
                           <div className="flex gap-2">
                             <Button
                               variant="default"
                               size="sm"
-                              className="flex-1 gap-2 font-bold"
+                              className="flex-[2] gap-2 font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm"
                               onClick={() => window.location.href = `/leads?campaign=${campaign.id}`}
                             >
-                              <Users className="h-4 w-4" /> Ver Alvos
+                              <Users className="h-3.5 w-3.5" /> Inspecionar Alvos
                             </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="flex-1 gap-2"
-                              onClick={() => {
-                                toast({ title: "Re-varredura Iniciada", description: `Atualizando alvos de "${campaign.name}"...` });
-                                // TODO: Implement re-scan logic
-                              }}
-                            >
-                              <Zap className="h-4 w-4" /> Re-varrer
-                            </Button>
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="flex-1 gap-1.5 border-dashed border-primary/30 hover:bg-primary/5 hover:border-primary/50 text-foreground"
+                                    onClick={() => setRescanCampaign(campaign)}
+                                  >
+                                    <Zap className="h-3.5 w-3.5" />
+                                    Buscar +
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p className="text-xs">Escanear novos alvos na área (Não inicia disparos)</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
                           </div>
 
-                          {/* Secondary Actions */}
-                          <div className="flex gap-2 pt-2 border-t border-border/50">
-                            <Button variant="ghost" size="sm" className="flex-1 text-xs" onClick={() => openEditModal(campaign)}>
-                              <Settings className="h-3 w-3 mr-1" /> Editar
+                          {/* SECONDARY ACTIONS - EDIT & DISPATCH */}
+                          <div className="flex items-center justify-between pt-2 border-t border-border/50 gap-2">
+                            <Button variant="ghost" size="sm" className="h-8 text-xs text-muted-foreground hover:text-foreground" onClick={() => openEditModal(campaign)}>
+                              <Settings className="h-3 w-3 mr-1.5" /> Ajustar Params
                             </Button>
-                            <Button variant="ghost" size="sm" className="flex-1 text-xs" onClick={() => handleSendCampaign(campaign)}>
-                              <Play className="h-3 w-3 mr-1" />
-                              <div className="flex flex-col items-start leading-none">
-                                <span>Disparar</span>
-                                <span className="text-[8px] opacity-50">Enviar para Alvos</span>
-                              </div>
+
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 text-xs font-bold text-accent hover:text-accent hover:bg-accent/10"
+                              onClick={() => handleSendCampaign(campaign)}
+                            >
+                              <Play className="h-3 w-3 mr-1.5" /> Iniciar Ataque
                             </Button>
-                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setDeleteConfirm(campaign.id)}>
-                              <Trash2 className="h-3 w-3 text-destructive" />
+
+                            < Button variant="ghost" size="icon" className="h-8 w-8 ml-auto text-muted-foreground hover:text-destructive transition-colors" onClick={() => setDeleteConfirm(campaign.id)}>
+                              <Trash2 className="h-3.5 w-3.5" />
                             </Button>
                           </div>
                         </div>
@@ -1246,6 +1383,87 @@ export const CampaignsPage = () => {
         </DialogContent>
       </Dialog>
 
+      {/* RESCAN CONFIRMATION DIALOG */}
+      <Dialog open={!!rescanCampaign} onOpenChange={(open) => !open && setRescanCampaign(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Zap className="h-5 w-5 text-primary" />
+              Buscar Novos Leads
+            </DialogTitle>
+            <DialogDescription>
+              Você está prestes a buscar mais leads para a campanha <strong>{rescanCampaign?.name}</strong>.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="py-6 space-y-6">
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <Label className="text-sm font-bold">Quantidade Adicional</Label>
+                <span className="text-xl font-black text-primary">{targetLeads[0]} Leads</span>
+              </div>
+              <Slider
+                value={targetLeads}
+                onValueChange={setTargetLeads}
+                max={500}
+                step={10}
+                className="py-2"
+              />
+              <p className="text-xs text-muted-foreground">
+                O sistema buscará até <strong>{targetLeads[0]} novos contatos</strong> baseados nos filtros originais desta campanha.
+              </p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-primary/5 border border-primary/20 space-y-3">
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-muted-foreground">Custo da Operação:</span>
+                <span className="font-bold flex items-center gap-1">
+                  <Wallet className="h-3.5 w-3.5" /> {calculateCost(targetLeads[0])} Créditos
+                </span>
+              </div>
+              <div className="w-full h-px bg-border/50" />
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-muted-foreground">Seu Saldo Atual:</span>
+                <span className="font-bold text-emerald-500">{userCredits} Créditos</span>
+              </div>
+              <div className="flex justify-between items-center text-sm pt-2 border-t border-border/50">
+                <span className="font-black text-foreground">Saldo Após Operação:</span>
+                <span className={`font-black ${userCredits - calculateCost(targetLeads[0]) < 0 ? 'text-destructive' : 'text-primary'}`}>
+                  {userCredits - calculateCost(targetLeads[0])} Créditos
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="ghost" onClick={() => setRescanCampaign(null)}>Cancelar</Button>
+            <Button
+              onClick={() => {
+                const cost = calculateCost(targetLeads[0]);
+                if (userCredits >= cost) {
+                  setUserCredits(prev => prev - cost);
+                  toast({
+                    title: "Busca Iniciada! 🚀",
+                    description: `Procurando ${targetLeads[0]} novos leads. ${cost} créditos debitados.`,
+                  });
+                  setRescanCampaign(null);
+                } else {
+                  toast({
+                    variant: "destructive",
+                    title: "Saldo Insuficiente",
+                    description: "Por favor, recarregue seus créditos para continuar.",
+                  });
+                }
+              }}
+              className="gap-2 font-bold"
+              disabled={userCredits - calculateCost(targetLeads[0]) < 0}
+            >
+              <Zap className="h-4 w-4" /> Confirmar e Buscar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={!!deleteConfirm} onOpenChange={(open) => !open && setDeleteConfirm(null)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -1254,12 +1472,12 @@ export const CampaignsPage = () => {
               Esta ação não pode ser desfeita. Todos os dados coletados nesta missão serão perdidos permanentemente.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="gap-2 sm:gap-0">
+          <DialogFooter>
             <Button variant="ghost" onClick={() => setDeleteConfirm(null)}>Cancelar</Button>
-            <Button variant="destructive" onClick={() => deleteConfirm && handleDeleteCampaign(deleteConfirm)}>Excluir Permanentemente</Button>
+            <Button variant="destructive" onClick={() => { deleteCampaign.mutate(deleteConfirm!); setDeleteConfirm(null); }}>Excluir</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </DashboardLayout >
+    </DashboardLayout>
   );
 };

@@ -152,16 +152,16 @@ interface SourceChartProps {
 }
 
 const SOURCE_COLORS: Record<string, string> = {
-  'Google': 'hsl(217 91% 60%)',          // Blue
-  'Maps': 'hsl(142 71% 45%)',            // Green
-  'Linkedin': 'hsl(201 100% 35%)',        // Dark Blue
-  'Instagram': 'hsl(329 70% 58%)',       // Pink/Magenta
-  'Junta Comercial': 'hsl(36 100% 50%)', // Orange
-  'Sebrae': 'hsl(199 89% 48%)',          // Sky Blue
-  'Reclame Aqui': 'hsl(0 84% 60%)',      // Red
-  'Facebook': 'hsl(214 89% 52%)',        // Medium Blue
-  'Workana': 'hsl(262 83% 58%)',         // Purple
-  'Outros': 'hsl(0 0% 45%)',            // Grey
+  'Google': 'hsl(215, 95%, 55%)',        // Bright Blue
+  'Maps': 'hsl(140, 70%, 40%)',          // Green
+  'Linkedin': 'hsl(175, 80%, 40%)',      // Teal (More towards green to separate from Blue)
+  'Instagram': 'hsl(330, 85%, 55%)',     // Pink
+  'Junta Comercial': 'hsl(25, 95%, 50%)', // Orange
+  'Sebrae': 'hsl(45, 95%, 45%)',         // Gold/Yellow
+  'Reclame Aqui': 'hsl(0, 90%, 60%)',    // Red
+  'Facebook': 'hsl(255, 85%, 60%)',      // Indigo/Purple (Shifted away from Blue to separate from Google)
+  'Workana': 'hsl(290, 80%, 50%)',       // Magenta/Deep Purple (Shifted to separate from Facebook)
+  'Outros': 'hsl(0, 0%, 45%)',           // Grey
 };
 
 const mainSources = [

@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { 
-  Calendar as CalendarIcon, 
-  Clock, 
-  Plus, 
-  Edit, 
-  Trash2, 
+import {
+  Calendar as CalendarIcon,
+  Clock,
+  Plus,
+  Edit,
+  Trash2,
   CheckCircle,
   X as XIcon,
   Loader2
@@ -28,7 +28,7 @@ import { format, isSameDay, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 const timeSlots = [
-  "08:00", "09:00", "10:00", "11:00", "12:00", 
+  "08:00", "09:00", "10:00", "11:00", "12:00",
   "13:00", "14:00", "15:00", "16:00", "17:00", "18:00"
 ];
 
@@ -60,14 +60,14 @@ export const SchedulesPage = () => {
     });
   };
 
-  const schedulesForDate = schedules.filter(s => 
+  const schedulesForDate = schedules.filter(s =>
     isSameDay(parseISO(s.date), selectedDate)
   );
 
   const checkConflict = (date: string, hour: string, excludeId?: string) => {
-    return schedules.some(s => 
-      s.date === date && 
-      s.hour === hour && 
+    return schedules.some(s =>
+      s.date === date &&
+      s.hour === hour &&
       s.id !== excludeId &&
       s.status !== 'cancelled'
     );
@@ -143,18 +143,18 @@ export const SchedulesPage = () => {
   const getStatusBadge = (status: Schedule['status']) => {
     switch (status) {
       case 'completed':
-        return <Badge variant="verified">Concluído</Badge>;
+        return <Badge variant="verified">Executado</Badge>;
       case 'cancelled':
-        return <Badge variant="destructive">Cancelado</Badge>;
+        return <Badge variant="destructive">Abortado</Badge>;
       default:
-        return <Badge variant="pending">Pendente</Badge>;
+        return <Badge variant="pending">Em Pauta</Badge>;
     }
   };
 
   if (isLoading) {
     return (
       <DashboardLayout>
-        <Header title="Agendamentos" subtitle="Gerencie suas reuniões e compromissos" />
+        <Header title="Cronograma de Missões" subtitle="Coordene briefings táticos e operações" />
         <div className="flex items-center justify-center h-64">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
@@ -164,9 +164,9 @@ export const SchedulesPage = () => {
 
   return (
     <DashboardLayout>
-      <Header 
-        title="Agendamentos" 
-        subtitle="Gerencie suas reuniões e compromissos" 
+      <Header
+        title="Cronograma de Missões"
+        subtitle="Coordene encontros táticos e briefings operacionais"
       />
 
       <div className="space-y-4 sm:space-y-6">
@@ -178,11 +178,11 @@ export const SchedulesPage = () => {
         >
           <Badge variant="outline" className="text-sm w-fit">
             <CalendarIcon className="h-3 w-3 mr-1" />
-            {schedules.filter(s => s.status === 'pending').length} agendamentos pendentes
+            {schedules.filter(s => s.status === 'pending').length} briefings pendentes
           </Badge>
           <Button variant="glow" onClick={() => { resetForm(); setIsCreateOpen(true); }}>
             <Plus className="h-4 w-4 mr-2" />
-            Novo Agendamento
+            Agendar Briefing
           </Button>
         </motion.div>
 
@@ -195,7 +195,7 @@ export const SchedulesPage = () => {
           >
             <Card variant="glass">
               <CardHeader className="pb-3">
-                <CardTitle className="text-base sm:text-lg">Calendário</CardTitle>
+                <CardTitle className="text-base sm:text-lg">Calendário Operacional</CardTitle>
               </CardHeader>
               <CardContent className="flex justify-center">
                 <Calendar
@@ -208,7 +208,7 @@ export const SchedulesPage = () => {
                     hasSchedule: schedules.map(s => parseISO(s.date)),
                   }}
                   modifiersStyles={{
-                    hasSchedule: { 
+                    hasSchedule: {
                       backgroundColor: 'hsl(var(--primary) / 0.2)',
                       borderRadius: '50%',
                     }
@@ -235,7 +235,7 @@ export const SchedulesPage = () => {
                 {schedulesForDate.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
                     <CalendarIcon className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                    <p>Nenhum agendamento para esta data</p>
+                    <p>Sem missões agendadas para esta data</p>
                   </div>
                 ) : (
                   <div className="space-y-3">
@@ -266,26 +266,26 @@ export const SchedulesPage = () => {
                           </div>
                           <div className="flex items-center gap-2 self-end sm:self-center">
                             {schedule.status === 'pending' && (
-                              <Button 
-                                variant="ghost" 
-                                size="icon" 
+                              <Button
+                                variant="ghost"
+                                size="icon"
                                 className="h-8 w-8"
                                 onClick={() => handleComplete(schedule.id)}
                               >
                                 <CheckCircle className="h-4 w-4 text-accent" />
                               </Button>
                             )}
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
+                            <Button
+                              variant="ghost"
+                              size="icon"
                               className="h-8 w-8"
                               onClick={() => openEditModal(schedule)}
                             >
                               <Edit className="h-4 w-4" />
                             </Button>
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
+                            <Button
+                              variant="ghost"
+                              size="icon"
                               className="h-8 w-8 text-destructive hover:text-destructive"
                               onClick={() => setDeleteConfirm(schedule.id)}
                             >
@@ -309,7 +309,7 @@ export const SchedulesPage = () => {
         >
           <Card variant="glass">
             <CardHeader className="pb-3">
-              <CardTitle className="text-base sm:text-lg">Próximos Agendamentos</CardTitle>
+              <CardTitle className="text-base sm:text-lg">Próximas Incursões</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -347,15 +347,15 @@ export const SchedulesPage = () => {
       <Dialog open={isCreateOpen} onOpenChange={(open) => { setIsCreateOpen(open); if (!open) resetForm(); }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Novo Agendamento</DialogTitle>
-            <DialogDescription>Agende uma reunião com um lead</DialogDescription>
+            <DialogTitle>Agendar Nova Missão</DialogTitle>
+            <DialogDescription>Coordene um briefing tático com o alvo</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label className="text-sm font-medium mb-2 block">Lead</Label>
+              <Label className="text-sm font-medium mb-2 block">Alvo</Label>
               <Select value={formData.leadId} onValueChange={(v) => setFormData(prev => ({ ...prev, leadId: v }))}>
                 <SelectTrigger className="bg-secondary/50">
-                  <SelectValue placeholder="Selecione um lead" />
+                  <SelectValue placeholder="Selecione um alvo" />
                 </SelectTrigger>
                 <SelectContent>
                   {leads.map(lead => (
@@ -369,8 +369,8 @@ export const SchedulesPage = () => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label className="text-sm font-medium mb-2 block">Data</Label>
-                <Input 
-                  type="date" 
+                <Input
+                  type="date"
                   className="bg-secondary/50"
                   value={formData.date}
                   onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
@@ -391,38 +391,38 @@ export const SchedulesPage = () => {
               </div>
             </div>
             <div>
-              <Label className="text-sm font-medium mb-2 block">Observações</Label>
-              <Textarea 
+              <Label className="text-sm font-medium mb-2 block">Notas de Inteligência</Label>
+              <Textarea
                 className="bg-secondary/50"
-                placeholder="Detalhes da reunião..."
+                placeholder="Detalhes da operação..."
                 value={formData.notes}
                 onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
               />
             </div>
           </div>
           <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 pt-4">
-            <Button variant="outline" onClick={() => setIsCreateOpen(false)}>Cancelar</Button>
+            <Button variant="outline" onClick={() => setIsCreateOpen(false)}>Abortar</Button>
             <Button onClick={handleCreate} disabled={createSchedule.isPending}>
               {createSchedule.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              Criar Agendamento
+              Confirmar Briefing
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* Edit Modal */}
-      <Dialog open={!!editingSchedule} onOpenChange={(open) => { if (!open) { setEditingSchedule(null); resetForm(); }}}>
+      <Dialog open={!!editingSchedule} onOpenChange={(open) => { if (!open) { setEditingSchedule(null); resetForm(); } }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Editar Agendamento</DialogTitle>
-            <DialogDescription>Altere os dados do agendamento</DialogDescription>
+            <DialogTitle>Ajustar Cronograma</DialogTitle>
+            <DialogDescription>Altere os dados da missão</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label className="text-sm font-medium mb-2 block">Lead</Label>
+              <Label className="text-sm font-medium mb-2 block">Alvo</Label>
               <Select value={formData.leadId} onValueChange={(v) => setFormData(prev => ({ ...prev, leadId: v }))}>
                 <SelectTrigger className="bg-secondary/50">
-                  <SelectValue placeholder="Selecione um lead" />
+                  <SelectValue placeholder="Selecione um alvo" />
                 </SelectTrigger>
                 <SelectContent>
                   {leads.map(lead => (
@@ -436,8 +436,8 @@ export const SchedulesPage = () => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label className="text-sm font-medium mb-2 block">Data</Label>
-                <Input 
-                  type="date" 
+                <Input
+                  type="date"
                   className="bg-secondary/50"
                   value={formData.date}
                   onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
@@ -458,8 +458,8 @@ export const SchedulesPage = () => {
               </div>
             </div>
             <div>
-              <Label className="text-sm font-medium mb-2 block">Observações</Label>
-              <Textarea 
+              <Label className="text-sm font-medium mb-2 block">Notas de Inteligência</Label>
+              <Textarea
                 className="bg-secondary/50"
                 value={formData.notes}
                 onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
@@ -470,7 +470,7 @@ export const SchedulesPage = () => {
             <Button variant="outline" onClick={() => setEditingSchedule(null)}>Cancelar</Button>
             <Button onClick={handleEdit} disabled={updateSchedule.isPending}>
               {updateSchedule.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              Salvar Alterações
+              Confirmar Ajustes
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -480,14 +480,14 @@ export const SchedulesPage = () => {
       <Dialog open={!!deleteConfirm} onOpenChange={(open) => { if (!open) setDeleteConfirm(null); }}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>Confirmar Exclusão</DialogTitle>
-            <DialogDescription>Tem certeza que deseja excluir este agendamento?</DialogDescription>
+            <DialogTitle>Confirmar Baixa</DialogTitle>
+            <DialogDescription>Tem certeza que deseja remover esta missão da pauta?</DialogDescription>
           </DialogHeader>
           <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2">
-            <Button variant="outline" onClick={() => setDeleteConfirm(null)}>Cancelar</Button>
+            <Button variant="outline" onClick={() => setDeleteConfirm(null)}>Manter</Button>
             <Button variant="destructive" onClick={() => deleteConfirm && handleDelete(deleteConfirm)}>
               {deleteSchedule.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              Excluir
+              Dar Baixa
             </Button>
           </DialogFooter>
         </DialogContent>

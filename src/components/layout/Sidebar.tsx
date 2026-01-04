@@ -14,7 +14,9 @@ import {
   Calendar,
   FileText,
   MessageSquare,
-  Settings
+  Settings,
+  Shield,
+  Target
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -29,13 +31,14 @@ interface SidebarProps {
 }
 
 const navItems = [
-  { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
-  { icon: Zap, label: "Motor de Prospecção", path: "/campaigns" },
-  { icon: Users, label: "Central de Alvos", path: "/leads" },
-  { icon: Calendar, label: "Agendamentos", path: "/schedules" },
-  { icon: FileText, label: "Vendas & Propostas", path: "/proposals" },
-  { icon: MessageSquare, label: "WhatsApp API", path: "/whatsapp" },
-  { icon: Settings, label: "Sistema", path: "/settings" },
+  { icon: LayoutDashboard, label: "Sala de Situação", path: "/dashboard" },
+  { icon: Target, label: "Radar de Operações", path: "/campaigns" },
+  { icon: Users, label: "Base de Alvos", path: "/leads" },
+  { icon: Calendar, label: "Briefings Táticos", path: "/schedules" },
+  { icon: FileText, label: "Relatórios de Combate", path: "/proposals" },
+  { icon: MessageSquare, label: "Comunicações", path: "/whatsapp" },
+  { icon: Shield, label: "Comando Geral (SaaS)", path: "/admin/users" },
+  { icon: Settings, label: "Arsenal / Configs", path: "/settings" },
 ];
 
 export const Sidebar = ({ collapsed = false, onCollapse, mobileOpen, onMobileClose }: SidebarProps) => {
