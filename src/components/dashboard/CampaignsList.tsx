@@ -22,11 +22,11 @@ interface CampaignsListProps {
 const getStatusBadge = (status: Campaign['status']) => {
   switch (status) {
     case 'active':
-      return <Badge variant="verified">Ativa</Badge>;
+      return <Badge variant="verified">Operação Ativa</Badge>;
     case 'paused':
-      return <Badge variant="pending">Pausada</Badge>;
+      return <Badge variant="pending">Em Espera</Badge>;
     case 'completed':
-      return <Badge variant="outline">Concluída</Badge>;
+      return <Badge variant="destructive">Missão Cumprida</Badge>;
   }
 };
 
@@ -39,9 +39,9 @@ export const CampaignsList = ({ campaigns }: CampaignsListProps) => {
     >
       <Card variant="glass">
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-lg font-semibold">Campanhas</CardTitle>
+          <CardTitle className="text-lg font-semibold">Missões</CardTitle>
           <Button variant="outline" size="sm">
-            Nova Campanha
+            Nova Missão
           </Button>
         </CardHeader>
         <CardContent className="space-y-3 sm:space-y-4 p-3 sm:p-6">
@@ -72,15 +72,15 @@ export const CampaignsList = ({ campaigns }: CampaignsListProps) => {
                 </div>
                 <div className="flex items-center gap-1 shrink-0 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
                   {campaign.status === 'active' ? (
-                    <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8">
+                    <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8" title="Cessar Fogo (Pausar)">
                       <Pause className="h-3 w-3 sm:h-4 sm:w-4" />
                     </Button>
                   ) : campaign.status === 'paused' ? (
-                    <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8">
+                    <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8" title="Retomar Missão">
                       <Play className="h-3 w-3 sm:h-4 sm:w-4" />
                     </Button>
                   ) : null}
-                  <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8 hidden sm:flex">
+                  <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8 hidden sm:flex" title="Ajustar Radar (Editar)">
                     <Settings className="h-3 w-3 sm:h-4 sm:w-4" />
                   </Button>
                 </div>

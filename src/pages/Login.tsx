@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Zap, Mail, Lock, ArrowRight, Eye, EyeOff, Sparkles } from "lucide-react";
+import { Radio, Mail, Lock, ArrowRight, Eye, EyeOff, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -18,7 +18,7 @@ export const LoginPage = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
+
     // Simulate login
     setTimeout(() => {
       setIsLoading(false);
@@ -39,7 +39,7 @@ export const LoginPage = () => {
           <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-3xl animate-pulse" />
           <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-accent/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "1s" }} />
         </div>
-        
+
         <div className="relative z-10 flex flex-col justify-center px-16">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -48,7 +48,7 @@ export const LoginPage = () => {
           >
             <div className="flex items-center gap-4 mb-8">
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-2xl shadow-primary/30">
-                <Zap className="h-10 w-10 text-primary-foreground" />
+                <Radio className="h-10 w-10 text-primary-foreground" />
               </div>
               <div>
                 <h1 className="text-4xl font-bold">
@@ -57,15 +57,15 @@ export const LoginPage = () => {
                 <p className="text-muted-foreground">Prospecção Automática</p>
               </div>
             </div>
-            
+
             <h2 className="text-3xl font-bold mb-4">
               Encontre leads qualificados
               <br />
               <span className="gradient-text">24 horas por dia</span>
             </h2>
-            
+
             <p className="text-lg text-muted-foreground max-w-md mb-8">
-              Sistema completo de prospecção automática com verificação de e-mail, 
+              Sistema completo de prospecção automática com verificação de e-mail,
               telefone e WhatsApp. Score inteligente e integração com múltiplas fontes.
             </p>
 
@@ -105,7 +105,7 @@ export const LoginPage = () => {
           {/* Mobile Logo */}
           <div className="lg:hidden flex items-center gap-3 mb-8 justify-center">
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/20">
-              <Zap className="h-7 w-7 text-primary-foreground" />
+              <Radio className="h-7 w-7 text-primary-foreground" />
             </div>
             <span className="font-bold text-2xl">
               LeadScan<span className="text-primary">365</span>

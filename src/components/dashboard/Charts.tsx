@@ -14,7 +14,7 @@ import {
   Cell
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Zap, Bot } from "lucide-react";
+import { Radio, Bot } from "lucide-react";
 
 interface ScoreChartProps {
   data: { range: string; count: number }[];
@@ -35,8 +35,6 @@ export const ScoreDistributionChart = ({ data }: ScoreChartProps) => {
           <CardTitle className="text-lg font-semibold">Classificação Tática (Score)</CardTitle>
         </CardHeader>
         <CardContent className="p-3 sm:p-6">
-// ... content truncated for brevity in replace call, but I will target specific blocks to avoid huge replacements
-          // Actually, I will just use multi_replace for accuracy in Charts.tsx as it is a large file.
           <div className="h-[220px] sm:h-[280px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={data} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
@@ -137,7 +135,7 @@ export const LeadsTrendChart = ({ data }: TrendChartProps) => {
                 <Area
                   type="monotone"
                   dataKey={(item) => item.leads || (item as any).count || 0}
-                  name="Leads"
+                  name="Alvos Neutralizados"
                   stroke="hsl(var(--primary))"
                   strokeWidth={2}
                   fill="url(#leadGradient)"
@@ -277,7 +275,7 @@ export const LeadsByEcosystemChart = ({ data }: EcosystemChartProps) => {
       <Card variant="glass" className="h-full">
         <CardHeader>
           <CardTitle className="text-lg font-semibold text-primary flex items-center gap-2">
-            <Zap className="h-4 w-4" />
+            <Radio className="h-4 w-4" />
             Radar de Ecossistemas
           </CardTitle>
         </CardHeader>

@@ -2,7 +2,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Check, Target, Zap, Rocket, Shield, ArrowLeft } from 'lucide-react';
+import { Check, Target, Radio, Crosshair, Shield, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -29,7 +29,7 @@ export const BillingPage = () => {
             missiles: '1.500',
             description: 'Poder de fogo para escala real',
             features: ['1.500 Mísseis Mensais', 'Filtros Avançados', 'Enriquecimento de CNPJ', 'Suporte Prioritário'],
-            icon: <Zap className="h-8 w-8 text-emerald-500" />,
+            icon: <Radio className="h-8 w-8 text-primary" />,
             color: 'border-emerald-500 shadow-lg shadow-emerald-500/10'
         },
         {
@@ -39,7 +39,7 @@ export const BillingPage = () => {
             missiles: '5.000',
             description: 'Arsenal pesado para grandes times',
             features: ['5.000 Mísseis Mensais', 'API Privada', 'Gerente de Contas', 'Consultoria Operacional'],
-            icon: <Rocket className="h-8 w-8 text-primary" />,
+            icon: <Crosshair className="h-8 w-8 text-primary" />,
             color: 'border-primary/50'
         }
     ];

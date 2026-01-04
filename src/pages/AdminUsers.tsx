@@ -148,18 +148,18 @@ export const AdminUsersPage = () => {
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
                         <h1 className="text-3xl font-black tracking-tight text-foreground flex items-center gap-2">
-                            <Shield className="h-8 w-8 text-primary" /> Painel do Dono (SaaS)
+                            <Shield className="h-8 w-8 text-primary" /> Comando Geral (Admin)
                         </h1>
                         <p className="text-muted-foreground mt-1 text-lg">
-                            Visão geral de faturamento, gestão de clientes e recuperação.
+                            Supervisão tática de agentes de campo, recursos e patentes.
                         </p>
                     </div>
                     <div className="flex gap-2">
                         <Button variant="outline" className="gap-2" onClick={() => setIsConfigPlansDialogOpen(true)}>
-                            <Settings className="h-4 w-4" /> Configurar Planos
+                            <Settings className="h-4 w-4" /> Configurar Patentes
                         </Button>
-                        <Button className="gap-2 bg-emerald-600 hover:bg-emerald-700" onClick={() => setIsNewUserDialogOpen(true)}>
-                            <UserPlus className="h-4 w-4" /> Novo Usuário
+                        <Button className="gap-2" onClick={() => setIsNewUserDialogOpen(true)}>
+                            <UserPlus className="h-4 w-4" /> Recrutar Agente
                         </Button>
                     </div>
                 </div>
@@ -169,7 +169,7 @@ export const AdminUsersPage = () => {
                     <Card className="bg-gradient-to-br from-background to-secondary/10 border-primary/20">
                         <CardHeader className="pb-2">
                             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                                <Crown className="h-4 w-4 text-primary" /> Receita Mensal (MRR)
+                                <Crown className="h-4 w-4 text-primary" /> Recursos de Guerra (MRR)
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
@@ -220,7 +220,7 @@ export const AdminUsersPage = () => {
                         <Card>
                             <CardHeader>
                                 <div className="flex justify-between items-center">
-                                    <CardTitle>Base de Clientes</CardTitle>
+                                    <CardTitle>Rede de Agentes (Clientes)</CardTitle>
                                     <div className="relative w-64">
                                         <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                                         <Input
@@ -236,8 +236,8 @@ export const AdminUsersPage = () => {
                                 <Table>
                                     <TableHeader>
                                         <TableRow>
-                                            <TableHead>Cliente</TableHead>
-                                            <TableHead>Plano</TableHead>
+                                            <TableHead>Agente</TableHead>
+                                            <TableHead>Patente</TableHead>
                                             <TableHead>Status</TableHead>
                                             <TableHead>Créditos</TableHead>
                                             <TableHead className="text-right">Ações</TableHead>
@@ -264,7 +264,7 @@ export const AdminUsersPage = () => {
                                                 <TableCell>
                                                     <div className="flex items-center gap-2">
                                                         <span className={`h-2 w-2 rounded-full ${user.status === 'active' ? 'bg-emerald-500' :
-                                                                user.status === 'blocked' ? 'bg-destructive' : 'bg-gray-400'
+                                                            user.status === 'blocked' ? 'bg-destructive' : 'bg-gray-400'
                                                             }`} />
                                                         <span className="capitalize text-sm">{user.status === 'active' ? 'Ativo' : user.status === 'blocked' ? 'Bloqueado' : 'Inativo'}</span>
                                                     </div>

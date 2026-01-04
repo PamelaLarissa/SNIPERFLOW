@@ -37,8 +37,8 @@ const navItems = [
   { icon: Calendar, label: "Briefings Táticos", path: "/schedules" },
   { icon: FileText, label: "Relatórios de Combate", path: "/proposals" },
   { icon: MessageSquare, label: "Comunicações", path: "/whatsapp" },
-  { icon: Shield, label: "Comando Geral (SaaS)", path: "/admin/users" },
   { icon: Settings, label: "Arsenal / Configs", path: "/settings" },
+  { icon: Shield, label: "Comando Geral", path: "/admin/users" },
 ];
 
 export const Sidebar = ({ collapsed = false, onCollapse, mobileOpen, onMobileClose }: SidebarProps) => {
@@ -74,14 +74,8 @@ export const Sidebar = ({ collapsed = false, onCollapse, mobileOpen, onMobileClo
                 </Button>
               </div>
 
-              {/* Logo */}
-              <div className="p-6 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/20">
-                  <Zap className="h-6 w-6 text-primary-foreground" />
-                </div>
-                <span className="font-bold text-xl text-foreground whitespace-nowrap">
-                  Sniper<span className="text-primary">Flow</span>
-                </span>
+              <div className="p-6 flex items-center justify-center">
+                <img src="/sniperflow-logo.png" alt="SniperFlow" className="w-[85%] h-auto object-contain drop-shadow-[0_0_15px_rgba(var(--primary-rgb),0.3)] transition-all hover:drop-shadow-[0_0_25px_rgba(var(--primary-rgb),0.5)]" />
               </div>
 
               {/* Navigation */}
@@ -128,24 +122,15 @@ export const Sidebar = ({ collapsed = false, onCollapse, mobileOpen, onMobileClo
       )}
     >
       {/* Logo */}
-      <div className="p-6 flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/20 shrink-0">
-          <Zap className="h-6 w-6 text-primary-foreground" />
-        </div>
-        <AnimatePresence>
-          {!collapsed && (
-            <motion.div
-              initial={{ opacity: 0, width: 0 }}
-              animate={{ opacity: 1, width: "auto" }}
-              exit={{ opacity: 0, width: 0 }}
-              className="overflow-hidden"
-            >
-              <span className="font-bold text-xl text-foreground whitespace-nowrap">
-                Sniper<span className="text-primary">Flow</span>
-              </span>
-            </motion.div>
-          )}
-        </AnimatePresence>
+      {/* Logo */}
+      <div className={cn("p-6 flex items-center transition-all duration-300", collapsed ? "justify-center px-2" : "gap-3")}>
+        {!collapsed ? (
+          <img src="/sniperflow-logo.png" alt="SniperFlow" className="w-[180px] h-auto object-contain drop-shadow-[0_0_15px_rgba(var(--primary-rgb),0.3)] transition-all hover:drop-shadow-[0_0_25px_rgba(var(--primary-rgb),0.5)]" />
+        ) : (
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/20 shrink-0" title="SniperFlow">
+            <span className="font-black text-white text-xl">S</span>
+          </div>
+        )}
       </div>
 
       {/* Navigation */}

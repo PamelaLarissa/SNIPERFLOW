@@ -1,7 +1,7 @@
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Header } from "@/components/layout/Sidebar";
 import { IAPitchRoom } from "@/components/dashboard/IAPitchRoom";
-import { MessageSquare, Zap, Target, Bot } from "lucide-react";
+import { MessageSquare, Radio, Target, Bot } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
@@ -55,7 +55,7 @@ export const WhatsAppPage = () => {
                             <CardContent className="p-6">
                                 <div className="flex items-center gap-4">
                                     <div className="p-3 rounded-xl bg-primary/10 text-primary">
-                                        <Zap className="h-6 w-6" />
+                                        <Radio className="h-6 w-6" />
                                     </div>
                                     <div>
                                         <p className="text-2xl font-black">84%</p>

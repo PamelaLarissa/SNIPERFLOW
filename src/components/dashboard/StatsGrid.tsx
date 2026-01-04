@@ -4,11 +4,11 @@ import {
   ChevronLeft,
   ChevronRight,
   LogOut,
-  Zap,
+  Radio,
   Plus,
   ArrowUpRight,
   ArrowDownRight,
-  Rocket,
+  Crosshair,
   Loader2
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -69,7 +69,7 @@ const StatCard = ({
               {change !== undefined && (
                 <div className={cn(
                   "flex items-center gap-1 text-[10px] sm:text-xs font-semibold flex-wrap",
-                  isPositive ? "text-accent" : "text-destructive"
+                  isPositive ? "text-emerald-500" : "text-destructive"
                 )}>
                   {isPositive ? (
                     <ArrowUpRight className="h-3 w-3" />
@@ -120,15 +120,28 @@ export const StatsGrid = ({
         title="Alvos Neutralizados"
         value={totalAlvos}
         change={12.5}
-        icon={<Users className="h-5 w-5 text-primary" />}
+        icon={<Users className="h-5 w-5 text-accent" />}
         onClick={onTargetsClick}
+        action={
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-7 px-2 gap-1.5 rounded-full border-accent/50 hover:bg-accent/10 text-accent text-[10px] font-black uppercase tracking-tight"
+            onClick={(e) => {
+              e.stopPropagation();
+              onTargetsClick?.();
+            }}
+          >
+            <Users className="h-3 w-3" /> Ver Alvos
+          </Button>
+        }
         delay={0}
       />
       <StatCard
         title="Operações em Curso"
         value={activeMissions}
         change={activeMissions > 0 ? 100 : 0}
-        icon={<Rocket className="h-5 w-5 text-accent" />}
+        icon={<Crosshair className="h-5 w-5 text-accent" />}
         onClick={onMissionsClick}
         action={
           <Button
@@ -155,12 +168,12 @@ export const StatsGrid = ({
             <span className="text-muted-foreground font-semibold">Munições gastas</span>
           </div>
         }
-        icon={<Zap className="h-5 w-5 text-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.3)]" />}
+        icon={<Radio className="h-5 w-5 text-accent shadow-[0_0_10px_rgba(16,185,129,0.3)]" />}
         action={
           <Button
             size="sm"
             variant="outline"
-            className="h-7 px-2 gap-1.5 rounded-full border-emerald-500/50 hover:bg-emerald-500/10 text-emerald-500 text-[10px] font-black uppercase tracking-tight"
+            className="h-7 px-2 gap-1.5 rounded-full border-accent/50 hover:bg-accent/10 text-accent text-[10px] font-black uppercase tracking-tight"
             onClick={(e) => {
               e.stopPropagation();
               onReloadClick?.();

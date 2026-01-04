@@ -9,7 +9,7 @@ import {
   Building2,
   Globe,
   Target,
-  Zap
+  Radio
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -115,7 +115,7 @@ export const LeadsTable = ({ leads, title = "Feed de Neutralização (Últimos A
                           "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[10px] font-black uppercase tracking-tight",
                           wound.color
                         )}>
-                          <Zap className="h-3 w-3" />
+                          <Radio className="h-3 w-3" />
                           {wound.label}
                         </div>
                       </td>

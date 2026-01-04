@@ -8,7 +8,7 @@ import {
   Mail,
   Bell,
   Shield,
-  Zap,
+  Radio,
   Building,
   Loader2,
   TestTube2,
@@ -125,7 +125,7 @@ export const SettingsPage = () => {
               Camuflagem Tática
             </TabsTrigger>
             <TabsTrigger value="integrations" className="gap-2 px-4 whitespace-nowrap">
-              <Zap className="h-4 w-4" />
+              <Radio className="h-4 w-4" />
               Alianças Estratégicas
             </TabsTrigger>
             <TabsTrigger value="notifications" className="gap-2 px-4 whitespace-nowrap">
@@ -231,7 +231,7 @@ export const SettingsPage = () => {
               <CardContent>
                 <div className="p-6 rounded-xl border border-border" style={{ background: `linear-gradient(135deg, ${primaryColor}10 0%, transparent 100%)` }}>
                   <div className="flex items-center gap-2 mb-4">
-                    <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: primaryColor }}><Zap className="h-4 w-4 text-white" /></div>
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: primaryColor }}><Radio className="h-4 w-4 text-white" /></div>
                     <span className="font-bold">{workspaceName}</span>
                   </div>
                   <div className="space-y-2 mb-4"><div className="h-2 bg-secondary/50 rounded w-3/4" /><div className="h-2 bg-secondary/50 rounded w-1/2" /></div>

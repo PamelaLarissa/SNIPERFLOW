@@ -11,7 +11,7 @@ import {
   Globe,
   X,
   Filter,
-  Zap,
+  Radio,
 } from "lucide-react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Header } from "@/components/layout/Sidebar";
@@ -263,7 +263,7 @@ export const LeadsPage = () => {
             onClick={() => navigate('/campaigns?new=true')}
             className="gap-2 border-primary/50 text-primary hover:bg-primary/10 transition-all hover:scale-105 active:scale-95 shadow-sm"
           >
-            <Zap className="h-4 w-4" />
+            <Radio className="h-4 w-4" />
             Nova Missão
           </Button>
           <Button variant="glow" onClick={() => setIsCreateOpen(true)} className="gap-2">

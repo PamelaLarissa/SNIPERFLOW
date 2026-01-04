@@ -124,7 +124,7 @@ export const DashboardPage = () => {
               change="-2"
               icon={TrendingUp}
               trend="down"
-              description="Campanhas em andamento"
+              description="Missões em andamento"
               color="text-purple-500"
             />
           </div>
@@ -136,7 +136,7 @@ export const DashboardPage = () => {
   return (
     <DashboardLayout>
       <Header
-        title="Mission Control"
+        title="Centro de Comando"
         subtitle="Gerenciamento de mísseis, alvos e conversão em tempo real"
       />
 

@@ -48,8 +48,10 @@ import {
   Truck,
   Camera,
   Users,
-  ChevronDown,
-  Wallet
+  Shield,
+  Wallet,
+  Radio,
+  ChevronDown
 } from "lucide-react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Header } from "@/components/layout/Sidebar";
@@ -132,19 +134,20 @@ const detailedSources = [
 import { Wrench } from "lucide-react";
 
 const ecosystems = [
-  { id: 'health', label: 'Saúde e Bem-estar', icon: Stethoscope, niches: ['Academias / Crossfit', 'Consultórios Médicos', 'Clínicas Médicas', 'Clínicas de Estética', 'Dentistas', 'Nutricionistas', 'Psicólogos', 'Laboratórios', 'Fisioterapeutas', 'Veterinários', 'Fonoaudiologia', 'Terapia Ocupacional', 'Home Care', 'Quiropraxia', 'Pilates'] },
-  { id: 'legal', label: 'Jurídico e Financeiro', icon: Scale, niches: ['Advocacia', 'Contabilidade', 'Consultoria', 'Seguros', 'Cartórios', 'Peritos', 'Despachantes', 'Cobrança', 'Investimentos', 'Auditoria'] },
-  { id: 'technical', label: 'Serviços Técnicos', icon: Wrench, niches: ['Refrigeração e Climatização (HVAC)', 'Instalação de Ar Condicionado', 'Eletricistas', 'Encanadores e Hidráulica', 'Assistência Técnica Celular', 'Assistência Técnica TV/Eletro', 'Segurança Eletrônica e Câmeras', 'Automação Residencial', 'Marido de Aluguel', 'Chaveiro 24h', 'Dedetizadoras', 'Desentupidoras', 'Energia Solar e Fotovoltaica'] },
-  { id: 'retail', label: 'Varejo Local', icon: ShoppingBag, niches: ['Shopping Centers', 'Pet Shops', 'Lojas de Roupas', 'Floriculturas', 'Supermercados', 'Óticas', 'Joalherias', 'Calçados', 'Materiais de Construção', 'Ferragens', 'Distribuidora de Peças', 'Lojas de Informática', 'Moveis Planejados', 'Colchoarias'] },
-  { id: 'food', label: 'Gastronomia', icon: Utensils, niches: ['Mercearias / Minimercados', 'Restaurantes', 'Hamburguerias', 'Pizzarias', 'Padarias', 'Bares', 'Cafeterias', 'Buffets', 'Delivery', 'Confeitarias', 'Açougues', 'Distribuidora de Bebidas'] },
-  { id: 'auto', label: 'Automotivo', icon: Car, niches: ['Mecânicas', 'Concessionárias', 'Lojas de Pneus', 'Estética Auto', 'Auto Peças', 'Locadoras', 'Blindadoras', 'Vistorias', 'Funilarias', 'Auto Elétrica', 'Centro Automotivo', 'Martelinho de Ouro'] },
-  { id: 'real_estate', label: 'Imobiliário e Casa', icon: Home, niches: ['Imobiliárias', 'Construtoras', 'Arquitetos', 'Móveis', 'Energia Solar', 'Marcenarias', 'Decoradores', 'Condomínios', 'Engenharia', 'Paisagismo', 'Administradora de Condomínios', 'Vistoria de Imóveis', 'Empreiteiras'] },
-  { id: 'education', label: 'Educação e Ensino', icon: GraduationCap, niches: ['Escolas (Pv)', 'Idiomas', 'Faculdades', 'Cursos Livres', 'Treinamentos', 'Música', 'Creches', 'Reforço', 'EAD / Online', 'Intercâmbio', 'Escolas de Dança', 'Autoescolas'] },
-  { id: 'beauty', label: 'Beleza e Serviços', icon: Scissors, niches: ['Salões Beleza', 'Barbearias', 'Spas', 'Tatuagem', 'Depilação', 'Manicures', 'Sobrancelhas', 'Maquiadores', 'Podologia', 'Massagem', 'Micropigmentação'] },
-  { id: 'b2b', label: 'Indústria e B2B', icon: Factory, niches: ['Indústrias', 'Atacadistas', 'Distribuidores', 'Móveis (Fab)', 'Têxtil', 'Usinas', 'Metalúrgicas', 'Gráficas', 'Embalagens', 'Brindes Corp.', 'Equipamentos Industriais'] },
-  { id: 'tech', label: 'Tecnologia e Startups', icon: Code2, niches: ['Software', 'Startups', 'Marketing', 'Internet (ISP)', 'Consultoria TI', 'Data Centers', 'E-commerce', 'SaaS', 'Telecom', 'Infoprodutos', 'Assistência Técnica TI'] },
-  { id: 'logistics', label: 'Logística e Transportes', icon: Truck, niches: ['Transportadoras', 'Mudanças', 'Log. Reversa', 'Entregas', 'Armazéns', 'Guinchos', 'Import/Export', 'Frota', 'Portos/Aéreo', 'Motoboy', 'Logística Promocional'] },
-  { id: 'events', label: 'Eventos e Turismo', icon: Camera, niches: ['Turismo', 'Casas de Festas', 'Organizadores', 'Hotéis', 'Fotógrafos', 'Vídeo', 'Buffet Infantil', 'Decoração', 'DJs e Bandas', 'Formaturas', 'Agências de Viagem'] },
+  { id: 'health', label: 'Saúde e Bem-estar', icon: Stethoscope, niches: ['Academias / Crossfit', 'Consultórios Médicos', 'Clínicas Médicas', 'Clínicas de Estética', 'Dentistas', 'Nutricionistas', 'Psicólogos', 'Laboratórios', 'Fisioterapeutas', 'Veterinários', 'Fonoaudiologia', 'Terapia Ocupacional', 'Home Care', 'Quiropraxia', 'Pilates / Yoga'] },
+  { id: 'legal', label: 'Jurídico e Consultoria', icon: Scale, niches: ['Advocacia Trabalhista', 'Advocacia Criminal', 'Advocacia Cível', 'Contabilidade', 'Consultoria Fiscal', 'Seguros e Corretoras', 'Cartórios e Notários', 'Peritos Judiciais', 'Despachantes', 'Recuperação Crédito', 'Investimentos', 'Auditoria Contábil', 'Registro de Marcas'] },
+  { id: 'technical', label: 'Serviços Técnicos', icon: Wrench, niches: ['Refrigeração (HVAC)', 'Instalação Ar Cond.', 'Eletricistas Predial', 'Encanadores / Hidráulica', 'Conserto Celular', 'Assistência TV/Som', 'Câmeras Segurança', 'Automação Residencial', 'Marido de Aluguel', 'Chaveiro 24h', 'Dedetizadoras', 'Desentupidoras', 'Energia Solar', 'Gesseiros'] },
+  { id: 'retail', label: 'Varejo Local', icon: ShoppingBag, niches: ['Shopping Centers', 'Pet Shops e Banho', 'Lojas de Roupas', 'Floriculturas', 'Supermercados', 'Óticas e Lentes', 'Joalherias / Relógios', 'Loja de Calçados', 'Materiais Construção', 'Ferragens e Ferramentas', 'Peças e Acessórios', 'Informática e Games', 'Móveis Planejados', 'Colchoarias'] },
+  { id: 'food', label: 'Gastronomia', icon: Utensils, niches: ['Minimercados', 'Restaurantes A La Carte', 'Hamburguerias Artesanais', 'Pizzarias Delivery', 'Padarias e Confeitarias', 'Bares e Pubs', 'Cafeterias Gourmet', 'Buffets e Eventos', 'Dark Kitchens', 'Confeitarias Finas', 'Açougues Premium', 'Distribuidora Bebidas', 'Sorveterias'] },
+  { id: 'auto', label: 'Automotivo', icon: Car, niches: ['Oficinas Mecânicas', 'Concessionárias Novos', 'Lojas de Pneus', 'Estética Automotiva', 'Auto Peças', 'Locadoras de Veículos', 'Blindadoras', 'Vistoria Veicular', 'Funilaria e Pintura', 'Auto Elétrica', 'Centro Automotivo', 'Martelinho de Ouro', 'Lava Rápido'] },
+  { id: 'real_estate', label: 'Imobiliário e Casa', icon: Home, niches: ['Imobiliárias', 'Construtoras', 'Arquitetos e Design', 'Lojas de Móveis', 'Instalação Solar', 'Marcenarias', 'Decoradores Interiores', 'Condomínios', 'Engenharia Civil', 'Paisagismo e Jardinagem', 'Adm. Condomínios', 'Vistoria de Imóveis', 'Empreiteiras Obras'] },
+  { id: 'education', label: 'Educação e Ensino', icon: GraduationCap, niches: ['Escolas Particulares', 'Escolas de Idiomas', 'Faculdades / Polos', 'Cursos Profissionalizantes', 'Treinamentos Corp.', 'Escolas de Música', 'Creches e Berçários', 'Reforço Escolar', 'EAD / Cursos Online', 'Agências Intercâmbio', 'Escolas de Dança', 'Autoescolas (CFC)', 'Cursos de TI'] },
+  { id: 'beauty', label: 'Beleza e Estética', icon: Scissors, niches: ['Salões de Beleza', 'Barbearias Gourmet', 'Spas e Relaxamento', 'Estúdios Tatuagem', 'Clínicas Depilação', 'Esmalterias', 'Design Sobrancelhas', 'Maquiadores Prof.', 'Podologia', 'Massoterapia', 'Micropigmentação', 'Harmonização Facial', 'Lash Designers'] },
+  { id: 'b2b', label: 'Indústria e B2B', icon: Factory, niches: ['Indústrias Gerais', 'Atacadistas', 'Distribuidores', 'Fábricas de Móveis', 'Indústria Têxtil', 'Usinas e Energia', 'Metalúrgicas', 'Gráficas Rápidas', 'Indústria Embalagens', 'Brindes Corporativos', 'Equipamentos Industriais', 'EPIs e Uniformes', 'Ferramentaria'] },
+  { id: 'tech', label: 'Tecnologia e Startups', icon: Code2, niches: ['Fábricas de Software', 'Startups Tech', 'Agências Marketing', 'Provedores Internet', 'Consultoria em TI', 'Data Centers/Hosting', 'E-commerce/Lojas', 'SaaS B2B', 'Telecomunicações', 'Gestores de Tráfego', 'Assistência Técnica TI', 'Desenvolvimento App', 'Cybersegurança'] },
+  { id: 'logistics', label: 'Logística e Transportes', icon: Truck, niches: ['Transportadoras Carga', 'Empresas de Mudança', 'Logística Reversa', 'Entregas Rápidas', 'Armazéns e Depósitos', 'Guincho e Reboque', 'Importação/Exportação', 'Gestão de Frotas', 'Logística Portuária', 'Motoboy / Courier', 'Logística Promocional', 'Transporte Executivo'] },
+  { id: 'events', label: 'Eventos e Turismo', icon: Camera, niches: ['Agências de Turismo', 'Casas de Festas', 'Organizadores Eventos', 'Hotéis e Pousadas', 'Fotógrafos', 'Produtoras de Vídeo', 'Buffet Infantil', 'Decoração de Festas', 'DJs e Sonorização', 'Formaturas', 'Agências de Viagem', 'Aluguel Trajes', 'Estandes e Feiras'] },
+  { id: 'finance', label: 'Financeiro e Bancário', icon: Wallet, niches: ['Bancos Digitais', 'Corretoras de Valores', 'Consultoria Financeira', 'Empresas de Câmbio', 'Fintechs de Crédito', 'Consórcios', 'Factoring', 'Gestão Patrimonial', 'Meios de Pagamento', 'Cooperativas Crédito', 'Planejamento Prev.', 'Antecipação Recebíveis'] },
 ];
 
 const allNiches: string[] = [
@@ -265,7 +268,7 @@ export const CampaignsPage = () => {
     const campaignLeads = allLeads.filter(l => l.campaignId === selectedCampaignForSend.id);
 
     if (campaignLeads.length === 0) {
-      toast({ title: "Sem Alvos", description: "Esta campanha não possui alvos para envio.", variant: "destructive" });
+      toast({ title: "Sem Alvos", description: "Esta missão não possui alvos para envio.", variant: "destructive" });
       return;
     }
 
@@ -293,8 +296,8 @@ export const CampaignsPage = () => {
     }
 
     toast({
-      title: "Campanha Finalizada",
-      description: `${successCount} de ${campaignLeads.length} e-mails enviados com sucesso.`
+      title: "Missão Cumprida",
+      description: `${successCount} de ${campaignLeads.length} mísseis disparados (e-mails).`
     });
   };
 
@@ -324,7 +327,7 @@ export const CampaignsPage = () => {
       : `${campaignData.locations.join(', ')}${locationRadius[0] > 0 ? ` (+${locationRadius[0]}km)` : ''}`;
 
     createCampaign.mutate({
-      name: campaignData.name || 'Nova Campanha',
+      name: campaignData.name || 'Nova Missão',
       niche: computedNiche || 'Não definido',
       location: computedLocation || 'Brasil',
       status: 'active',
@@ -623,7 +626,7 @@ export const CampaignsPage = () => {
   if (isLoading) {
     return (
       <DashboardLayout>
-        <Header title="Campanhas" subtitle="Carregando..." />
+        <Header title="Missões" subtitle="Carregando..." />
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-48" />)}
         </div>
@@ -634,8 +637,8 @@ export const CampaignsPage = () => {
   return (
     <DashboardLayout>
       <Header
-        title="Campanhas"
-        subtitle="Gerencie suas campanhas de prospecção"
+        title="Missões"
+        subtitle="Gerencie suas missões de reconhecimento"
       />
 
       <div className="space-y-4 sm:space-y-6">
@@ -661,17 +664,28 @@ export const CampaignsPage = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todas as Missões</SelectItem>
-                <SelectItem value="active">🟢 Ativa MISSÃO EM CURSO</SelectItem>
-                <SelectItem value="paused">🟡 Pausada RECALIBRANDO</SelectItem>
-                <SelectItem value="completed">🔴 Encerrada ALVOS EXTRAÍDOS</SelectItem>
+                <SelectItem value="active">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500" /> Operação Ativa
+                  </div>
+                </SelectItem>
+                <SelectItem value="paused">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-amber-500" /> Em Espera
+                  </div>
+                </SelectItem>
+                <SelectItem value="completed">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-red-500" /> Missão Cumprida
+                  </div>
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
           <Dialog open={isCreateOpen} onOpenChange={(open) => { setIsCreateOpen(open); if (!open) { setEditingCampaign(null); resetForm(); } }}>
             <DialogTrigger asChild>
               <Button variant="glow" className="w-full sm:w-auto">
-                <Plus className="h-4 w-4 mr-2" />
-                Nova Campanha
+                Nova Missão
               </Button>
             </DialogTrigger>
             <DialogContent className="w-full max-w-[95vw] md:max-w-6xl h-[100dvh] max-h-none flex flex-col overflow-hidden p-0 gap-0 border-none shadow-2xl">
@@ -679,8 +693,8 @@ export const CampaignsPage = () => {
                 {/* Single View Form */}
                 <div className="flex-1 flex flex-col overflow-hidden">
                   <DialogHeader className="p-3 sm:p-4 pb-1 shrink-0 border-b border-border/50">
-                    <DialogTitle className="text-xl sm:text-2xl font-black bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent uppercase tracking-tighter">
-                      🚀 {editingCampaign ? `Editar Míssil: ${editingCampaign.name}` : 'Lançar Míssil de Prospecção'}
+                    <DialogTitle className="text-xl sm:text-2xl font-black bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent uppercase tracking-tighter flex items-center gap-3">
+                      <Target className="h-6 w-6 text-primary" /> {editingCampaign ? `Editar Míssil: ${editingCampaign.name}` : 'Lançar Míssil de Prospecção'}
                     </DialogTitle>
                     <DialogDescription className="text-sm font-medium text-muted-foreground/80">
                       Configure o radar, os sensores de inteligência e o payload da sua nova missão operacional.
@@ -694,7 +708,7 @@ export const CampaignsPage = () => {
                       <div className="space-y-8 min-h-[450px]">
                         <div className="flex flex-col gap-1.5 border-b pb-3">
                           <div className="flex items-center gap-3 text-primary font-semibold">
-                            <Sparkles className="h-6 w-6" />
+                            <Settings className="h-6 w-6" />
                             <span className="text-xl font-black">Passo 1: Calibração de Perfil & Sensores</span>
                           </div>
                           <p className="text-sm text-muted-foreground font-bold">
@@ -781,9 +795,9 @@ export const CampaignsPage = () => {
                         <div className="space-y-6 p-6 border rounded-2xl bg-secondary/10">
                           {/* CAMPAIGN NAME */}
                           <div className="space-y-2">
-                            <Label className="text-base font-black">Nome da Campanha</Label>
+                            <Label className="text-base font-black">Nome da Missão</Label>
                             <Input
-                              placeholder="Ex: Prospecção Agências"
+                              placeholder="Ex: Operação Agências"
                               className="bg-secondary/20 bg-background text-lg py-7"
                               value={campaignData.name}
                               onChange={(e) => setCampaignData(prev => ({ ...prev, name: e.target.value }))}
@@ -888,7 +902,7 @@ export const CampaignsPage = () => {
                               {/* FILTROS DE PODER (OPCIONAIS) - INSIDE RADAR CARD */}
                               <div className="pt-4 border-t border-border/50 space-y-4">
                                 <div className="flex items-center gap-2 mb-1">
-                                  <Zap className="h-3.5 w-3.5 text-primary" />
+                                  <Shield className="h-3.5 w-3.5 text-primary" />
                                   <span className="text-xs font-black text-primary uppercase tracking-wider">Filtros de Poder (Opcionais)</span>
                                 </div>
 
@@ -1192,12 +1206,12 @@ export const CampaignsPage = () => {
                     <Button
                       onClick={editingCampaign ? handleEditCampaign : handleCreateCampaign}
                       disabled={createCampaign.isPending || updateCampaign.isPending}
-                      className="bg-primary hover:bg-primary/90 gap-2 text-xs sm:text-sm px-6 h-11 font-black uppercase tracking-tighter"
+                      className="gap-2 text-xs sm:text-sm px-6 h-11 font-black uppercase tracking-tighter"
                     >
                       {editingCampaign
                         ? (updateCampaign.isPending ? "Atualizando..." : "Atualizar Míssil")
                         : (createCampaign.isPending ? "Lançando..." : "Lançar Míssil")
-                      } <Zap className="h-4 w-4" />
+                      } <Radio className="h-4 w-4" />
                     </Button>
                   </DialogFooter>
                 </div>
@@ -1217,7 +1231,7 @@ export const CampaignsPage = () => {
             <div key={status} className="space-y-4">
               <h3 className="text-lg font-semibold capitalize flex items-center gap-2">
                 {status === 'active' && <span className="w-2 h-2 rounded-full bg-emerald-500" />}
-                {status === 'active' ? 'Em Combate (Ativas)' : status === 'paused' ? 'Em Espera (Pausadas)' : 'Missões Cumpridas'}
+                {status === 'active' ? 'Operações Ativas' : status === 'paused' ? 'Em Espera' : 'Missões Cumpridas'}
                 <span className="text-sm font-normal text-muted-foreground">({statusCampaigns.length})</span>
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -1246,23 +1260,23 @@ export const CampaignsPage = () => {
                                   size="sm"
                                   className={`h-6 px-2 text-xs font-bold uppercase tracking-wider border ${campaign.status === 'active' ? 'border-emerald-500/50 text-emerald-500 bg-emerald-500/10 hover:bg-emerald-500/20' :
                                     campaign.status === 'paused' ? 'border-amber-500/50 text-amber-500 bg-amber-500/10 hover:bg-amber-500/20' :
-                                      'border-muted-foreground/30 text-muted-foreground bg-secondary/50'
+                                      'border-red-500/50 text-red-500 bg-red-500/10 hover:bg-red-500/20'
                                     }`}
                                 >
                                   {campaign.status === 'active' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5 animate-pulse" />}
-                                  {campaign.status === 'active' ? 'Em Combate' : campaign.status === 'paused' ? 'Em Espera' : 'Finalizada'}
+                                  {campaign.status === 'active' ? 'Operação Ativa' : campaign.status === 'paused' ? 'Em Espera' : 'Missão Cumprida'}
                                   <ChevronDown className="h-3 w-3 ml-1 opacity-50" />
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
-                                <DropdownMenuItem onClick={() => updateCampaign.mutate({ id: campaign.id, status: 'active' })}>
-                                  <span className="w-2 h-2 rounded-full bg-emerald-500 mr-2" /> Retomar Missão
+                                <DropdownMenuItem onClick={() => updateCampaign.mutate({ id: campaign.id, updates: { status: 'active' } })}>
+                                  <span className="w-2 h-2 rounded-full bg-emerald-500 mr-2" /> Operação Ativa
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => updateCampaign.mutate({ id: campaign.id, status: 'paused' })}>
-                                  <span className="w-2 h-2 rounded-full bg-amber-500 mr-2" /> Cessar Fogo (Pausar)
+                                <DropdownMenuItem onClick={() => updateCampaign.mutate({ id: campaign.id, updates: { status: 'paused' } })}>
+                                  <span className="w-2 h-2 rounded-full bg-amber-500 mr-2" /> Em Espera
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => updateCampaign.mutate({ id: campaign.id, status: 'completed' })}>
-                                  <span className="w-2 h-2 rounded-full bg-slate-500 mr-2" /> Dar Baixa (Encerrar)
+                                <DropdownMenuItem onClick={() => updateCampaign.mutate({ id: campaign.id, updates: { status: 'completed' } })}>
+                                  <span className="w-2 h-2 rounded-full bg-red-500 mr-2" /> Missão Cumprida
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>
@@ -1289,7 +1303,7 @@ export const CampaignsPage = () => {
                             <Button
                               variant="default"
                               size="sm"
-                              className="flex-[2] gap-2 font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm"
+                              className="flex-[2] gap-2 font-bold shadow-sm"
                               onClick={() => window.location.href = `/leads?campaign=${campaign.id}`}
                             >
                               <Users className="h-3.5 w-3.5" /> Inspecionar Alvos
@@ -1303,7 +1317,7 @@ export const CampaignsPage = () => {
                                     className="flex-1 gap-1.5 border-dashed border-primary/30 hover:bg-primary/5 hover:border-primary/50 text-foreground"
                                     onClick={() => setRescanCampaign(campaign)}
                                   >
-                                    <Zap className="h-3.5 w-3.5" />
+                                    <Radio className="h-3.5 w-3.5" />
                                     Buscar +
                                   </Button>
                                 </TooltipTrigger>
@@ -1317,7 +1331,7 @@ export const CampaignsPage = () => {
                           {/* SECONDARY ACTIONS - EDIT & DISPATCH */}
                           <div className="flex items-center justify-between pt-2 border-t border-border/50 gap-2">
                             <Button variant="ghost" size="sm" className="h-8 text-xs text-muted-foreground hover:text-foreground" onClick={() => openEditModal(campaign)}>
-                              <Settings className="h-3 w-3 mr-1.5" /> Ajustar Params
+                              <Settings className="h-3 w-3 mr-1.5" /> Ajustar Radar
                             </Button>
 
                             <Button
@@ -1388,7 +1402,7 @@ export const CampaignsPage = () => {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Zap className="h-5 w-5 text-primary" />
+              <Radio className="h-5 w-5 text-primary" />
               Buscar Novos Leads
             </DialogTitle>
             <DialogDescription>
@@ -1458,7 +1472,7 @@ export const CampaignsPage = () => {
               className="gap-2 font-bold"
               disabled={userCredits - calculateCost(targetLeads[0]) < 0}
             >
-              <Zap className="h-4 w-4" /> Confirmar e Buscar
+              <Radio className="h-4 w-4" /> Confirmar e Buscar
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1478,6 +1492,6 @@ export const CampaignsPage = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </DashboardLayout>
+    </DashboardLayout >
   );
 };

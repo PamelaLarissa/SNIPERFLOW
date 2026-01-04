@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Zap, Target, Loader2 } from "lucide-react";
+import { Radio, Target, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 
@@ -20,7 +20,7 @@ export const ActiveMissions = ({ missions }: { missions: Mission[] }) => {
         <Card variant="glass" className="h-full border-primary/20 bg-primary/5">
             <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-2 text-primary">
-                    <Zap className="h-4 w-4 animate-pulse" />
+                    <Radio className="h-4 w-4 animate-pulse" />
                     Mísseis em Voo (Live)
                 </CardTitle>
             </CardHeader>
