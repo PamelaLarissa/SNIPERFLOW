@@ -726,6 +726,12 @@ export async function getDashboardStats() {
   const unansweredLeads = (await db.get("SELECT COUNT(*) as count FROM leads WHERE status = 'new'")).count;
   const moneyLeft = unansweredLeads * (avgTicketResult.avg || 0) * 0.67;
 
+  // Credit calculation
+  const planCreditsSetting = await getSetting('plan_credits', 1500);
+  const planCredits = parseInt(planCreditsSetting) || 1500;
+  const usedCredits = totalLeads;
+  const remainingCredits = Math.max(0, planCredits - usedCredits);
+
   return {
     totalLeads,
     verifiedLeads,
@@ -733,7 +739,10 @@ export async function getDashboardStats() {
     activeCampaigns,
     leadsThisWeek,
     conversionRate: Math.round(conversionRate * 10) / 10,
-    moneyLeft: Math.round(moneyLeft)
+    moneyLeft: Math.round(moneyLeft),
+    planCredits,
+    usedCredits,
+    remainingCredits
   };
 }
 

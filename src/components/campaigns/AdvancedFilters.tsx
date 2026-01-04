@@ -489,17 +489,17 @@ export const AdvancedFilters = ({
                         }`}
                     >
                       <div className="flex items-center gap-2 mb-1 w-full">
-                        <profile.icon className={`h-5 w-5 ${isProfileSelected ? 'text-primary' : profile.color}`} />
+                        <profile.icon className={`h-6 w-6 ${isProfileSelected ? 'text-primary' : profile.color}`} />
                         <div className="flex flex-col gap-0.5">
-                          <span className="font-bold text-sm leading-snug">{profile.label}</span>
-                          <span className="text-[10px] text-muted-foreground font-medium">{profile.sub}</span>
+                          <span className="font-black text-base sm:text-lg leading-tight tracking-tight">{profile.label}</span>
+                          <span className="text-xs text-muted-foreground font-bold">{profile.sub}</span>
                         </div>
-                        {isProfileSelected && <CheckCircle className="h-3 w-3 text-primary ml-auto flex-shrink-0" />}
+                        {isProfileSelected && <CheckCircle className="h-4 w-4 text-primary ml-auto flex-shrink-0" />}
                       </div>
-                      <div className="space-y-1 w-full pl-0.5">
+                      <div className="space-y-1.5 w-full pl-0.5 mt-1">
                         {profileNiches[opp.id]?.slice(0, 4).map((ex, idx) => (
                           <div key={idx} className="flex items-center gap-1.5">
-                            <span className="text-[10px] text-muted-foreground font-medium flex items-center gap-1">
+                            <span className="text-xs text-muted-foreground font-semibold flex items-center gap-1">
                               • {ex}
                             </span>
                           </div>
@@ -517,28 +517,28 @@ export const AdvancedFilters = ({
                       }`}
                   >
                     {/* Status Indicator at the very bottom/edge */}
-                    <div className={`absolute top-0 right-0 px-3 py-1 text-[9px] font-black uppercase tracking-widest rounded-bl-lg transition-colors ${active ? 'bg-primary text-primary-foreground animate-pulse' : 'bg-secondary text-muted-foreground'}`}>
+                    <div className={`absolute top-0 right-0 px-4 py-1.5 text-[11px] font-black uppercase tracking-widest rounded-bl-xl transition-colors ${active ? 'bg-primary text-primary-foreground animate-pulse shadow-lg' : 'bg-secondary text-muted-foreground'}`}>
                       {active ? 'Sensor Ativo' : 'Offline'}
                     </div>
 
-                    <div className="space-y-3 w-full flex-1">
+                    <div className="space-y-4 w-full flex-1">
                       <div className="space-y-1">
-                        <span className={`text-[9px] font-black uppercase tracking-wider block ${active ? 'text-primary' : 'text-muted-foreground'}`}>Filtro de Dor:</span>
-                        <p className="text-[11px] text-foreground font-bold leading-relaxed italic">“{opp.description}”</p>
+                        <span className={`text-[10px] font-black uppercase tracking-wider block ${active ? 'text-primary' : 'text-muted-foreground'}`}>Filtro de Dor:</span>
+                        <p className="text-sm text-foreground font-black leading-relaxed italic">“{opp.description}”</p>
                       </div>
 
-                      <div className="space-y-1">
-                        <span className={`text-[9px] font-black uppercase tracking-wider block ${active ? 'text-primary' : 'text-muted-foreground'}`}>Stack Alvo:</span>
-                        <div className="flex flex-wrap gap-1">
+                      <div className="space-y-1.5">
+                        <span className={`text-[10px] font-black uppercase tracking-wider block ${active ? 'text-primary' : 'text-muted-foreground'}`}>Stack Alvo:</span>
+                        <div className="flex flex-wrap gap-1.5">
                           {opp.filters.technologies?.map(t => (
-                            <span key={t} className={`text-[9px] border px-1.5 py-0.5 rounded font-black transition-colors ${active ? 'bg-primary/10 border-primary/30 text-primary' : 'bg-secondary/80 text-secondary-foreground border-border/50'}`}>{t}</span>
+                            <span key={t} className={`text-[11px] border px-2 py-0.5 rounded font-black transition-colors ${active ? 'bg-primary/10 border-primary/30 text-primary' : 'bg-secondary/80 text-secondary-foreground border-border/50'}`}>{t}</span>
                           ))}
                         </div>
                       </div>
 
-                      <div className={`pt-2 border-t space-y-1 ${active ? 'border-primary/20' : 'border-primary/5'}`}>
-                        <span className={`text-[9px] font-black uppercase tracking-wider block ${active ? 'text-primary' : 'text-muted-foreground'}`}>Inteligência:</span>
-                        <p className="text-[10px] leading-tight text-muted-foreground font-medium">{opp.explanation}</p>
+                      <div className={`pt-3 border-t space-y-1.5 ${active ? 'border-primary/20' : 'border-primary/5'}`}>
+                        <span className={`text-[10px] font-black uppercase tracking-wider block ${active ? 'text-primary' : 'text-muted-foreground'}`}>Inteligência:</span>
+                        <p className="text-xs leading-snug text-muted-foreground font-bold">{opp.explanation}</p>
                       </div>
                     </div>
                   </div>

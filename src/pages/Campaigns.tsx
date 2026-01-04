@@ -91,18 +91,18 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useCampaigns, useCreateCampaign, useUpdateCampaign, useDeleteCampaign, type Campaign } from "@/hooks/useCampaigns";
 import { useMessageVariants } from "@/hooks/useMessageVariants";
 import { useLeads } from "@/hooks/useLeads";
+import { useSearchParams, Link } from "react-router-dom";
 
 // --- INTELLIGENCE DATA ---
-const detailedSources = [
-  { name: 'Google', icon: Globe, color: 'text-blue-500', details: ['Visibilidade Orgânica / SEO', 'Domínio e Autoridade', 'Tecnologias do Site', 'Páginas Indexadas'] },
-  { name: 'Maps', icon: MapPin, color: 'text-red-500', details: ['Visibilidade Local', 'Reviews e Reputação', 'SEO Local (Pack)', 'Horários e Fotos'] },
-  { name: 'LinkedIn', icon: Globe, color: 'text-sky-600', details: ['Decisores e Sócios', 'Tamanho da Empresa', 'Vagas em Aberto', 'Investimento em Ads'] },
-  { name: 'Instagram', icon: InstaIcon, color: 'text-pink-500', details: ['Engajamento e Seguidores', 'Frequência de Posts', 'Qualidade Visual', 'Links na Bio'] },
-  { name: 'Junta Comercial', icon: Globe, color: 'text-slate-600', details: ['Histórico da Empresa', 'Capital Social / Porte', 'Filiais', 'Documentos Oficiais'] },
-  { name: 'SEBRAE', icon: Globe, color: 'text-blue-700', details: ['Porte da Empresa', 'Nível de Maturidade Digital', 'Potencial de Crescimento', 'Programas Participados'] },
-  { name: 'ReclameAqui', icon: SearchIcon, color: 'text-orange-600', details: ['Reputação da Marca', 'Principais Reclamações', 'Tempo de Resposta', 'Índice de Solução'] },
-  { name: 'Facebook', icon: Globe, color: 'text-blue-600', details: ['Pixel e Rastreamento', 'Atividade Recente', 'Anúncios Ativos', 'Avaliações de Usuários'] },
-  { name: 'Workana', icon: MousePointer2, color: 'text-emerald-500', details: ['Projetos Publicados', 'Ticket Médio', 'Frequência de Contratação', 'Tecnologias Contratadas'] },
+const dataSources = [
+  { name: 'Google Maps', icon: MapPin, color: 'text-green-600', description: 'Radar de estabelecimentos físicos, horários e rotas locais.', details: ['Localização Exata', 'Horários de Funcionamento', 'Fotos e Avaliações', 'Site e Telefone'] },
+  { name: 'LinkedIn', icon: Globe, color: 'text-sky-600', description: 'Monitoramento de decisores, cargos e posts corporativos.', details: ['Decisores e Sócios', 'Tamanho da Empresa', 'Vagas em Aberto', 'Investimento em Ads'] },
+  { name: 'Instagram', icon: InstaIcon, color: 'text-pink-500', description: 'Análise de presença social, engajamento e estética visual.', details: ['Engajamento e Seguidores', 'Frequência de Posts', 'Qualidade Visual', 'Links na Bio'] },
+  { name: 'Junta Comercial', icon: Globe, color: 'text-slate-600', description: 'Acesso a documentos oficiais, capital social e histórico.', details: ['Histórico da Empresa', 'Capital Social / Porte', 'Filiais', 'Documentos Oficiais'] },
+  { name: 'SEBRAE', icon: Globe, color: 'text-blue-700', description: 'Dados de maturidade empresarial e programas de crescimento.', details: ['Porte da Empresa', 'Nível de Maturidade Digital', 'Potencial de Crescimento', 'Programas Participados'] },
+  { name: 'ReclameAqui', icon: SearchIcon, color: 'text-orange-600', description: 'Sensor de dores, reclamações frequentes e reputação.', details: ['Reputação da Marca', 'Principais Reclamações', 'Tempo de Resposta', 'Índice de Solução'] },
+  { name: 'Facebook', icon: Globe, color: 'text-blue-600', description: 'Varredura de pixels de rastreamento e biblioteca de anúncios.', details: ['Pixel e Rastreamento', 'Atividade Recente', 'Anúncios Ativos', 'Avaliações de Usuários'] },
+  { name: 'Workana', icon: MousePointer2, color: 'text-emerald-500', description: 'Projetos publicados e tecnologias em demanda pelo alvo.', details: ['Projetos Publicados', 'Ticket Médio', 'Frequência de Contratação', 'Tecnologias Contratadas'] },
 ];
 
 // profileNiches and profileInfos have been moved to AdvancedFilters.tsx
@@ -151,7 +151,9 @@ export const CampaignsPage = () => {
   const createCampaign = useCreateCampaign();
   const updateCampaign = useUpdateCampaign();
   const deleteCampaign = useDeleteCampaign();
-
+  const [searchParams] = useSearchParams();
+  const initialStatus = searchParams.get('status') || "all";
+  const [statusFilter, setStatusFilter] = useState<string>(initialStatus);
   const step3Ref = useRef<HTMLDivElement>(null);
 
   // --- IBGE LOCATIONS STATE ---
@@ -229,11 +231,11 @@ export const CampaignsPage = () => {
     const campaignLeads = allLeads.filter(l => l.campaignId === selectedCampaignForSend.id);
 
     if (campaignLeads.length === 0) {
-      toast({ title: "Sem Leads", description: "Esta campanha não possui leads para envio.", variant: "destructive" });
+      toast({ title: "Sem Alvos", description: "Esta campanha não possui alvos para envio.", variant: "destructive" });
       return;
     }
 
-    toast({ title: "Iniciando Disparos", description: `Enviando para ${campaignLeads.length} leads...` });
+    toast({ title: "Iniciando Disparos", description: `Enviando para ${campaignLeads.length} alvos...` });
     setIsSendDialogOpen(false);
 
     let successCount = 0;
@@ -328,6 +330,13 @@ export const CampaignsPage = () => {
   };
 
   const openEditModal = (campaign: Campaign) => {
+    console.log("Opening edit for:", campaign.id);
+    toast({ title: "Carregando Missão", description: `Preparando parametrização de "${campaign.name}"...` });
+
+    // Reset any previous state first
+    resetForm();
+    setIsCreateOpen(false); // Ensure create mode is off
+
     setCampaignData({
       ...campaign,
       locations: Array.isArray(campaign.location) ? campaign.location : [campaign.location || ""],
@@ -350,12 +359,13 @@ export const CampaignsPage = () => {
       setCampaignData(prev => ({ ...prev, locations: [] }));
     } else if (campaign.location) {
       setLocationScope('local');
-      const match = campaign.location.match(/(.*) \(\+(\d+)km\)/);
+      const locationStr = String(campaign.location);
+      const match = locationStr.match(/(.*) \(\+(\d+)km\)/);
       if (match) {
         setCampaignData(prev => ({ ...prev, locations: match[1].split(', ').filter(Boolean) }));
         setLocationRadius([parseInt(match[2])]);
       } else {
-        setCampaignData(prev => ({ ...prev, locations: campaign.location.split(', ').filter(Boolean) }));
+        setCampaignData(prev => ({ ...prev, locations: locationStr.split(', ').filter(Boolean) }));
         setLocationRadius([0]);
       }
     } else {
@@ -365,8 +375,9 @@ export const CampaignsPage = () => {
     }
 
     setEditingCampaign(campaign);
+    // Explicitly scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
-
   const toggleSource = (source: string) => {
     setCampaignData(prev => ({
       ...prev,
@@ -376,10 +387,12 @@ export const CampaignsPage = () => {
     }));
   };
 
-  const filteredCampaigns = campaigns.filter(campaign =>
-    campaign.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    campaign.niche.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredCampaigns = campaigns.filter(campaign => {
+    const matchesSearch = campaign.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      campaign.niche.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === "all" || campaign.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
 
   const applyPreset = (profileId: string) => {
     const preset = professionalPresets[profileId] || {
@@ -557,6 +570,311 @@ export const CampaignsPage = () => {
     );
   }
 
+  if (isCreateOpen || !!editingCampaign) {
+    return (
+      <DashboardLayout>
+        <div className="space-y-8 pb-20">
+          {/* Operation Header */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b pb-6">
+            <div className="flex items-center gap-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => { setIsCreateOpen(false); setEditingCampaign(null); resetForm(); }}
+                className="rounded-full hover:bg-secondary/80"
+              >
+                <ArrowLeft className="h-6 w-6" />
+              </Button>
+              <div>
+                <h2 className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent uppercase tracking-tighter">
+                  {editingCampaign ? "🚀 Recalibrar Missão" : "🚀 Lançar Missão de Prospecção"}
+                </h2>
+                <p className="text-sm font-medium text-muted-foreground/80">
+                  {editingCampaign ? `Ajustando parâmetros da missão: ${editingCampaign.name}` : "Configure o radar, os sensores de inteligência e o payload da missão."}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+              <Button
+                variant="ghost"
+                onClick={() => { setIsCreateOpen(false); setEditingCampaign(null); resetForm(); }}
+                className="flex-1 sm:flex-none font-bold text-base"
+              >
+                Descartar Alterações
+              </Button>
+              <Button
+                onClick={editingCampaign ? handleEditCampaign : handleCreateCampaign}
+                disabled={createCampaign.isPending || updateCampaign.isPending}
+                className="flex-1 sm:flex-none bg-primary hover:bg-primary/90 gap-2 px-8 h-12 text-lg font-black shadow-lg shadow-primary/20 uppercase tracking-tighter"
+              >
+                {editingCampaign
+                  ? (updateCampaign.isPending ? "Atualizando..." : "Salvar Missão")
+                  : (createCampaign.isPending ? "Lançando..." : "Lançar Míssil Agora")
+                } <Zap className="h-5 w-5" />
+              </Button>
+            </div>
+          </div>
+
+          <div className="max-w-7xl mx-auto space-y-12">
+            {/* STEP 1: CALIBRATION & SENSORS */}
+            <div className="space-y-6">
+              <div className="flex flex-col gap-1 border-b pb-2">
+                <h3 className="text-xl font-black uppercase tracking-tight flex items-center gap-2">
+                  <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/20 text-primary text-sm">01</span>
+                  Calibração & Sensores de Elite
+                </h3>
+                <p className="text-sm text-muted-foreground font-medium">
+                  Selecione o perfil do alvo e ative os sensores de dor para filtrar empresas com problemas específicos.
+                </p>
+              </div>
+              <AdvancedFilters
+                data={campaignData as unknown as AdvancedFiltersData}
+                onChange={(newData) => setCampaignData(prev => ({ ...prev, ...newData }))}
+                section="sensors"
+                onProfileToggle={(id) => applyPreset(id as any)}
+                activeProfiles={campaignData.professionalProfiles}
+              />
+            </div>
+
+            {/* STEP 2: INTELLIGENCE & DATA SOURCES */}
+            <div className="space-y-6">
+              <div className="flex flex-col gap-1 border-b pb-2">
+                <h3 className="text-xl font-black uppercase tracking-tight flex items-center gap-2">
+                  <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/20 text-primary text-sm">02</span>
+                  Inteligência de Dados (Radar)
+                </h3>
+                <p className="text-sm text-muted-foreground font-medium">
+                  Escolha as fontes de dados para varredura e extração de contatos.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {dataSources.map((source) => (
+                  <button
+                    key={source.name}
+                    type="button"
+                    onClick={() => toggleSource(source.name)}
+                    className={`flex flex-col items-start gap-2 p-4 rounded-xl border text-left transition-all h-full relative overflow-hidden ${campaignData.sources.includes(source.name)
+                      ? "border-primary bg-primary/10 ring-1 ring-primary shadow-lg shadow-primary/10"
+                      : "border-border hover:bg-secondary/50"
+                      }`}
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <source.icon className={`h-8 w-8 ${campaignData.sources.includes(source.name) ? 'text-primary' : source.color}`} />
+                      <span className="font-bold text-2xl leading-tight tracking-tighter">{source.name}</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground/80 leading-snug">{source.description}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* STEP 3: RADAR (ALVO) */}
+            <div className="space-y-6" ref={step3Ref}>
+              <div className="flex flex-col gap-1 border-b pb-2">
+                <div className="flex items-center gap-2 text-primary font-semibold">
+                  <Target className="h-5 w-5" />
+                  <span className="text-xl font-bold">Passo 3: Radar (Alvo)</span>
+                </div>
+                <p className="text-sm text-muted-foreground font-medium italic">
+                  Defina o raio geográfico e o perfil das empresas que deseja prospectar.
+                </p>
+              </div>
+
+              <div className="space-y-6 p-6 border rounded-2xl bg-secondary/5">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  <div className="space-y-6">
+                    <div className="space-y-2">
+                      <Label className="text-base font-bold">Nome da Missão</Label>
+                      <Input
+                        placeholder="Ex: Prospecção de Agências - SP"
+                        className="bg-background text-lg py-6"
+                        value={campaignData.name}
+                        onChange={(e) => setCampaignData(prev => ({ ...prev, name: e.target.value }))}
+                      />
+                    </div>
+
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <Label className="flex items-center gap-2 text-base font-bold">
+                          <MapPin className="h-5 w-5 text-primary" />
+                          Localização do Alvo
+                        </Label>
+                        <div className="flex bg-secondary/30 p-1 rounded-lg">
+                          <button
+                            className={`px-4 py-1.5 text-xs font-bold rounded-md transition-all ${locationScope === 'local' ? 'bg-background shadow text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+                            onClick={() => setLocationScope('local')}
+                          >
+                            Local/Regional
+                          </button>
+                          <button
+                            className={`px-4 py-1.5 text-xs font-bold rounded-md transition-all ${locationScope === 'national' ? 'bg-background shadow text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+                            onClick={() => setLocationScope('national')}
+                          >
+                            Brasil (Todo País)
+                          </button>
+                        </div>
+                      </div>
+
+                      {locationScope === 'local' && (
+                        <div className="space-y-4 animate-in slide-in-from-top-2">
+                          <div className="relative">
+                            <Input
+                              placeholder="Digite o nome da cidade ou estado..."
+                              className="bg-background py-6 pl-4"
+                              value={campaignData.tempLocation}
+                              onChange={(e) => {
+                                setCampaignData(prev => ({ ...prev, tempLocation: e.target.value }));
+                                setShowLocationSuggestions(true);
+                              }}
+                              onFocus={() => setShowLocationSuggestions(true)}
+                              onBlur={() => setTimeout(() => setShowLocationSuggestions(false), 200)}
+                            />
+                            {showLocationSuggestions && (
+                              <div className="absolute top-full left-0 right-0 mt-2 max-h-60 overflow-y-auto bg-popover border border-border rounded-xl shadow-2xl z-50">
+                                {filteredLocations.map((loc) => (
+                                  <div
+                                    key={loc}
+                                    className="px-4 py-3 text-sm cursor-pointer hover:bg-accent border-b last:border-0"
+                                    onMouseDown={() => selectLocation(loc)}
+                                  >
+                                    {loc}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+
+                          {campaignData.locations.length > 0 && (
+                            <div className="flex flex-wrap gap-2 p-3 border rounded-xl bg-background">
+                              {campaignData.locations.map(loc => (
+                                <Badge key={loc} variant="secondary" className="px-3 py-1 bg-primary/10 border-primary/20 text-primary gap-2">
+                                  {loc}
+                                  <X className="h-3 w-3 cursor-pointer" onClick={() => setCampaignData(prev => ({ ...prev, locations: prev.locations.filter(l => l !== loc) }))} />
+                                </Badge>
+                              ))}
+                            </div>
+                          )}
+
+                          <div className="space-y-3 pt-2">
+                            <div className="flex justify-between text-sm font-medium">
+                              <span className="text-muted-foreground">Raio de Cobertura</span>
+                              <span className="text-primary font-bold">{locationRadius[0] === 0 ? 'Centro Exato' : `+${locationRadius[0]}km`}</span>
+                            </div>
+                            <Slider
+                              defaultValue={[0]}
+                              max={100}
+                              step={5}
+                              value={locationRadius}
+                              onValueChange={setLocationRadius}
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="space-y-6">
+                    <div className="space-y-4">
+                      <Label className="flex items-center gap-2 text-base font-bold">
+                        <Briefcase className="h-5 w-5 text-primary" />
+                        Nichos e Públicos Segmentados
+                      </Label>
+                      <div className="relative">
+                        <div className="p-3 min-h-[50px] border rounded-xl bg-background flex flex-wrap gap-2 focus-within:ring-2 focus-within:ring-primary">
+                          {nicheTags.map(tag => (
+                            <Badge key={tag} variant="outline" className="px-3 py-1 bg-secondary border-border gap-2">
+                              {tag}
+                              <X className="h-3 w-3 cursor-pointer hover:text-destructive" onClick={() => removeNicheTag(tag)} />
+                            </Badge>
+                          ))}
+                          <input
+                            className="flex-1 bg-transparent border-none outline-none text-sm min-w-[150px]"
+                            placeholder="Adicione nichos (ex: Clínicas, Lojas...)"
+                            value={nicheInput}
+                            onChange={(e) => setNicheInput(e.target.value)}
+                            onKeyDown={handleNicheKeyDown}
+                          />
+                        </div>
+                        {nicheInput && (
+                          <div className="absolute top-full left-0 right-0 mt-2 max-h-48 overflow-y-auto bg-popover border rounded-xl shadow-2xl z-50">
+                            {filteredNicheSuggestions.map(s => (
+                              <div key={s} className="px-4 py-3 text-sm cursor-pointer hover:bg-accent" onMouseDown={() => addNicheTag(s)}>
+                                {s}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      {ecosystems.slice(0, 4).map(eco => (
+                        <Button
+                          key={eco.id}
+                          variant="outline"
+                          className={`h-auto py-4 flex flex-col gap-2 items-center justify-center text-center transition-all ${eco.niches.every(n => nicheTags.includes(n)) ? 'border-primary bg-primary/5' : ''}`}
+                          onClick={() => toggleEcosystem(eco)}
+                        >
+                          <eco.icon className={`h-6 w-6 ${eco.niches.every(n => nicheTags.includes(n)) ? 'text-primary' : 'text-muted-foreground'}`} />
+                          <span className="text-xs font-bold leading-tight">{eco.label}</span>
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* STEP 4: SWEEP SETTINGS */}
+            <div className="space-y-6">
+              <div className="flex flex-col gap-1 border-b pb-2">
+                <h3 className="text-xl font-black uppercase tracking-tight flex items-center gap-2">
+                  <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/20 text-primary text-sm">03</span>
+                  Filtros de Segmentação
+                </h3>
+                <p className="text-sm text-muted-foreground font-medium">
+                  Refine o radar por localização, nicho e qualidade dos dados.
+                </p>
+              </div>
+
+              <div className="p-8 border rounded-2xl bg-secondary/5">
+                <AdvancedFilters
+                  data={campaignData as unknown as AdvancedFiltersData}
+                  onChange={(newData) => setCampaignData(prev => ({ ...prev, ...newData }))}
+                  section="filters"
+                />
+              </div>
+            </div>
+
+            <div className="pt-8 flex justify-end gap-4 border-t">
+              <Button
+                variant="ghost"
+                size="lg"
+                onClick={() => { setIsCreateOpen(false); setEditingCampaign(null); resetForm(); }}
+              >
+                Cancelar Operação
+              </Button>
+              <Button
+                onClick={editingCampaign ? handleEditCampaign : handleCreateCampaign}
+                disabled={createCampaign.isPending || updateCampaign.isPending}
+                className="bg-primary hover:bg-primary/90 gap-3 px-16 h-16 text-xl font-black shadow-2xl shadow-primary/30 uppercase tracking-widest group"
+              >
+                {editingCampaign
+                  ? (updateCampaign.isPending ? "Lançando Missão..." : "Salvar Alterações")
+                  : (createCampaign.isPending ? "Lançando Missão..." : "Lançar Míssil Agora")
+                } <Zap className="h-7 w-7 animate-pulse group-hover:scale-125 transition-transform" />
+              </Button>
+            </div>
+
+            <div className="h-20" />
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout>
       <Header
@@ -571,471 +889,37 @@ export const CampaignsPage = () => {
           animate={{ opacity: 1, y: 0 }}
           className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center justify-between"
         >
-          <div className="relative flex-1 max-w-full sm:max-w-md">
-            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Buscar campanhas..."
-              className="pl-10 bg-secondary/50"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+          <div className="flex flex-col sm:flex-row gap-3 flex-1 max-w-full sm:max-w-2xl">
+            <div className="relative flex-1">
+              <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Buscar missões..."
+                className="pl-10 bg-secondary/50"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-full sm:w-[240px] bg-secondary/50">
+                <SelectValue placeholder="Filtrar por Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas as Missões</SelectItem>
+                <SelectItem value="active">🟢 Ativa MISSÃO EM CURSO</SelectItem>
+                <SelectItem value="paused">🟡 Pausada RECALIBRANDO</SelectItem>
+                <SelectItem value="completed">🔴 Encerrada ALVOS EXTRAÍDOS</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-          <Dialog open={isCreateOpen} onOpenChange={(open) => { setIsCreateOpen(open); if (!open) resetForm(); }}>
-            <DialogTrigger asChild>
-              <Button variant="glow" className="w-full sm:w-auto">
-                <Plus className="h-4 w-4 mr-2" />
-                Nova Campanha
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="w-full max-w-[95vw] md:max-w-4xl h-[90vh] sm:h-[90vh] flex flex-col overflow-hidden p-0 gap-0">
-              <div className="flex h-full overflow-hidden">
-                {/* Single View Form */}
-                <div className="flex-1 flex flex-col overflow-hidden">
-                  <DialogHeader className="p-4 sm:p-6 pb-2 shrink-0 border-b border-border/50">
-                    <DialogTitle className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                      Configurar Míssil de Prospecção
-                    </DialogTitle>
-                    <DialogDescription>
-                      Configuração completa do radar e payload.
-                    </DialogDescription>
-                  </DialogHeader>
-
-                  <ScrollArea className="flex-1 px-4 sm:px-6">
-                    <div className="py-6 space-y-8">
-
-                      {/* STEP 1: CALIBRATION & SENSORS */}
-                      <div className="space-y-6">
-                        <div className="flex flex-col gap-1 border-b pb-2">
-                          <div className="flex items-center gap-2 text-primary font-semibold">
-                            <Sparkles className="h-5 w-5" />
-                            <span className="text-lg">Passo 1: Calibração de Perfil & Sensores</span>
-                          </div>
-                          <p className="text-[11px] text-muted-foreground font-medium">
-                            Escolha seu perfil para ativar os sensores de inteligência correspondentes.
-                          </p>
-                        </div>
-                        <AdvancedFilters
-                          data={campaignData as unknown as AdvancedFiltersData}
-                          onChange={(newData) => setCampaignData(prev => ({ ...prev, ...newData }))}
-                          section="sensors"
-                          onProfileToggle={(id) => applyPreset(id as any)}
-                          activeProfiles={campaignData.professionalProfiles}
-                        />
-                      </div>
-
-                      {/* STEP 2: INTELLIGENCE & DATA SOURCES */}
-                      <div className="space-y-6" ref={step3Ref}>
-                        <div className="flex flex-col gap-1 border-b pb-2">
-                          <div className="flex items-center gap-2 text-primary font-semibold">
-                            <Database className="h-5 w-5" />
-                            <span className="text-lg">Passo 2: Inteligência de Dados</span>
-                          </div>
-                          <p className="text-[11px] text-muted-foreground font-medium">
-                            O sistema pré-configurou as fontes de dados ideais para o seu perfil. Sinta-se à vontade para ajustar os canais de busca abaixo.
-                          </p>
-                        </div>
-
-                        {/* DATA SOURCES CARD */}
-                        <div className="space-y-4 p-4 border rounded-xl bg-secondary/10">
-                          <Label className="flex items-center gap-2 mb-2">
-                            <Database className="h-4 w-4 text-primary" />
-                            Fontes de Dados Estratégicas
-                          </Label>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                            {detailedSources.map((source) => (
-                              <button
-                                key={source.name}
-                                type="button"
-                                onClick={() => toggleSource(source.name)}
-                                className={`flex flex-col items-start gap-2 p-3 rounded-lg border text-left transition-all h-full relative overflow-hidden ${campaignData.sources.includes(source.name)
-                                  ? "border-primary bg-primary/10 ring-1 ring-primary"
-                                  : "border-border hover:bg-secondary/50"
-                                  } ${highlightedSources.includes(source.name) ? 'ring-2 ring-primary ring-offset-2 ring-offset-background animate-pulse shadow-[0_0_15px_rgba(var(--primary-rgb),0.5)]' : ''}`}
-                              >
-                                {highlightedSources.includes(source.name) && (
-                                  <div className="absolute top-0 right-0 p-1">
-                                    <Sparkles className="h-3 w-3 text-primary animate-bounce" />
-                                  </div>
-                                )}
-                                <div className="flex items-center gap-2 mb-1">
-                                  <source.icon className={`h-5 w-5 ${campaignData.sources.includes(source.name) ? 'text-primary' : source.color}`} />
-                                  <span className="font-bold text-sm leading-tight">{source.name}</span>
-                                </div>
-                                <div className="space-y-1 w-full">
-                                  {source.details.map((detail, idx) => (
-                                    <div key={idx} className="flex items-center gap-1.5">
-                                      <CheckCircle className={`h-3 w-3 ${campaignData.sources.includes(source.name) ? 'text-primary/70' : 'text-muted-foreground'}`} />
-                                      <span className="text-[10px] text-muted-foreground font-medium">{detail}</span>
-                                    </div>
-                                  ))}
-                                </div>
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* STEP 3: RADAR (ALVO) - MOVED BELOW INTELLIGENCE */}
-                      <div className="space-y-6">
-                        <div className="flex flex-col gap-1 border-b pb-2">
-                          <div className="flex items-center gap-2 text-primary font-semibold">
-                            <Target className="h-5 w-5" />
-                            <span className="text-lg">Passo 3: Radar (Alvo)</span>
-                          </div>
-                          <p className="text-[11px] text-muted-foreground font-medium">
-                            Defina o raio geográfico e o perfil financeiro das empresas que deseja prospectar.
-                          </p>
-                        </div>
-
-                        {/* LOCATION & NAME CARD */}
-                        <div className="space-y-4 p-4 border rounded-xl bg-secondary/10">
-                          {/* CAMPAIGN NAME */}
-                          <div className="space-y-2">
-                            <Label>Nome da Campanha</Label>
-                            <Input
-                              placeholder="Ex: Prospecção Agências"
-                              className="bg-secondary/20 bg-background"
-                              value={campaignData.name}
-                              onChange={(e) => setCampaignData(prev => ({ ...prev, name: e.target.value }))}
-                            />
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <Label className="flex items-center gap-2">
-                              <MapPin className="h-4 w-4 text-primary" />
-                              Localização do Alvo
-                            </Label>
-                            <div className="flex bg-secondary/30 p-1 rounded-lg">
-                              <button
-                                className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${locationScope === 'local' ? 'bg-background shadow text-primary' : 'text-muted-foreground hover:text-foreground'}`}
-                                onClick={() => setLocationScope('local')}
-                              >
-                                Local/Regional
-                              </button>
-                              <button
-                                className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${locationScope === 'national' ? 'bg-background shadow text-primary' : 'text-muted-foreground hover:text-foreground'}`}
-                                onClick={() => setLocationScope('national')}
-                              >
-                                Brasil (Todo País)
-                              </button>
-                            </div>
-                          </div>
-
-                          {locationScope === 'local' && (
-                            <div className="space-y-4 animate-in slide-in-from-top-2 fade-in relative">
-                              <div className="flex flex-col gap-2 relative">
-                                {campaignData.locations.length > 0 && (
-                                  <div className="flex flex-wrap gap-2 mb-2 p-2 border rounded-lg bg-secondary/10">
-                                    {campaignData.locations.map(loc => (
-                                      <Badge key={loc} variant="secondary" className="flex items-center gap-1 bg-background border shadow-sm">
-                                        {loc}
-                                        <X className="h-3 w-3 cursor-pointer hover:text-destructive" onClick={() => setCampaignData(prev => ({ ...prev, locations: prev.locations.filter(l => l !== loc) }))} />
-                                      </Badge>
-                                    ))}
-                                  </div>
-                                )}
-                                <div className="relative flex-1">
-                                  <Input
-                                    placeholder="Digite Estado ou Cidade:"
-                                    className="bg-background w-full"
-                                    value={campaignData.tempLocation}
-                                    onChange={(e) => {
-                                      setCampaignData(prev => ({ ...prev, tempLocation: e.target.value }));
-                                      setShowLocationSuggestions(true);
-                                    }}
-                                    onFocus={() => setShowLocationSuggestions(true)}
-                                    onBlur={() => setTimeout(() => setShowLocationSuggestions(false), 200)}
-                                    onKeyDown={(e) => {
-                                      if (e.key === 'Enter' && campaignData.tempLocation) {
-                                        e.preventDefault();
-                                        if (!campaignData.locations.includes(campaignData.tempLocation)) {
-                                          setCampaignData(prev => ({ ...prev, locations: [...prev.locations, prev.tempLocation], tempLocation: "" }));
-                                        }
-                                      }
-                                    }}
-                                  />
-                                  {/* LOCATION AUTOCOMPLETE DROPDOWN */}
-                                  {showLocationSuggestions && (
-                                    <div className="absolute top-full left-0 right-0 mt-1 max-h-60 overflow-y-auto bg-popover border border-border rounded-md shadow-lg z-50">
-                                      {filteredLocations.length > 0 ? (
-                                        filteredLocations.map((loc) => (
-                                          <div
-                                            key={loc}
-                                            className="px-3 py-2 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground"
-                                            onMouseDown={() => {
-                                              if (!campaignData.locations.includes(loc)) {
-                                                selectLocation(loc);
-                                              }
-                                              setShowLocationSuggestions(false);
-                                            }}
-                                          >
-                                            {loc}
-                                          </div>
-                                        ))
-                                      ) : (
-                                        <div className="px-3 py-2 text-sm text-muted-foreground">
-                                          Nenhuma localização encontrada.
-                                        </div>
-                                      )}
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                              <div className="space-y-2">
-                                <div className="flex justify-between text-xs text-muted-foreground">
-                                  <span>Precisão de Localização</span>
-                                  <span className="font-bold text-primary">{locationRadius[0] === 0 ? 'Exato' : `+${locationRadius[0]}km`}</span>
-                                </div>
-                                <Slider
-                                  defaultValue={[0]}
-                                  max={100}
-                                  step={5}
-                                  value={locationRadius}
-                                  onValueChange={setLocationRadius}
-                                  className="py-2"
-                                />
-                              </div>
-
-                              {/* FILTROS DE PODER (OPCIONAIS) - INSIDE RADAR CARD */}
-                              <div className="pt-4 border-t border-border/50 space-y-4">
-                                <div className="flex items-center gap-2 mb-1">
-                                  <Zap className="h-3.5 w-3.5 text-primary" />
-                                  <span className="text-xs font-black text-primary uppercase tracking-wider">Filtros de Poder (Opcionais)</span>
-                                </div>
-
-                                <div className="space-y-4">
-                                  {/* Tamanho do Time */}
-                                  <div className="space-y-2">
-                                    <div className="flex items-center gap-2">
-                                      <Users className="h-3 w-3 text-muted-foreground" />
-                                      <span className="text-[10px] font-bold text-muted-foreground uppercase">Tamanho do Time</span>
-                                    </div>
-                                    <ToggleGroup
-                                      type="multiple"
-                                      value={campaignData.employeeCategories}
-                                      onValueChange={(val) => setCampaignData(prev => ({ ...prev, employeeCategories: val as any }))}
-                                      className="justify-start gap-2"
-                                    >
-                                      <ToggleGroupItem value="1-10" className="text-[10px] h-7 px-2.5 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">
-                                        1-10 (MEI/Pequena)
-                                      </ToggleGroupItem>
-                                      <ToggleGroupItem value="11-50" className="text-[10px] h-7 px-2.5 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">
-                                        11-50 (Média)
-                                      </ToggleGroupItem>
-                                      <ToggleGroupItem value="50+" className="text-[10px] h-7 px-2.5 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">
-                                        50+ (Enterprise)
-                                      </ToggleGroupItem>
-                                    </ToggleGroup>
-                                  </div>
-
-                                  {/* Faturamento Estimado */}
-                                  <div className="space-y-2">
-                                    <div className="flex items-center gap-2">
-                                      <BarChart3 className="h-3 w-3 text-muted-foreground" />
-                                      <span className="text-[10px] font-bold text-muted-foreground uppercase">Faturamento Estimado</span>
-                                    </div>
-                                    <ToggleGroup
-                                      type="multiple"
-                                      value={campaignData.revenueCategories}
-                                      onValueChange={(val) => setCampaignData(prev => ({ ...prev, revenueCategories: val as any }))}
-                                      className="justify-start gap-2"
-                                    >
-                                      <ToggleGroupItem value="<100k" className="text-[10px] h-7 px-2.5 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">
-                                        Até 100k
-                                      </ToggleGroupItem>
-                                      <ToggleGroupItem value="100k-500k" className="text-[10px] h-7 px-2.5 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">
-                                        100k a 500k
-                                      </ToggleGroupItem>
-                                      <ToggleGroupItem value=">500k" className="text-[10px] h-7 px-2.5 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">
-                                        +500k
-                                      </ToggleGroupItem>
-                                    </ToggleGroup>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                          {locationScope === 'national' && (
-                            <div className="p-3 bg-primary/10 border border-primary/20 rounded-lg flex items-center gap-3 animate-in slide-in-from-top-2 fade-in">
-                              <Globe2 className="h-8 w-8 text-primary/50" />
-                              <div>
-                                <p className="font-bold text-sm text-primary">Busca Nacional Ativada</p>
-                                <p className="text-xs text-primary/80">O sistema irá buscar leads em todo o território brasileiro sem restrição de raio.</p>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* SMART NICHE SELECTION CARD */}
-                        <div className="space-y-4 p-4 border rounded-xl bg-secondary/10">
-                          <Label className="flex items-center gap-2 mb-2">
-                            <Briefcase className="h-4 w-4 text-primary" />
-                            Seleção de Público (Nichos)
-                          </Label>
-
-                          {/* 2. TAG INPUT + MEGA MENU */}
-                          <div className="p-2 min-h-[42px] border rounded-lg bg-secondary/10 flex flex-wrap gap-2 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 ring-offset-background relative z-20">
-                            {nicheTags.map(tag => (
-                              <Badge key={tag} variant="secondary" className="flex items-center gap-1 bg-background border shadow-sm">
-                                {tag}
-                                <X
-                                  className="h-3 w-3 cursor-pointer hover:text-destructive"
-                                  onClick={() => removeNicheTag(tag)}
-                                />
-                              </Badge>
-                            ))}
-                            <div className="relative flex-1 min-w-[200px]">
-                              <input
-                                className="w-full bg-transparent border-none outline-none text-sm h-6 font-medium placeholder:text-muted-foreground/70"
-                                placeholder={
-                                  nicheTags.length === 0
-                                    ? "Busque por nichos de sua preferência ou selecione um perfil pré-calibrado do nosso Ecossistema:"
-                                    : ""
-                                }
-                                value={nicheInput}
-                                onChange={(e) => {
-                                  setNicheInput(e.target.value);
-                                }}
-                                onKeyDown={handleNicheKeyDown}
-                              />
-                            </div>
-
-                            {/* MEGA MENU - STATIC & ALWAYS VISIBLE (NO SCROLL) */}
-                            <div className="w-full mt-3 border border-border rounded-xl bg-background/50 overflow-hidden flex flex-col">
-                              {nicheInput ? (
-                                // SEARCH MODE
-                                <div className="p-2">
-                                  <div className="flex items-center justify-between px-3 py-2 border-b border-border/50 mb-2">
-                                    <p className="text-xs font-bold text-muted-foreground uppercase">Resultados da busca</p>
-                                    {nicheInput && !allNiches.some(n => normalizeText(n) === normalizeText(nicheInput)) && (
-                                      <Button
-                                        variant="glow"
-                                        size="sm"
-                                        className="h-7 text-[10px] px-2"
-                                        onMouseDown={(e) => { e.preventDefault(); addNicheTag(nicheInput.trim()); }}
-                                      >
-                                        <Plus className="h-3 w-3 mr-1" /> Adicionar "{nicheInput}"
-                                      </Button>
-                                    )}
-                                  </div>
-                                  {filteredNicheSuggestions.length > 0 ? (
-                                    filteredNicheSuggestions.map((suggestion) => (
-                                      <div
-                                        key={suggestion}
-                                        className="px-3 py-2 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground rounded-md flex items-center gap-2"
-                                        onMouseDown={(e) => { e.preventDefault(); addNicheTag(suggestion); }}
-                                      >
-                                        <SearchIcon className="h-4 w-4 text-muted-foreground" />
-                                        {suggestion}
-                                      </div>
-                                    ))
-                                  ) : (
-                                    !allNiches.some(n => normalizeText(n) === normalizeText(nicheInput)) && (
-                                      <div className="p-4 text-center text-sm text-muted-foreground">
-                                        Nenhum nicho encontrado. <span className="text-primary cursor-pointer hover:underline" onMouseDown={(e) => { e.preventDefault(); addNicheTag(nicheInput.trim()); }}>Clique para adicionar personalizado.</span>
-                                      </div>
-                                    )
-                                  )}
-                                </div>
-                              ) : (
-                                // DISCOVERY MODE (CATALOG)
-                                <div className="p-4 space-y-6">
-
-                                  <div className="text-center pb-4 border-b border-border/50">
-                                    <p className="text-sm text-muted-foreground">
-                                      Selecione um <strong>Ecossistema</strong> para adicionar todos os seus nichos, ou clique em itens específicos.
-                                    </p>
-                                  </div>
-
-                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-8">
-                                    {ecosystems.map(group => (
-                                      <div key={group.id} className="space-y-3">
-                                        <div
-                                          className="flex items-center gap-2 group/header cursor-pointer"
-                                          onClick={() => toggleEcosystem(group)}
-                                        >
-                                          <div className={`p-2 rounded-lg bg-primary/10 text-primary group-hover/header:bg-primary group-hover/header:text-primary-foreground transition-colors`}>
-                                            <group.icon className="h-5 w-5" />
-                                          </div>
-                                          <div>
-                                            <h4 className="font-bold text-sm flex items-center gap-2">
-                                              {group.label}
-                                              {group.niches.every(n => nicheTags.includes(n)) && <CheckCircle className="h-3 w-3 text-primary" />}
-                                            </h4>
-                                            <p className="text-[10px] text-muted-foreground group-hover/header:text-primary decoration-primary/50 underline-offset-2 group-hover/header:underline">
-                                              {group.niches.every(n => nicheTags.includes(n)) ? 'Desmarcar Todos' : 'Selecionar Todos'}
-                                            </p>
-                                          </div>
-                                        </div>
-
-                                        <div className="grid grid-cols-2 gap-2 pl-2 border-l-2 border-border/50 ml-4">
-                                          {group.niches.map(item => (
-                                            <div
-                                              key={item}
-                                              className={`cursor-pointer text-xs p-1.5 rounded-md transition-all flex items-center gap-2 ${nicheTags.includes(item) ? 'bg-primary/20 text-primary font-bold' : 'hover:bg-secondary/50 text-muted-foreground hover:text-foreground'}`}
-                                              onMouseDown={(e) => { e.preventDefault(); if (nicheTags.includes(item)) removeNicheTag(item); else addNicheTag(item); }}
-                                            >
-                                              <span className={`w-1.5 h-1.5 rounded-full ${nicheTags.includes(item) ? 'bg-primary' : 'bg-muted-foreground/30'}`} />
-                                              {item}
-                                            </div>
-                                          ))}
-                                        </div>
-                                      </div>
-                                    ))}
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* STEP 4: FINAL PAYLOAD & SWEEP SETTINGS */}
-                      <div className="space-y-6">
-                        <div className="flex flex-col gap-1 border-b pb-2">
-                          <div className="flex items-center gap-2 text-primary font-semibold">
-                            <Settings className="h-5 w-5" />
-                            <span className="text-lg">Passo 4: Filtros de Varredura</span>
-                          </div>
-                          <p className="text-[11px] text-muted-foreground font-medium">
-                            Configure o modo de validação de contatos e a frequência de atualização da campanha.
-                          </p>
-                        </div>
-
-                        <div className="space-y-4 p-4 border rounded-xl bg-secondary/10">
-                          <AdvancedFilters
-                            data={campaignData as unknown as AdvancedFiltersData}
-                            onChange={(newData) => setCampaignData(prev => ({ ...prev, ...newData }))}
-                            section="filters"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="h-10"></div> {/* Bottom Spacer */}
-                    </div>
-                  </ScrollArea>
-
-                  <DialogFooter className="p-4 sm:p-6 border-t border-border/50 shrink-0 bg-background/50 backdrop-blur-sm flex flex-row justify-between items-center gap-2">
-                    <Button
-                      variant="ghost"
-                      onClick={() => setIsCreateOpen(false)}
-                      className="gap-2 text-xs sm:text-sm"
-                    >
-                      Cancelar
-                    </Button>
-
-                    <Button onClick={handleCreateCampaign} disabled={createCampaign.isPending} className="bg-primary hover:bg-primary/90 gap-2 text-xs sm:text-sm px-6">
-                      {createCampaign.isPending ? "Lançando..." : "Lançar Míssil"} <Zap className="h-4 w-4" />
-                    </Button>
-                  </DialogFooter>
-                </div>
-              </div>
-            </DialogContent >
-          </Dialog >
+          <Button variant="glow" onClick={() => setIsCreateOpen(true)} className="w-full sm:w-auto">
+            <Plus className="h-4 w-4 mr-2" />
+            Nova Campanha
+          </Button>
         </motion.div >
 
         {/* Campaign List Render (Unchanged) */}
         {
-          Object.entries(campaigns.reduce((acc, campaign) => {
+          Object.entries(filteredCampaigns.reduce((acc, campaign) => {
             const status = campaign.status;
             if (!acc[status]) acc[status] = [];
             acc[status].push(campaign);
@@ -1097,7 +981,7 @@ export const CampaignsPage = () => {
                               className="flex-1 gap-2 font-bold"
                               onClick={() => window.location.href = `/leads?campaign=${campaign.id}`}
                             >
-                              <Users className="h-4 w-4" /> Ver Leads
+                              <Users className="h-4 w-4" /> Ver Alvos
                             </Button>
                             <Button
                               variant="outline"
@@ -1114,11 +998,15 @@ export const CampaignsPage = () => {
 
                           {/* Secondary Actions */}
                           <div className="flex gap-2 pt-2 border-t border-border/50">
-                            <Button variant="ghost" size="sm" className="flex-1 text-xs" onClick={() => openEditModal(campaign)}>
-                              <Settings className="h-3 w-3 mr-1" /> Editar
+                            <Button variant="secondary" size="sm" className="flex-1 text-xs font-bold" onClick={() => openEditModal(campaign)}>
+                              <Settings className="h-4 w-4 mr-1" /> Editar
                             </Button>
                             <Button variant="ghost" size="sm" className="flex-1 text-xs" onClick={() => handleSendCampaign(campaign)}>
-                              <Play className="h-3 w-3 mr-1" /> Disparar
+                              <Play className="h-3 w-3 mr-1" />
+                              <div className="flex flex-col items-start leading-none">
+                                <span>Disparar</span>
+                                <span className="text-[8px] opacity-50">Enviar para Alvos</span>
+                              </div>
                             </Button>
                             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setDeleteConfirm(campaign.id)}>
                               <Trash2 className="h-3 w-3 text-destructive" />
@@ -1134,6 +1022,60 @@ export const CampaignsPage = () => {
           ))
         }
       </div >
+      <Dialog open={isSendDialogOpen} onOpenChange={setIsSendDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Disparar Campanha</DialogTitle>
+            <DialogDescription>
+              Selecione uma variante de mensagem para enviar aos alvos de <strong>{selectedCampaignForSend?.name}</strong>.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Variante de Mensagem</Label>
+              <Select value={selectedVariantId} onValueChange={setSelectedVariantId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione uma variante..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {variants.map(v => (
+                    <SelectItem key={v.id} value={v.id}>{v.name}</SelectItem>
+                  ))}
+                  {variants.length === 0 && (
+                    <div className="p-2 text-xs text-muted-foreground text-center">
+                      Nenhuma variante encontrada. <Link to="/settings" className="text-primary hover:underline">Configurar no Sistema</Link>
+                    </div>
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
+            {selectedVariantId && (
+              <div className="p-3 bg-secondary/30 rounded-lg border text-xs italic text-muted-foreground">
+                "{variants.find(v => v.id === selectedVariantId)?.text.substring(0, 100)}..."
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setIsSendDialogOpen(false)}>Cancelar</Button>
+            <Button onClick={confirmSend} disabled={!selectedVariantId}>Iniciar Disparos</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!deleteConfirm} onOpenChange={(open) => !open && setDeleteConfirm(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-destructive">Excluir Missão?</DialogTitle>
+            <DialogDescription>
+              Esta ação não pode ser desfeita. Todos os dados coletados nesta missão serão perdidos permanentemente.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="ghost" onClick={() => setDeleteConfirm(null)}>Cancelar</Button>
+            <Button variant="destructive" onClick={() => deleteConfirm && handleDeleteCampaign(deleteConfirm)}>Excluir Permanentemente</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </DashboardLayout >
   );
 };

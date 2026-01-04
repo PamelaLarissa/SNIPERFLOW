@@ -75,7 +75,8 @@ interface TrendChartProps {
 
 export const LeadsTrendChart = ({ data }: TrendChartProps) => {
   // Calculate current month and previous month totals
-  const currentMonthTotal = data.reduce((sum, item) => sum + item.leads, 0);
+  // Handle both 'leads' and 'count' property names from backend
+  const currentMonthTotal = data.reduce((sum, item) => sum + (item.leads || (item as any).count || 0), 0);
   const previousMonthTotal = Math.floor(currentMonthTotal * 0.85); // Mock data for previous month
 
   return (
@@ -131,7 +132,8 @@ export const LeadsTrendChart = ({ data }: TrendChartProps) => {
                 />
                 <Area
                   type="monotone"
-                  dataKey="leads"
+                  dataKey={(item) => item.leads || (item as any).count || 0}
+                  name="Leads"
                   stroke="hsl(var(--primary))"
                   strokeWidth={2}
                   fill="url(#leadGradient)"
@@ -150,16 +152,16 @@ interface SourceChartProps {
 }
 
 const SOURCE_COLORS: Record<string, string> = {
-  'Google': 'hsl(217 91% 60%)',
-  'Maps': 'hsl(0 84% 60%)',
-  'Linkedin': 'hsl(201 100% 35%)',
-  'Instagram': 'hsl(329 70% 58%)',
-  'Junta Comercial': 'hsl(215 16% 47%)',
-  'Sebrae': 'hsl(221 83% 53%)',
-  'Reclame Aqui': 'hsl(27 96% 61%)',
-  'Facebook': 'hsl(214 89% 52%)',
-  'Workana': 'hsl(163 72% 41%)',
-  'Outros': 'hsl(0 0% 45%)',
+  'Google': 'hsl(217 91% 60%)',          // Blue
+  'Maps': 'hsl(142 71% 45%)',            // Green
+  'Linkedin': 'hsl(201 100% 35%)',        // Dark Blue
+  'Instagram': 'hsl(329 70% 58%)',       // Pink/Magenta
+  'Junta Comercial': 'hsl(36 100% 50%)', // Orange
+  'Sebrae': 'hsl(199 89% 48%)',          // Sky Blue
+  'Reclame Aqui': 'hsl(0 84% 60%)',      // Red
+  'Facebook': 'hsl(214 89% 52%)',        // Medium Blue
+  'Workana': 'hsl(262 83% 58%)',         // Purple
+  'Outros': 'hsl(0 0% 45%)',            // Grey
 };
 
 const mainSources = [

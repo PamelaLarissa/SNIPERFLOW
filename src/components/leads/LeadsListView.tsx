@@ -26,6 +26,7 @@ import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Lead } from "@/hooks/useLeads";
+import { Campaign } from "@/hooks/useCampaigns";
 import { kanbanColumnLabels } from "@/lib/constants";
 
 interface LeadsListViewProps {
@@ -43,6 +44,7 @@ interface LeadsListViewProps {
     onExportSelected: () => void;
     onViewLead: (lead: Lead) => void;
     onEditLead: (lead: Lead) => void;
+    campaigns?: Campaign[];
 }
 
 const getScoreVariant = (score: number) => {
@@ -66,6 +68,7 @@ export const LeadsListView = ({
     onExportSelected,
     onViewLead,
     onEditLead,
+    campaigns = [],
 }: LeadsListViewProps) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [selectedCampaigns, setSelectedCampaigns] = useState<string[]>([]);
@@ -80,16 +83,19 @@ export const LeadsListView = ({
 
     const LEADS_PER_PAGE = 15;
 
-    // Get unique campaigns from leads with better names
+    // Get unique campaigns from leads with better names from the actual campaigns list
     const uniqueCampaigns = Array.from(new Set(leads.map(l => l.campaignId).filter(Boolean)));
     const campaignOptions = uniqueCampaigns.map(id => {
+        // Find campaign name in the provided campaigns list
+        const campaign = campaigns.find(c => c.id === id);
+        if (campaign) return { id, name: campaign.name };
+
         const campaignLeads = leads.filter(l => l.campaignId === id);
         const firstLead = campaignLeads[0];
-        // Try to get a meaningful name from the lead's niche or company
+        // Fallback to lead data if campaign not found in list
         const name = firstLead?.niche || firstLead?.company || `ID: ${id.slice(0, 8)}`;
         return { id, name };
     });
-
     const filteredCampaignOptions = campaignOptions.filter(c =>
         c.name.toLowerCase().includes(campaignSearchTerm.toLowerCase())
     );

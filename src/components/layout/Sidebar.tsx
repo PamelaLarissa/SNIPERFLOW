@@ -31,7 +31,7 @@ interface SidebarProps {
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
   { icon: Zap, label: "Motor de Prospecção", path: "/campaigns" },
-  { icon: Users, label: "Central de Leads", path: "/leads" },
+  { icon: Users, label: "Central de Alvos", path: "/leads" },
   { icon: Calendar, label: "Agendamentos", path: "/schedules" },
   { icon: FileText, label: "Vendas & Propostas", path: "/proposals" },
   { icon: MessageSquare, label: "WhatsApp API", path: "/whatsapp" },
@@ -77,7 +77,7 @@ export const Sidebar = ({ collapsed = false, onCollapse, mobileOpen, onMobileClo
                   <Zap className="h-6 w-6 text-primary-foreground" />
                 </div>
                 <span className="font-bold text-xl text-foreground whitespace-nowrap">
-                  LeadScan<span className="text-primary">365</span>
+                  Sniper<span className="text-primary">Flow</span>
                 </span>
               </div>
 
@@ -102,11 +102,6 @@ export const Sidebar = ({ collapsed = false, onCollapse, mobileOpen, onMobileClo
                         )}
                         <item.icon className={cn("h-5 w-5 shrink-0", isActive && "text-primary")} />
                         <span className="truncate flex-1">{item.label}</span>
-                        {item.badge && (
-                          <Badge variant="glow" className="text-[10px] h-4 px-1 leading-none">
-                            {item.badge}
-                          </Badge>
-                        )}
                       </Button>
                     </Link>
                   );
@@ -143,7 +138,7 @@ export const Sidebar = ({ collapsed = false, onCollapse, mobileOpen, onMobileClo
               className="overflow-hidden"
             >
               <span className="font-bold text-xl text-foreground whitespace-nowrap">
-                LeadScan<span className="text-primary">365</span>
+                Sniper<span className="text-primary">Flow</span>
               </span>
             </motion.div>
           )}
@@ -181,11 +176,6 @@ export const Sidebar = ({ collapsed = false, onCollapse, mobileOpen, onMobileClo
                       className="overflow-hidden whitespace-nowrap flex items-center gap-2 flex-1"
                     >
                       <span>{item.label}</span>
-                      {item.badge && (
-                        <Badge variant="glow" className="text-[8px] h-3.5 px-1 leading-none uppercase font-bold">
-                          {item.badge}
-                        </Badge>
-                      )}
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -240,7 +230,7 @@ export const MobileHeader = ({ onMenuClick, isOpen }: MobileHeaderProps) => {
             <Zap className="h-4 w-4 text-primary-foreground" />
           </div>
           <span className="font-bold text-lg text-foreground">
-            LeadScan<span className="text-primary">365</span>
+            Sniper<span className="text-primary">Flow</span>
           </span>
         </div>
       </div>

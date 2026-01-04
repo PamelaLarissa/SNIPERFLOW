@@ -83,7 +83,7 @@ export const LeadsPage = () => {
     const list = selectedLeads.length > 0 ? selectedLeads : (searchTerm ? leads.filter(l => l.name.toLowerCase().includes(searchTerm.toLowerCase())).map(l => l.id) : leads.map(l => l.id));
     toast({
       title: "Exportação iniciada",
-      description: `${list.length} leads serão exportados`,
+      description: `${list.length} alvos serão exportados`,
     });
   };
 
@@ -127,7 +127,7 @@ export const LeadsPage = () => {
   const handleCreateLead = () => {
     createLead.mutate({
       ...formData,
-      name: formData.name || 'Novo Lead',
+      name: formData.name || 'Novo Alvo',
       source: 'manual',
     });
     setIsCreateOpen(false);
@@ -196,7 +196,7 @@ export const LeadsPage = () => {
   if (isLoading) {
     return (
       <DashboardLayout>
-        <Header title="Central de Leads" subtitle="Carregando..." />
+        <Header title="Central de Alvos" subtitle="Carregando..." />
         <div className="flex items-center justify-center h-64">
           <RefreshCw className="h-8 w-8 animate-spin text-primary" />
         </div>
@@ -207,8 +207,8 @@ export const LeadsPage = () => {
   return (
     <DashboardLayout>
       <Header
-        title="Central de Leads"
-        subtitle="Gerencie seu funil de vendas, mapa e lista de contatos em um só lugar"
+        title={activeCampaign ? `Alvos da Missão: ${activeCampaign.name}` : "Central de Alvos"}
+        subtitle={activeCampaign ? "Visualize os alvos capturados nesta missão" : "Gerencie e qualifique seus alvos prospectados"}
       />
 
       {/* Campaign Filter Indicator */}
@@ -225,7 +225,7 @@ export const LeadsPage = () => {
                 Filtrando por campanha: <span className="text-primary">{activeCampaign.name}</span>
               </p>
               <p className="text-xs text-muted-foreground">
-                Exibindo {leads.length} leads desta campanha
+                Exibindo {leads.length} alvos desta campanha
               </p>
             </div>
             <Button
@@ -240,6 +240,29 @@ export const LeadsPage = () => {
           </div>
         </motion.div>
       )}
+
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mb-6">
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Buscar alvos por nome, empresa ou e-mail..."
+            className="pl-10 bg-secondary/50"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          {selectedLeads.length > 0 && (
+            <Button variant="outline" size="sm" className="h-9 gap-2">
+              Ações em Massa ({selectedLeads.length})
+            </Button>
+          )}
+          <Button variant="glow" onClick={() => setIsCreateOpen(true)} className="gap-2">
+            <Plus className="h-4 w-4" />
+            Novo Alvo
+          </Button>
+        </div>
+      </div>
 
       <Tabs defaultValue="list" className="space-y-6">
         <div className="flex justify-between items-center">
@@ -266,6 +289,7 @@ export const LeadsPage = () => {
             onExportSelected={handleExportCSV}
             onViewLead={setViewingLead}
             onEditLead={openEditModal}
+            campaigns={campaigns}
           />
         </TabsContent>
 

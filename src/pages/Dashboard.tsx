@@ -53,11 +53,14 @@ export const DashboardPage = () => {
       <div className="space-y-4 sm:space-y-6">
         {/* Row 1: Tactical Stats */}
         <StatsGrid
-          totalLeads={stats?.totalLeads ?? 0}
+          totalAlvos={stats?.totalLeads ?? 0}
           activeMissions={activeMissions.length}
-          creditsRemaining={1240}
+          creditsRemaining={stats?.remainingCredits}
+          usedCredits={stats?.usedCredits}
+          onTargetsClick={() => navigate('/leads')}
+          onMissionsClick={() => navigate('/campaigns?status=active')}
+          onReloadClick={() => navigate('/billing')}
         />
-
         {/* Row 2: Live Operations & Main Analytics */}
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
           <div className="lg:col-span-1">

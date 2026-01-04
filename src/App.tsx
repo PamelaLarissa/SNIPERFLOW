@@ -11,6 +11,7 @@ import { SchedulesPage } from "./pages/Schedules";
 import { ProposalsPage } from "./pages/Proposals";
 import { LeadDetailsPage } from "./pages/LeadDetails";
 import { WhatsAppPage } from "./pages/WhatsApp";
+import { BillingPage } from "./pages/Billing";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +30,7 @@ const App = () => (
           <Route path="/schedules" element={<SchedulesPage />} />
           <Route path="/proposals" element={<ProposalsPage />} />
           <Route path="/whatsapp" element={<WhatsAppPage />} />
+          <Route path="/billing" element={<BillingPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/leads/:id" element={<LeadDetailsPage />} />
 

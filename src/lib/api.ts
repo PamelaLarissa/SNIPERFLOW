@@ -324,6 +324,9 @@ export interface DashboardStats {
   leadsThisWeek: number;
   conversionRate: number;
   moneyLeft?: number;
+  planCredits?: number;
+  usedCredits?: number;
+  remainingCredits?: number;
 }
 
 export interface SourceStats {
