@@ -53,7 +53,6 @@ export const LeadsPage = () => {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
-  const [filterOpen, setFilterOpen] = useState(false);
   const [editingLead, setEditingLead] = useState<Lead | null>(null);
   const [viewingLead, setViewingLead] = useState<Lead | null>(null);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -78,6 +77,10 @@ export const LeadsPage = () => {
     neighborhood: '',
     zipCode: '',
     cityState: '',
+    role: '',
+    employeeCount: '',
+    revenueRange: '',
+    techStack: [] as string[],
   });
 
   const handleExportCSV = () => {
@@ -112,6 +115,10 @@ export const LeadsPage = () => {
       neighborhood: lead.neighborhood || '',
       zipCode: lead.zipCode || '',
       cityState: lead.cityState || '',
+      role: lead.role || '',
+      employeeCount: lead.employeeCount || '',
+      revenueRange: lead.revenueRange || '',
+      techStack: lead.techStack || [],
     });
     setEditingLead(lead);
   };
@@ -287,11 +294,8 @@ export const LeadsPage = () => {
             leads={leads}
             searchTerm={searchTerm}
             onSearchChange={setSearchTerm}
-            onFilterToggle={() => setFilterOpen(!filterOpen)}
-            filterOpen={filterOpen}
             onRefresh={() => refetch()}
             onExport={handleExportCSV}
-            onCreateOpen={() => setIsCreateOpen(true)}
             selectedLeads={selectedLeads}
             onToggleLeadSelection={toggleLeadSelection}
             onClearSelection={() => setSelectedLeads([])}
@@ -382,7 +386,7 @@ export const LeadsPage = () => {
               <DialogHeader>
                 <DialogTitle>Editar Intel do Alvo</DialogTitle>
               </DialogHeader>
-              <div className="grid grid-cols-2 gap-4 py-4">
+              <div className="grid grid-cols-2 gap-4 py-4 max-h-[60vh] overflow-y-auto">
                 <div className="space-y-2">
                   <Label>Nome</Label>
                   <Input value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
@@ -390,6 +394,34 @@ export const LeadsPage = () => {
                 <div className="space-y-2">
                   <Label>Empresa</Label>
                   <Input value={formData.company} onChange={e => setFormData({ ...formData, company: e.target.value })} />
+                </div>
+                <div className="space-y-2">
+                  <Label>E-mail</Label>
+                  <Input value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Telefone</Label>
+                  <Input value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Nicho</Label>
+                  <Input value={formData.niche} onChange={e => setFormData({ ...formData, niche: e.target.value })} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Cidade/UF</Label>
+                  <Input value={formData.cityState} onChange={e => setFormData({ ...formData, cityState: e.target.value })} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Cargo</Label>
+                  <Input value={formData.role} onChange={e => setFormData({ ...formData, role: e.target.value })} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Tamanho do Time</Label>
+                  <Input value={formData.employeeCount} onChange={e => setFormData({ ...formData, employeeCount: e.target.value })} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Faturamento</Label>
+                  <Input value={formData.revenueRange} onChange={e => setFormData({ ...formData, revenueRange: e.target.value })} />
                 </div>
                 <div className="space-y-2">
                   <Label>Status</Label>
@@ -403,6 +435,14 @@ export const LeadsPage = () => {
                 <div className="space-y-2">
                   <Label>Score</Label>
                   <Input type="number" value={formData.score} onChange={e => setFormData({ ...formData, score: parseInt(e.target.value) || 0 })} />
+                </div>
+                <div className="col-span-2 space-y-2">
+                  <Label>Stack (separar por vírgula)</Label>
+                  <Input
+                    value={formData.techStack.join(', ')}
+                    onChange={e => setFormData({ ...formData, techStack: e.target.value.split(',').map(s => s.trim()).filter(Boolean) })}
+                    placeholder="Ex: React, Node, AWS"
+                  />
                 </div>
               </div>
               <DialogFooter>

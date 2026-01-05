@@ -2,9 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Briefcase } from "lucide-react";
 
 export const freelanceSources = [
-  { id: 'workana', name: 'Workana', icon: 'W', color: 'bg-orange-500/20 text-orange-400 border-orange-500/30' },
-  { id: 'nffrelas', name: '99Freelas', icon: '99', color: 'bg-purple-500/20 text-purple-400 border-purple-500/30' },
-  { id: 'getninjas', name: 'GetNinjas', icon: 'GN', color: 'bg-green-500/20 text-green-400 border-green-500/30' },
+  { id: 'workana', name: 'Workana + Semelhantes', icon: 'W', color: 'bg-orange-500/20 text-orange-400 border-orange-500/30' },
   { id: 'fiverr_br', name: 'Fiverr BR', icon: 'F', color: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' },
   { id: 'upwork_br', name: 'Upwork BR', icon: 'U', color: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30' },
   { id: 'freelancer_br', name: 'Freelancer BR', icon: 'FL', color: 'bg-blue-500/20 text-blue-400 border-blue-500/30' },
@@ -51,8 +49,8 @@ export const FreelanceSourceCheckbox = ({ source, checked, onChange }: Freelance
   return (
     <label
       className={`flex items-center gap-2 p-2 rounded-lg border cursor-pointer transition-all ${checked
-          ? 'border-primary bg-primary/10'
-          : 'border-border hover:bg-secondary/50'
+        ? 'border-primary bg-primary/10'
+        : 'border-border hover:bg-secondary/50'
         }`}
     >
       <input

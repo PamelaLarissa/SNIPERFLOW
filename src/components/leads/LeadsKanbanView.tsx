@@ -106,8 +106,7 @@ export const LeadsKanbanView = ({
                     <CardContent className="p-4">
                         <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-end">
                             <div className="flex-1">
-                                <Label className="text-sm font-medium mb-2 flex items-center gap-2">
-                                    <Sparkles className="h-4 w-4 text-primary" />
+                                <Label className="text-sm font-medium mb-2">
                                     Análise Tática - Simular Interceptação
                                 </Label>
                                 <div className="flex gap-2">
@@ -132,8 +131,7 @@ export const LeadsKanbanView = ({
                                     />
                                 </div>
                             </div>
-                            <Button onClick={handleAiAnalysis} disabled={!selectedForAi || !aiInput.trim()}>
-                                <Sparkles className="h-4 w-4 mr-2" />
+                            <Button variant="outline" onClick={handleAiAnalysis} disabled={!selectedForAi || !aiInput.trim()}>
                                 Decodificar
                             </Button>
                         </div>

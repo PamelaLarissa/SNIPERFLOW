@@ -22,6 +22,7 @@ import {
   Clock,
   CheckCircle,
   Building2,
+  Calendar,
   Code2,
   PenTool,
   ArrowRight,
@@ -120,7 +121,7 @@ const detailedSources = [
   { name: 'SEBRAE', icon: Globe, color: 'hsl(45, 95%, 45%)', details: ['Porte da Empresa', 'Nível de Maturidade Digital', 'Potencial de Crescimento', 'Programas Participados'] },
   { name: 'ReclameAqui', icon: SearchIcon, color: 'hsl(0, 90%, 60%)', details: ['Reputação da Marca', 'Principais Reclamações', 'Tempo de Resposta', 'Índice de Solução'] },
   { name: 'Facebook', icon: Globe, color: 'hsl(255, 85%, 60%)', details: ['Pixel e Rastreamento', 'Atividade Recente', 'Anúncios Ativos', 'Avaliações de Usuários'] },
-  { name: 'Workana', icon: MousePointer2, color: 'hsl(290, 80%, 50%)', details: ['Projetos Publicados', 'Ticket Médio', 'Frequência de Contratação', 'Tecnologias Contratadas'] },
+  { name: 'Workana + Semelhantes', icon: MousePointer2, color: 'hsl(290, 80%, 50%)', details: ['Projetos Publicados', 'Ticket Médio', 'Frequência de Contratação', 'Tecnologias Contratadas'] },
 ];
 
 // profileNiches and profileInfos have been moved to AdvancedFilters.tsx
@@ -134,20 +135,18 @@ const detailedSources = [
 import { Wrench } from "lucide-react";
 
 const ecosystems = [
-  { id: 'health', label: 'Saúde e Bem-estar', icon: Stethoscope, niches: ['Academias / Crossfit', 'Consultórios Médicos', 'Clínicas Médicas', 'Clínicas de Estética', 'Dentistas', 'Nutricionistas', 'Psicólogos', 'Laboratórios', 'Fisioterapeutas', 'Veterinários', 'Fonoaudiologia', 'Terapia Ocupacional', 'Home Care', 'Quiropraxia', 'Pilates / Yoga'] },
-  { id: 'legal', label: 'Jurídico e Consultoria', icon: Scale, niches: ['Advocacia Trabalhista', 'Advocacia Criminal', 'Advocacia Cível', 'Contabilidade', 'Consultoria Fiscal', 'Seguros e Corretoras', 'Cartórios e Notários', 'Peritos Judiciais', 'Despachantes', 'Recuperação Crédito', 'Investimentos', 'Auditoria Contábil', 'Registro de Marcas'] },
-  { id: 'technical', label: 'Serviços Técnicos', icon: Wrench, niches: ['Refrigeração (HVAC)', 'Instalação Ar Cond.', 'Eletricistas Predial', 'Encanadores / Hidráulica', 'Conserto Celular', 'Assistência TV/Som', 'Câmeras Segurança', 'Automação Residencial', 'Marido de Aluguel', 'Chaveiro 24h', 'Dedetizadoras', 'Desentupidoras', 'Energia Solar', 'Gesseiros'] },
-  { id: 'retail', label: 'Varejo Local', icon: ShoppingBag, niches: ['Shopping Centers', 'Pet Shops e Banho', 'Lojas de Roupas', 'Floriculturas', 'Supermercados', 'Óticas e Lentes', 'Joalherias / Relógios', 'Loja de Calçados', 'Materiais Construção', 'Ferragens e Ferramentas', 'Peças e Acessórios', 'Informática e Games', 'Móveis Planejados', 'Colchoarias'] },
-  { id: 'food', label: 'Gastronomia', icon: Utensils, niches: ['Minimercados', 'Restaurantes A La Carte', 'Hamburguerias Artesanais', 'Pizzarias Delivery', 'Padarias e Confeitarias', 'Bares e Pubs', 'Cafeterias Gourmet', 'Buffets e Eventos', 'Dark Kitchens', 'Confeitarias Finas', 'Açougues Premium', 'Distribuidora Bebidas', 'Sorveterias'] },
-  { id: 'auto', label: 'Automotivo', icon: Car, niches: ['Oficinas Mecânicas', 'Concessionárias Novos', 'Lojas de Pneus', 'Estética Automotiva', 'Auto Peças', 'Locadoras de Veículos', 'Blindadoras', 'Vistoria Veicular', 'Funilaria e Pintura', 'Auto Elétrica', 'Centro Automotivo', 'Martelinho de Ouro', 'Lava Rápido'] },
-  { id: 'real_estate', label: 'Imobiliário e Casa', icon: Home, niches: ['Imobiliárias', 'Construtoras', 'Arquitetos e Design', 'Lojas de Móveis', 'Instalação Solar', 'Marcenarias', 'Decoradores Interiores', 'Condomínios', 'Engenharia Civil', 'Paisagismo e Jardinagem', 'Adm. Condomínios', 'Vistoria de Imóveis', 'Empreiteiras Obras'] },
-  { id: 'education', label: 'Educação e Ensino', icon: GraduationCap, niches: ['Escolas Particulares', 'Escolas de Idiomas', 'Faculdades / Polos', 'Cursos Profissionalizantes', 'Treinamentos Corp.', 'Escolas de Música', 'Creches e Berçários', 'Reforço Escolar', 'EAD / Cursos Online', 'Agências Intercâmbio', 'Escolas de Dança', 'Autoescolas (CFC)', 'Cursos de TI'] },
-  { id: 'beauty', label: 'Beleza e Estética', icon: Scissors, niches: ['Salões de Beleza', 'Barbearias Gourmet', 'Spas e Relaxamento', 'Estúdios Tatuagem', 'Clínicas Depilação', 'Esmalterias', 'Design Sobrancelhas', 'Maquiadores Prof.', 'Podologia', 'Massoterapia', 'Micropigmentação', 'Harmonização Facial', 'Lash Designers'] },
-  { id: 'b2b', label: 'Indústria e B2B', icon: Factory, niches: ['Indústrias Gerais', 'Atacadistas', 'Distribuidores', 'Fábricas de Móveis', 'Indústria Têxtil', 'Usinas e Energia', 'Metalúrgicas', 'Gráficas Rápidas', 'Indústria Embalagens', 'Brindes Corporativos', 'Equipamentos Industriais', 'EPIs e Uniformes', 'Ferramentaria'] },
-  { id: 'tech', label: 'Tecnologia e Startups', icon: Code2, niches: ['Fábricas de Software', 'Startups Tech', 'Agências Marketing', 'Provedores Internet', 'Consultoria em TI', 'Data Centers/Hosting', 'E-commerce/Lojas', 'SaaS B2B', 'Telecomunicações', 'Gestores de Tráfego', 'Assistência Técnica TI', 'Desenvolvimento App', 'Cybersegurança'] },
-  { id: 'logistics', label: 'Logística e Transportes', icon: Truck, niches: ['Transportadoras Carga', 'Empresas de Mudança', 'Logística Reversa', 'Entregas Rápidas', 'Armazéns e Depósitos', 'Guincho e Reboque', 'Importação/Exportação', 'Gestão de Frotas', 'Logística Portuária', 'Motoboy / Courier', 'Logística Promocional', 'Transporte Executivo'] },
-  { id: 'events', label: 'Eventos e Turismo', icon: Camera, niches: ['Agências de Turismo', 'Casas de Festas', 'Organizadores Eventos', 'Hotéis e Pousadas', 'Fotógrafos', 'Produtoras de Vídeo', 'Buffet Infantil', 'Decoração de Festas', 'DJs e Sonorização', 'Formaturas', 'Agências de Viagem', 'Aluguel Trajes', 'Estandes e Feiras'] },
-  { id: 'finance', label: 'Financeiro e Bancário', icon: Wallet, niches: ['Bancos Digitais', 'Corretoras de Valores', 'Consultoria Financeira', 'Empresas de Câmbio', 'Fintechs de Crédito', 'Consórcios', 'Factoring', 'Gestão Patrimonial', 'Meios de Pagamento', 'Cooperativas Crédito', 'Planejamento Prev.', 'Antecipação Recebíveis'] },
+  { id: 'health', label: 'Saúde e Bem-estar', icon: Stethoscope, niches: ['Clínicas de Estética Avançada', 'Clínicas de Harmonização Facial', 'Consultórios de Nutrologia', 'Clínicas Odontológicas (Implantes/Invisalign)', 'Médicos Especialistas (Plástica/Dermato)', 'Hospitais Veterinários 24h', 'Academias Boutique / High-End', 'Studios de Pilates de Alto Padrão', 'Clínicas de Fisioterapia Especializada', 'Laboratórios de Análises Premium', 'Home Care de Luxo', 'Centros de Quiropraxia e Coluna'] },
+  { id: 'legal', label: 'Jurídico e Consultoria', icon: Scale, niches: ['Advocacia Tributária (Recuperação de Impostos)', 'Advocacia Previdenciária de Alto Ticket', 'Advocacia de Direito Digital', 'Consultoria Fiscal e Planejamento', 'Contabilidades para Grandes Empresas', 'Corretoras de Seguros (Vida/Empresarial)', 'Auditorias Contábeis Internacionais', 'Gestão de Investimentos e Wealth Management', 'Perícias Judiciais Especializadas', 'Registro de Marcas e Patentes', 'Consultoria de RH para Executivos', 'Escritórios de Recuperação de Crédito'] },
+  { id: 'technical', label: 'Serviços Técnicos e Engenharia', icon: Wrench, niches: ['Instalação de Energia Solar (Usinas/Residencial)', 'Climatização Industrial (HVAC)', 'Automação Residencial de Luxo', 'Blindagem de Portas e Guaritas', 'Engenharia Elétrica Predial', 'Manutenção de Elevadores', 'Sistemas de Segurança e CFTV IP', 'Tratamento de Piscinas de Grande Porte', 'Instalação de Geradores de Energia', 'Redes de Proteção e Estruturas Metálicas', 'Manutenção de Máquinas Industriais', 'Impermeabilização de Grandes Lajes'] },
+  { id: 'real_estate', label: 'Imobiliário e Casa', icon: Home, niches: ['Construtoras e Incorporadoras', 'Imobiliárias de Alto Padrão', 'Arquitetura de Interiores Premium', 'Design de Móveis Planejados Luxo', 'Paisagismo de Grandes Áreas', 'Administradoras de Condomínios de Luxo', 'Engenharia de Vistoria de Imóveis', 'Reformas Residenciais de Alto Luxo', 'Marcenarias de Design Exclusivo', 'Lojas de Decoração High-End', 'Automação de Cortinas e Iluminação', 'Gestão de Propriedades AirBnB Luxo'] },
+  { id: 'auto', label: 'Automotivo Premium', icon: Car, niches: ['Blindagem Veicular', 'Estética Automotiva (Detailing/Ceramic)', 'Oficinas de Carros Importados', 'Concessionárias de Seminovos Premium', 'Personalização e Performance (Remap)', 'Funilaria e Pintura de Alta Precisão', 'Recuperação de Rodas de Luxo', 'Centros Automotivos de Pneus Premium', 'Som e Multimídia High-End', 'Instalação de Películas de Proteção (PPF)', 'Locação de Carros de Luxo / Executivos', 'Martelinho de Ouro Especializado'] },
+  { id: 'b2b', label: 'Indústria e B2B', icon: Factory, niches: ['Indústrias Metalúrgicas', 'Fábricas de Embalagens Personalizadas', 'Usinas e Energias Renováveis', 'Gráficas de Grande Porte (Off-set)', 'Fábricas de Móveis Corporativos', 'Fornecedores de EPIs em Lote', 'Indústria Têxtil e Confecções', 'Distribuidoras de Alimentos e Bebidas', 'Fabricação de Peças Industriais', 'Logística e Transportadoras de Carga', 'Armazéns e Centros de Distribuição', 'Tratamento de Resíduos Industriais'] },
+  { id: 'retail', label: 'Varejo de Luxo e Especializado', icon: ShoppingBag, niches: ['Óticas de Grife', 'Joalherias e Relojoarias de Luxo', 'Lojas de Pneus e Rodas Esportivas', 'Materiais de Construção (Acabamentos Finos)', 'Lojas de Colchões Premium', 'Floriculturas de Eventos Luxo', 'Supermercados Gourmet / Empórios', 'Lojas de Informática e Workstations', 'Boutique de Vinhos e Destilados', 'Lojas de Caça, Pesca e Outdoor', 'Artigos de Iluminação e Lustres', 'Ferragens Técnicas e Ferramentas Pro'] },
+  { id: 'food', label: 'Gastronomia de Elite', icon: Utensils, niches: ['Restaurantes A La Carte Premium', 'Buffets para Eventos Corporativos', 'Espaços para Casamentos (Vila)', 'Churrascarias Rodízio Premium', 'Pizzarias Gourmet (Dark Kitchens de Luxo)', 'Hamburguerias Artesanais Escalonáveis', 'Padarias de Fermentação Natural (Boulangerie)', 'Confeitarias Finas e Chocolatarias', 'Bares e Pubs Conceito', 'Cafeterias de Especialidade', 'Catering para Eventos de Luxo', 'Cervejarias Artesanais (Brewpubs)'] },
+  { id: 'education', label: 'Educação e Treinamento', icon: GraduationCap, niches: ['Escolas Particulares de Alto Padrão', 'Escolas de Idiomas para Executivos', 'Treinamentos Corporativos B2B', 'Faculdades e Polos de Pós-Graduação', 'Cursos Profissionalizantes de TI', 'Academias de Dança e Artes', 'Escolas de Música Especializadas', 'Treinamentos de Vendas e Mentoria', 'Cursos Online (Infoprodutores de Sucesso)', 'Consultoria de Intercâmbio Luxo', 'Autoescolas (CFC) com Foco em Premium', 'Escolas de Gastronomia e Culinária'] },
+  { id: 'beauty', label: 'Beleza e Estética Profissional', icon: Scissors, niches: ['Salões de Beleza de Grande Porte', 'Barbearias Gourmet / Premium', 'Spas e Centros de Relaxamento', 'Estúdios de Tatuagem Realista (High Ticket)', 'Clínicas de Depilação a Laser', 'Esmalterias e Nail Designers Luxo', 'Design de Sobrancelhas e Micropigmentação', 'Maquiadores Profissionais de Noivas', 'Centros de Massoterapia Avançada', 'Clínicas de Podologia Especializada', 'Lash Designers (Extensão de Cílios)', 'Clínicas de Transplante Capilar'] },
+  { id: 'tech', label: 'Tecnologia e Digital', icon: Code2, niches: ['Software Houses (Fábricas de Software)', 'Agências de Marketing Performance', 'Gestores de Tráfego de Alto Nível', 'Consultorias de TI e Infraestrutura', 'Empresas de Cybersegurança', 'Provedores de Internet Fibra (ISPs)', 'E-commerces de Nicho com Alto Giro', 'SaaS (Softwares como Serviço) B2B', 'Agências de Lançamentos de Infoprodutos', 'Desenvolvedoras de Aplicativos Mobile', 'Data Centers e Hospedagem Cloud', 'Empresas de Automação de Processos'] },
+  { id: 'events', label: 'Eventos e Experiência', icon: Camera, niches: ['Produtoras de Vídeo Corporativo', 'Fotógrafos de Casamentos de Luxo', 'Organizadores de Grandes Eventos', 'Hotéis e Pousadas de Charme', 'Buffets Infantis de Alto Padrão', 'Empresas de Montagem de Estandes', 'DJs e Sonorização Profissional', 'Locação de Mobiliário para Eventos', 'Agências de Viagens de Experiência', 'Empresas de Formaturas e Cerimoniais', 'Aluguel de Trajes de Gala/Noivas', 'Decoração de Eventos Sociais'] },
 ];
 
 const allNiches: string[] = [
@@ -319,6 +318,24 @@ export const CampaignsPage = () => {
     setLocationRadius([0]);
   };
 
+  const getProtocols = (mode: string) => {
+    switch (mode) {
+      case 'both': return ['E-mail', 'WhatsApp'];
+      case 'email': return ['E-mail'];
+      case 'whatsapp': return ['WhatsApp'];
+      default: return [];
+    }
+  };
+
+  const getCadenceLabel = (freq: string) => {
+    switch (freq) {
+      case 'daily': return 'Diária';
+      case 'thrice_weekly': return '3x/Sem';
+      case 'weekly': return 'Semanal';
+      default: return freq;
+    }
+  };
+
   const handleCreateCampaign = () => {
     // Compute final strings from smart inputs
     const computedNiche = nicheTags.join(', ');
@@ -332,10 +349,21 @@ export const CampaignsPage = () => {
       location: computedLocation || 'Brasil',
       status: 'active',
       sources: campaignData.sources,
+      // Promote fields to root for display
+      professionalProfiles: campaignData.professionalProfiles,
+      locations: campaignData.locations,
+      employeeCategories: campaignData.employeeCategories,
+      revenueCategories: campaignData.revenueCategories,
+      niches: nicheTags,
+      hasDecisionMakers: campaignData.decisionMakerContact, // Map from decisionMakerContact
+      protocols: getProtocols(campaignData.verificationMode), // Map from verificationMode
+      cadence: getCadenceLabel(campaignData.updateFrequency), // Map from updateFrequency
+      targetLeads: targetLeads[0], // Extract number from array
       filters: {
         ...campaignData,
-        niche: computedNiche, // Ensure consistency
-        location: computedLocation
+        niche: computedNiche,
+        location: computedLocation,
+        targetLeads: targetLeads[0]
       } as any,
     });
     setIsCreateOpen(false);
@@ -349,11 +377,22 @@ export const CampaignsPage = () => {
       id: editingCampaign.id,
       updates: {
         name: campaignData.name || editingCampaign.name,
-        niche: campaignData.niche || editingCampaign.niche,
+        niche: nicheTags.join(', ') || editingCampaign.niche,
         location: `${campaignData.locations.join(', ')}${locationRadius[0] > 0 ? ` (+${locationRadius[0]}km)` : ''}`,
         sources: campaignData.sources,
+        // Promote fields to root
+        professionalProfiles: campaignData.professionalProfiles,
+        locations: campaignData.locations,
+        employeeCategories: campaignData.employeeCategories,
+        revenueCategories: campaignData.revenueCategories,
+        niches: nicheTags,
+        hasDecisionMakers: campaignData.decisionMakerContact,
+        protocols: getProtocols(campaignData.verificationMode),
+        cadence: getCadenceLabel(campaignData.updateFrequency),
+        targetLeads: targetLeads[0],
         filters: {
           ...campaignData,
+          targetLeads: targetLeads[0]
         },
       }
     });
@@ -1236,19 +1275,23 @@ export const CampaignsPage = () => {
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 {statusCampaigns.map(campaign => {
-                  const qualifiedLeads = Math.floor((campaign.leadsVerified / campaign.leadsFound) * 100) || 0;
+                  const scorePercent = Math.floor((campaign.leadsVerified / campaign.leadsFound) * 100) || 0;
 
                   return (
-                    <Card key={campaign.id} variant="glass" className="group hover:border-primary/50 transition-all duration-300">
-                      <CardContent className="p-0">
-                        <div className="p-5 space-y-4">
-                          <div className="flex justify-between items-start">
-                            <div className="flex-1">
-                              <h4 className="font-bold text-lg group-hover:text-primary transition-colors">{campaign.name}</h4>
-                              <p className="text-sm text-muted-foreground">{campaign.niche}</p>
-                              <div className="flex items-center gap-1.5 mt-1">
-                                <MapPin className="h-3 w-3 text-muted-foreground" />
-                                <span className="text-xs text-muted-foreground">{campaign.location}</span>
+                    <Card key={campaign.id} variant="glass" className="group hover:border-primary/50 transition-all duration-300 h-full flex flex-col">
+                      <CardContent className="p-0 flex flex-col flex-1">
+                        <div className="p-4 space-y-3 flex flex-col flex-1">
+                          {/* HEADER: Name + Status */}
+                          <div className="flex justify-between items-start gap-3">
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-bold text-base group-hover:text-primary transition-colors truncate">{campaign.name}</h4>
+                              <div className="flex items-center gap-1.5 mt-0.5">
+                                <MapPin className="h-3 w-3 text-muted-foreground shrink-0" />
+                                <span className="text-xs text-muted-foreground truncate">
+                                  {campaign.locations && campaign.locations.length > 0
+                                    ? campaign.locations.slice(0, 2).join(', ') + (campaign.locations.length > 2 ? ` +${campaign.locations.length - 2}` : '')
+                                    : campaign.location}
+                                </span>
                               </div>
                             </div>
 
@@ -1258,13 +1301,13 @@ export const CampaignsPage = () => {
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  className={`h-6 px-2 text-xs font-bold uppercase tracking-wider border ${campaign.status === 'active' ? 'border-emerald-500/50 text-emerald-500 bg-emerald-500/10 hover:bg-emerald-500/20' :
+                                  className={`h-6 px-2 text-[10px] font-bold uppercase tracking-wider border shrink-0 ${campaign.status === 'active' ? 'border-emerald-500/50 text-emerald-500 bg-emerald-500/10 hover:bg-emerald-500/20' :
                                     campaign.status === 'paused' ? 'border-amber-500/50 text-amber-500 bg-amber-500/10 hover:bg-amber-500/20' :
                                       'border-red-500/50 text-red-500 bg-red-500/10 hover:bg-red-500/20'
                                     }`}
                                 >
                                   {campaign.status === 'active' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5 animate-pulse" />}
-                                  {campaign.status === 'active' ? 'Operação Ativa' : campaign.status === 'paused' ? 'Em Espera' : 'Missão Cumprida'}
+                                  {campaign.status === 'active' ? 'Ativa' : campaign.status === 'paused' ? 'Espera' : 'Cumprida'}
                                   <ChevronDown className="h-3 w-3 ml-1 opacity-50" />
                                 </Button>
                               </DropdownMenuTrigger>
@@ -1282,28 +1325,183 @@ export const CampaignsPage = () => {
                             </DropdownMenu>
                           </div>
 
-                          {/* OPTIMIZED METRICS */}
-                          <div className="grid grid-cols-3 gap-2 text-sm">
-                            <div className="p-2.5 bg-primary/5 border border-primary/10 rounded-lg flex flex-col items-center justify-center text-center">
-                              <span className="font-black text-xl text-primary leading-none mb-1">{campaign.leadsFound}</span>
-                              <span className="text-[9px] text-muted-foreground font-extrabold uppercase tracking-tight leading-tight">Alvos</span>
+                          {/* Date Stamp */}
+                          <div className="flex items-center gap-1.5 -mt-2">
+                            <Calendar className="h-3 w-3 text-muted-foreground shrink-0" />
+                            <span className="text-[10px] text-muted-foreground">
+                              Criada em: {new Date(campaign.createdAt).toLocaleDateString('pt-BR')} às {new Date(campaign.createdAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                          </div>
+
+                          {/* CONFIGURATION DETAILS - Compact Grid w/ Flex Grow */}
+                          <div className="space-y-2 p-3 bg-secondary/20 rounded-lg border border-border/30 text-xs flex-1">
+                            {/* PREPARE DATA - Fallback to filters if root is missing (Backend Compatibility) */}
+                            {(() => {
+                              const filters = campaign.filters as any || {};
+                              const profiles = campaign.professionalProfiles || filters.professionalProfiles || [];
+                              const sources = campaign.sources || filters.sources || [];
+                              const niches = campaign.niches || filters.niches || (campaign.niche ? [campaign.niche] : []) || [];
+                              const team = campaign.employeeCategories || filters.employeeCategories || [];
+                              const revenue = campaign.revenueCategories || filters.revenueCategories || [];
+                              const decisionMakers = campaign.hasDecisionMakers ?? filters.hasDecisionMakers ?? filters.decisionMakerContact;
+                              const cadence = campaign.cadence || filters.cadence || (filters.updateFrequency === 'daily' ? 'Diária' : filters.updateFrequency === 'thrice_weekly' ? '3x/Sem' : filters.updateFrequency === 'weekly' ? 'Semanal' : null);
+                              const protocols = campaign.protocols || filters.protocols || (filters.verificationMode === 'both' ? ['E-mail', 'WhatsApp'] : filters.verificationMode === 'email' ? ['E-mail'] : filters.verificationMode === 'whatsapp' ? ['WhatsApp'] : []) || [];
+                              const target = campaign.targetLeads || filters.targetLeads || 0;
+
+                              // NEW FIELDS MAPPING
+                              const stack = campaign.technologies || filters.technologies || [];
+                              const statusRF = campaign.onlyActiveStatus ?? filters.onlyActiveStatus ?? true;
+
+                              // PROFILE MAPPING HELPER
+                              const getProfileLabel = (id: string) => {
+                                const profile = profileInfos.find(p => p.id === id);
+                                return profile ? profile.label : id;
+                              };
+
+                              const getSourceDisplay = (source: string) => {
+                                if (source.includes('Workana')) return 'Workana, GetNinjas, 99Freelas';
+                                return source;
+                              };
+
+                              return (
+                                <>
+                                  {/* Row 1: Profiles & Sources */}
+                                  {(profiles.length > 0) && (
+                                    <div className="flex items-start gap-1.5">
+                                      <User className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
+                                      <div className="flex-1 min-w-0">
+                                        <span className="font-bold text-muted-foreground">Perfil:</span>
+                                        <span className="ml-1 text-foreground">
+                                          {profiles.slice(0, 2).map(getProfileLabel).join(', ')}
+                                          {profiles.length > 2 ? ` +${profiles.length - 2}` : ''}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  {(sources.length > 0) && (
+                                    <div className="flex items-start gap-1.5">
+                                      <Database className="h-3.5 w-3.5 text-accent shrink-0 mt-0.5" />
+                                      <div className="flex-1 min-w-0">
+                                        <span className="font-bold text-muted-foreground">Intel:</span>
+                                        <span className="ml-1 text-foreground">{sources.map(getSourceDisplay).join(', ')}</span>
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  {/* Row 2: Niches */}
+                                  {(niches.length > 0) && (
+                                    <div className="flex items-start gap-1.5">
+                                      <Briefcase className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
+                                      <div className="flex-1 min-w-0">
+                                        <span className="font-bold text-muted-foreground">Nichos:</span>
+                                        <span className="ml-1 text-foreground">{niches.slice(0, 2).join(', ')}{niches.length > 2 ? ` +${niches.length - 2}` : ''}</span>
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  {/* Stack Alvo (New) */}
+                                  {(stack.length > 0) && (
+                                    <div className="flex items-start gap-1.5">
+                                      <Layers className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
+                                      <div className="flex-1 min-w-0">
+                                        <span className="font-bold text-muted-foreground">Stack Alvo:</span>
+                                        <span className="ml-1 text-foreground">{stack.join(', ')}</span>
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  {/* Row 3: Team Size */}
+                                  {(team.length > 0) && (
+                                    <div className="flex items-start gap-1.5">
+                                      <Users className="h-3.5 w-3.5 text-muted-foreground shrink-0 mt-0.5" />
+                                      <div className="flex-1 min-w-0">
+                                        <span className="font-bold text-muted-foreground">Time:</span>
+                                        <span className="ml-1 text-foreground">{team.join(', ')}</span>
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  {/* Decisores (Full Line) */}
+                                  {decisionMakers !== undefined && (
+                                    <div className="flex items-center gap-1.5">
+                                      <Shield className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                                      <span className="font-bold text-muted-foreground">Decisores:</span>
+                                      <span className={decisionMakers ? "text-emerald-500" : "text-muted-foreground"}>{decisionMakers ? 'Sim' : 'Não'}</span>
+                                    </div>
+                                  )}
+
+                                  {/* Status Operacional RF */}
+                                  <div className="flex items-center gap-1.5">
+                                    <Zap className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                                    <span className="font-bold text-muted-foreground">Status (RF):</span>
+                                    <span className={statusRF ? "text-primary" : "text-muted-foreground"}>{statusRF ? 'Somente Ativas' : 'Todas'}</span>
+                                  </div>
+
+                                  {/* Row 5: Protocols */}
+                                  {(protocols.length > 0) && (
+                                    <div className="flex items-start gap-1.5">
+                                      <Gauge className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
+                                      <div className="flex-1 min-w-0">
+                                        <span className="font-bold text-muted-foreground">Protocolo:</span>
+                                        <span className="ml-1 text-foreground">{protocols.slice(0, 2).join(', ')}{protocols.length > 2 ? ` +${protocols.length - 2}` : ''}</span>
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  {/* Row 6: Target Leads */}
+                                  {target > 0 && (
+                                    <div className="flex items-center gap-1.5">
+                                      <Target className="h-3.5 w-3.5 text-primary shrink-0" />
+                                      <span className="font-bold text-muted-foreground">Meta:</span>
+                                      <span className="text-foreground">{target} alvos</span>
+                                    </div>
+                                  )}
+
+                                  {/* FATURAMENTO (Full Line) */}
+                                  {(revenue.length > 0) && (
+                                    <div className="flex items-center gap-1.5">
+                                      <Wallet className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                                      <span className="font-bold text-muted-foreground">Fat:</span>
+                                      <span className="text-foreground truncate">{revenue.join(', ')}</span>
+                                    </div>
+                                  )}
+
+                                  {/* CADÊNCIA (Full Line) */}
+                                  {cadence && (
+                                    <div className="flex items-center gap-1.5">
+                                      <Clock className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                                      <span className="font-bold text-muted-foreground">Cadência:</span>
+                                      <span className="text-foreground truncate">{cadence}</span>
+                                    </div>
+                                  )}
+                                </>
+                              );
+                            })()}
+                          </div>
+
+                          {/* METRICS - Pushed to bottom via parent flex-col */}
+                          <div className="grid grid-cols-3 gap-2 text-sm mt-auto">
+                            <div className="p-2 bg-primary/5 border border-primary/10 rounded-lg flex flex-col items-center justify-center text-center">
+                              <span className="font-black text-lg text-primary leading-none mb-0.5">{campaign.leadsFound}</span>
+                              <span className="text-[9px] text-muted-foreground font-extrabold uppercase tracking-tight">Capturados</span>
                             </div>
-                            <div className="p-2.5 bg-accent/5 border border-accent/10 rounded-lg flex flex-col items-center justify-center text-center">
-                              <span className="font-black text-xl text-accent leading-none mb-1">{campaign.leadsVerified}</span>
-                              <span className="text-[9px] text-muted-foreground font-extrabold uppercase tracking-tight leading-tight">Confirmados</span>
+                            <div className="p-2 bg-accent/5 border border-accent/10 rounded-lg flex flex-col items-center justify-center text-center">
+                              <span className="font-black text-lg text-accent leading-none mb-0.5">{campaign.leadsVerified}</span>
+                              <span className="text-[9px] text-muted-foreground font-extrabold uppercase tracking-tight">Confirmados</span>
                             </div>
-                            <div className="p-2.5 bg-secondary/50 border border-border rounded-lg flex flex-col items-center justify-center text-center">
-                              <span className="font-black text-xl text-foreground leading-none mb-1">{qualifiedLeads}%</span>
-                              <span className="text-[9px] text-muted-foreground font-extrabold uppercase tracking-tight leading-tight">Precisão</span>
+                            <div className="p-2 bg-secondary/50 border border-border rounded-lg flex flex-col items-center justify-center text-center">
+                              <span className="font-black text-lg text-foreground leading-none mb-0.5">{scorePercent}%</span>
+                              <span className="text-[9px] text-muted-foreground font-extrabold uppercase tracking-tight">Score</span>
                             </div>
                           </div>
 
-                          {/* PRIMARY ACTIONS - LEADS & SEARCH */}
+                          {/* PRIMARY ACTIONS */}
                           <div className="flex gap-2">
                             <Button
                               variant="default"
                               size="sm"
-                              className="flex-[2] gap-2 font-bold shadow-sm"
+                              className="flex-[2] gap-1.5 font-bold shadow-sm h-8 text-xs"
                               onClick={() => window.location.href = `/leads?campaign=${campaign.id}`}
                             >
                               <Users className="h-3.5 w-3.5" /> Inspecionar Alvos
@@ -1314,37 +1512,37 @@ export const CampaignsPage = () => {
                                   <Button
                                     variant="outline"
                                     size="sm"
-                                    className="flex-1 gap-1.5 border-dashed border-primary/30 hover:bg-primary/5 hover:border-primary/50 text-foreground"
+                                    className="flex-1 gap-1 border-dashed border-primary/30 hover:bg-primary/5 hover:border-primary/50 h-8 text-xs"
                                     onClick={() => setRescanCampaign(campaign)}
                                   >
                                     <Radio className="h-3.5 w-3.5" />
-                                    Buscar +
+                                    Varredura
                                   </Button>
                                 </TooltipTrigger>
                                 <TooltipContent>
-                                  <p className="text-xs">Escanear novos alvos na área (Não inicia disparos)</p>
+                                  <p className="text-xs">Nova varredura para capturar mais alvos</p>
                                 </TooltipContent>
                               </Tooltip>
                             </TooltipProvider>
                           </div>
 
-                          {/* SECONDARY ACTIONS - EDIT & DISPATCH */}
+                          {/* SECONDARY ACTIONS */}
                           <div className="flex items-center justify-between pt-2 border-t border-border/50 gap-2">
-                            <Button variant="ghost" size="sm" className="h-8 text-xs text-muted-foreground hover:text-foreground" onClick={() => openEditModal(campaign)}>
-                              <Settings className="h-3 w-3 mr-1.5" /> Ajustar Radar
+                            <Button variant="ghost" size="sm" className="h-7 text-[10px] text-muted-foreground hover:text-foreground" onClick={() => openEditModal(campaign)}>
+                              <Settings className="h-3 w-3 mr-1" /> Ajustar Radar
                             </Button>
 
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="h-8 text-xs font-bold text-accent hover:text-accent hover:bg-accent/10"
+                              className="h-7 text-[10px] font-bold text-accent hover:text-accent hover:bg-accent/10"
                               onClick={() => handleSendCampaign(campaign)}
                             >
-                              <Play className="h-3 w-3 mr-1.5" /> Iniciar Ataque
+                              <Play className="h-3 w-3 mr-1" /> Iniciar Ataque
                             </Button>
 
-                            < Button variant="ghost" size="icon" className="h-8 w-8 ml-auto text-muted-foreground hover:text-destructive transition-colors" onClick={() => setDeleteConfirm(campaign.id)}>
-                              <Trash2 className="h-3.5 w-3.5" />
+                            <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive transition-colors" onClick={() => setDeleteConfirm(campaign.id)}>
+                              <Trash2 className="h-3 w-3" />
                             </Button>
                           </div>
                         </div>

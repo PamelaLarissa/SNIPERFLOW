@@ -138,6 +138,19 @@ export interface Campaign {
     verifiedOnly?: boolean;
   };
   workspaceId?: string;
+  // Extended fields for comprehensive display
+  professionalProfiles?: string[];
+  locations?: string[];
+  employeeCategories?: string[];
+  revenueCategories?: string[];
+  niches?: string[];
+  hasDecisionMakers?: boolean;
+  sweepFrequency?: string;
+  cadence?: string;
+  targetLeads?: number;
+  protocols?: string[];
+  technologies?: string[];
+  onlyActiveStatus?: boolean;
 }
 
 export interface CampaignFilters {

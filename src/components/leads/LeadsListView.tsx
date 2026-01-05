@@ -1,11 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
+import { profileInfos } from "@/components/campaigns/AdvancedFilters";
 import {
-    Search,
-    Filter,
     Download,
     RefreshCw,
-    Plus,
     ChevronDown,
     ChevronLeft,
     ChevronRight,
@@ -13,11 +11,9 @@ import {
     Phone,
     MessageCircle,
     Building2,
-    Globe,
     Edit,
     Eye,
-    CheckCircle,
-    XCircle,
+    Calendar
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -33,11 +29,8 @@ interface LeadsListViewProps {
     leads: Lead[];
     searchTerm: string;
     onSearchChange: (value: string) => void;
-    onFilterToggle: () => void;
-    filterOpen: boolean;
     onRefresh: () => void;
     onExport: () => void;
-    onCreateOpen: () => void;
     selectedLeads: string[];
     onToggleLeadSelection: (id: string) => void;
     onClearSelection: () => void;
@@ -57,11 +50,8 @@ export const LeadsListView = ({
     leads,
     searchTerm,
     onSearchChange,
-    onFilterToggle,
-    filterOpen,
     onRefresh,
     onExport,
-    onCreateOpen,
     selectedLeads,
     onToggleLeadSelection,
     onClearSelection,
@@ -165,156 +155,129 @@ export const LeadsListView = ({
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="flex flex-col gap-3 sm:gap-4"
+                className="flex flex-col sm:flex-row gap-3 justify-end"
             >
-                <div className="flex flex-col sm:flex-row gap-3">
-                    <div className="flex flex-1 gap-2 sm:gap-3">
-                        <div className="relative flex-1">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <Input
-                                placeholder="Explorar alvos..."
-                                value={searchTerm}
-                                onChange={(e) => onSearchChange(e.target.value)}
-                                className="pl-10 bg-secondary/50"
-                            />
-                        </div>
-                        <Button variant="outline" onClick={onFilterToggle} className="shrink-0">
-                            <Filter className="h-4 w-4 sm:mr-2" />
-                            <span className="hidden sm:inline">Critérios Táticos</span>
-                            <ChevronDown className={`h-4 w-4 ml-1 sm:ml-2 transition-transform ${filterOpen ? 'rotate-180' : ''}`} />
-                        </Button>
-                    </div>
-                    <div className="flex gap-2 sm:gap-3">
-                        <Button variant="outline" className="flex-1 sm:flex-none" onClick={onRefresh}>
-                            <RefreshCw className="h-4 w-4 sm:mr-2" />
-                            <span className="hidden sm:inline">Recon</span>
-                        </Button>
-                        <Button variant="outline" onClick={onExport} className="flex-1 sm:flex-none">
-                            <Download className="h-4 w-4 sm:mr-2" />
-                            <span className="hidden sm:inline">Baixar Intel</span>
-                        </Button>
-                        <Button variant="glow" onClick={onCreateOpen} className="flex-1 sm:flex-none">
-                            <Plus className="h-4 w-4 sm:mr-2" />
-                            <span className="hidden sm:inline">Identificar Alvo</span>
-                        </Button>
-                    </div>
-                </div>
+                <Button variant="outline" className="flex-1 sm:flex-none" onClick={onRefresh}>
+                    <RefreshCw className="h-4 w-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Recon</span>
+                </Button>
+                <Button variant="outline" onClick={onExport} className="flex-1 sm:flex-none">
+                    <Download className="h-4 w-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Baixar Intel</span>
+                </Button>
             </motion.div>
 
-            {/* Filter Panel */}
-            {filterOpen && (
-                <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="relative z-40"
-                >
-                    <Card variant="glass">
-                        <CardContent className="p-3 sm:p-4 space-y-4 overflow-visible">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-                                {/* Campaign Filter */}
-                                <div className="space-y-2 relative z-50" ref={campaignDropdownRef}>
-                                    <Label className="text-xs sm:text-sm font-medium">Campanhas</Label>
-                                    <div className="relative">
-                                        <Button
-                                            variant="outline"
-                                            className="w-full justify-between bg-secondary/50 text-xs"
-                                            onClick={() => setCampaignDropdownOpen(!campaignDropdownOpen)}
-                                        >
-                                            <span className="truncate">
-                                                {selectedCampaigns.length === 0
-                                                    ? "Filtrar Missões..."
-                                                    : `${selectedCampaigns.length} selecionada(s)`}
-                                            </span>
-                                            <ChevronDown className={`h-3 w-3 ml-2 transition-transform ${campaignDropdownOpen ? 'rotate-180' : ''}`} />
-                                        </Button>
-                                        {campaignDropdownOpen && (
-                                            <div className="absolute z-[100] w-full mt-1 bg-popover border border-border rounded-md shadow-2xl">
-                                                <div className="p-2">
-                                                    <Input
-                                                        placeholder="Buscar..."
-                                                        value={campaignSearchTerm}
-                                                        onChange={(e) => setCampaignSearchTerm(e.target.value)}
-                                                        className="bg-secondary/50 text-xs h-8"
-                                                    />
-                                                </div>
-                                                <div className="max-h-40 overflow-y-auto p-2 space-y-1">
-                                                    {filteredCampaignOptions.length === 0 ? (
-                                                        <p className="text-xs text-muted-foreground text-center py-2">Nenhuma campanha</p>
-                                                    ) : (
-                                                        filteredCampaignOptions.map(campaign => (
-                                                            <label key={campaign.id} className="flex items-center gap-2 cursor-pointer hover:bg-secondary/50 p-1.5 rounded text-xs">
-                                                                <input
-                                                                    type="checkbox"
-                                                                    checked={selectedCampaigns.includes(campaign.id)}
-                                                                    onChange={() => toggleCampaign(campaign.id)}
-                                                                    className="h-3 w-3 rounded border-border bg-secondary/50 text-primary"
-                                                                />
-                                                                <span className="flex-1 truncate">{campaign.name}</span>
-                                                            </label>
-                                                        ))
-                                                    )}
-                                                </div>
+            {/* Filter Panel - Always Visible */}
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="relative z-40"
+            >
+                <Card variant="glass">
+                    <CardContent className="p-3 sm:p-4 space-y-4 overflow-visible">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                            {/* Campaign Filter */}
+                            <div className="space-y-2 relative z-50" ref={campaignDropdownRef}>
+                                <Label className="text-xs sm:text-sm font-medium">Campanhas</Label>
+                                <div className="relative">
+                                    <Button
+                                        variant="outline"
+                                        className="w-full justify-between bg-secondary/50 text-xs"
+                                        onClick={() => setCampaignDropdownOpen(!campaignDropdownOpen)}
+                                    >
+                                        <span className="truncate">
+                                            {selectedCampaigns.length === 0
+                                                ? "Filtrar Missões..."
+                                                : `${selectedCampaigns.length} selecionada(s)`}
+                                        </span>
+                                        <ChevronDown className={`h-3 w-3 ml-2 transition-transform ${campaignDropdownOpen ? 'rotate-180' : ''}`} />
+                                    </Button>
+                                    {campaignDropdownOpen && (
+                                        <div className="absolute z-[100] w-full mt-1 bg-popover border border-border rounded-md shadow-2xl">
+                                            <div className="p-2">
+                                                <Input
+                                                    placeholder="Buscar..."
+                                                    value={campaignSearchTerm}
+                                                    onChange={(e) => setCampaignSearchTerm(e.target.value)}
+                                                    className="bg-secondary/50 text-xs h-8"
+                                                />
                                             </div>
-                                        )}
-                                    </div>
-                                </div>
-
-                                {/* Sources Filter */}
-                                <div className="space-y-2 relative z-50" ref={sourceDropdownRef}>
-                                    <Label className="text-xs sm:text-sm font-medium">Fontes</Label>
-                                    <div className="relative">
-                                        <Button
-                                            variant="outline"
-                                            className="w-full justify-between bg-secondary/50 text-xs"
-                                            onClick={() => setSourceDropdownOpen(!sourceDropdownOpen)}
-                                        >
-                                            <span className="truncate">
-                                                {selectedSources.length === 0
-                                                    ? "Filtrar Origem..."
-                                                    : `${selectedSources.length} selecionada(s)`}
-                                            </span>
-                                            <ChevronDown className={`h-3 w-3 ml-2 transition-transform ${sourceDropdownOpen ? 'rotate-180' : ''}`} />
-                                        </Button>
-                                        {sourceDropdownOpen && (
-                                            <div className="absolute z-[100] w-full mt-1 bg-popover border border-border rounded-md shadow-2xl">
-                                                <div className="max-h-40 overflow-y-auto p-2 space-y-1">
-                                                    {sources.map(source => (
-                                                        <label key={source} className="flex items-center gap-2 cursor-pointer hover:bg-secondary/50 p-1.5 rounded text-xs">
+                                            <div className="max-h-40 overflow-y-auto p-2 space-y-1">
+                                                {filteredCampaignOptions.length === 0 ? (
+                                                    <p className="text-xs text-muted-foreground text-center py-2">Nenhuma campanha</p>
+                                                ) : (
+                                                    filteredCampaignOptions.map(campaign => (
+                                                        <label key={campaign.id} className="flex items-center gap-2 cursor-pointer hover:bg-secondary/50 p-1.5 rounded text-xs">
                                                             <input
                                                                 type="checkbox"
-                                                                checked={selectedSources.includes(source)}
-                                                                onChange={() => toggleSource(source)}
+                                                                checked={selectedCampaigns.includes(campaign.id)}
+                                                                onChange={() => toggleCampaign(campaign.id)}
                                                                 className="h-3 w-3 rounded border-border bg-secondary/50 text-primary"
                                                             />
-                                                            <span className="flex-1">{source}</span>
+                                                            <span className="flex-1 truncate">{campaign.name}</span>
                                                         </label>
-                                                    ))}
-                                                </div>
+                                                    ))
+                                                )}
                                             </div>
-                                        )}
-                                    </div>
-                                </div>
-
-                                {/* Score Filter */}
-                                <div className="space-y-2">
-                                    <Label className="text-xs sm:text-sm font-medium">Score Mínimo</Label>
-                                    <Input
-                                        type="number"
-                                        placeholder="0"
-                                        value={minScore || ''}
-                                        onChange={(e) => setMinScore(Number(e.target.value) || 0)}
-                                        className="bg-secondary/50"
-                                    />
-                                    <Button variant="ghost" size="sm" onClick={clearFilters} className="w-full text-xs">
-                                        Resetar Critérios
-                                    </Button>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
-                        </CardContent>
-                    </Card>
-                </motion.div>
-            )}
+
+                            {/* Sources Filter */}
+                            <div className="space-y-2 relative z-50" ref={sourceDropdownRef}>
+                                <Label className="text-xs sm:text-sm font-medium">Fontes</Label>
+                                <div className="relative">
+                                    <Button
+                                        variant="outline"
+                                        className="w-full justify-between bg-secondary/50 text-xs"
+                                        onClick={() => setSourceDropdownOpen(!sourceDropdownOpen)}
+                                    >
+                                        <span className="truncate">
+                                            {selectedSources.length === 0
+                                                ? "Filtrar Origem..."
+                                                : `${selectedSources.length} selecionada(s)`}
+                                        </span>
+                                        <ChevronDown className={`h-3 w-3 ml-2 transition-transform ${sourceDropdownOpen ? 'rotate-180' : ''}`} />
+                                    </Button>
+                                    {sourceDropdownOpen && (
+                                        <div className="absolute z-[100] w-full mt-1 bg-popover border border-border rounded-md shadow-2xl">
+                                            <div className="max-h-40 overflow-y-auto p-2 space-y-1">
+                                                {sources.map(source => (
+                                                    <label key={source} className="flex items-center gap-2 cursor-pointer hover:bg-secondary/50 p-1.5 rounded text-xs">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={selectedSources.includes(source)}
+                                                            onChange={() => toggleSource(source)}
+                                                            className="h-3 w-3 rounded border-border bg-secondary/50 text-primary"
+                                                        />
+                                                        <span className="flex-1">{source}</span>
+                                                    </label>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Score Filter */}
+                            <div className="space-y-2">
+                                <Label className="text-xs sm:text-sm font-medium">Score Mínimo</Label>
+                                <Input
+                                    type="number"
+                                    placeholder="0"
+                                    value={minScore || ''}
+                                    onChange={(e) => setMinScore(Number(e.target.value) || 0)}
+                                    className="bg-secondary/50"
+                                />
+                                <Button variant="ghost" size="sm" onClick={clearFilters} className="w-full text-xs">
+                                    Resetar Critérios
+                                </Button>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+            </motion.div>
 
             {/* Selection Info */}
             {selectedLeads.length > 0 && (
@@ -339,81 +302,184 @@ export const LeadsListView = ({
 
             {/* Leads List */}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
-                {paginatedLeads.map((lead, index) => (
-                    <motion.div
-                        key={lead.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.05 }}
-                    >
-                        <Card variant="glass" className={`h-full border-l-4 ${selectedLeads.includes(lead.id) ? 'border-primary' : 'border-transparent'}`}>
-                            <CardContent className="p-4 sm:p-5">
-                                <div className="flex items-start justify-between mb-3">
-                                    <div className="flex items-start gap-3">
-                                        <input
-                                            type="checkbox"
-                                            checked={selectedLeads.includes(lead.id)}
-                                            onChange={() => onToggleLeadSelection(lead.id)}
-                                            className="mt-1 h-4 w-4 rounded border-border bg-secondary/50 text-primary focus:ring-primary"
-                                        />
-                                        <div>
-                                            <h3 className="font-semibold text-sm sm:text-base line-clamp-1">{lead.name}</h3>
-                                            <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
-                                                <Building2 className="h-3 w-3" />
-                                                <span className="line-clamp-1">{lead.company}</span>
+                {paginatedLeads.map((lead, index) => {
+                    const campaign = campaigns.find(c => c.id === lead.campaignId);
+
+                    // Data Preparation
+                    const profiles = campaign?.professionalProfiles || [];
+                    const sources = campaign?.sources || [];
+                    const leadSource = lead.source ? [lead.source] : [];
+                    const displaySources = leadSource.length > 0 ? leadSource : sources;
+
+                    const niche = lead.niche || campaign?.niche || "Geral";
+                    const stack = lead.techStack || campaign?.technologies || [];
+                    const teamSize = lead.employeeCount || (campaign?.employeeCategories && campaign.employeeCategories.length > 0 ? campaign.employeeCategories.join(', ') : "Não identificado");
+                    const city = lead.cityState || (campaign?.locations && campaign.locations.length > 0 ? campaign.locations.join(', ') : campaign?.location || "Brasil");
+                    const revenue = lead.revenueRange || (campaign?.revenueCategories && campaign.revenueCategories.length > 0 ? campaign.revenueCategories.join(', ') : "Não estimado");
+                    const statusRF = lead.situacao || (campaign?.onlyActiveStatus ? "Ativa" : "Todas");
+                    const isDecisionMaker = lead.partners ? true : (campaign?.hasDecisionMakers || false);
+
+                    // Profile Mapping Helper
+                    const getProfileLabel = (id: string) => {
+                        const info = profileInfos.find(p => p.id === id);
+                        return info ? info.label : id;
+                    };
+                    const profileLabel = profiles.length > 0 ? profiles.map(getProfileLabel).join(', ') : "Padrão";
+
+                    return (
+                        <motion.div
+                            key={lead.id}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.05 }}
+                        >
+                            <Card variant="glass" className={`h-full border-l-4 flex flex-col ${selectedLeads.includes(lead.id) ? 'border-primary' : 'border-transparent'}`}>
+                                <CardContent className="p-4 flex flex-col flex-1 gap-3">
+
+                                    {/* HEADER */}
+                                    <div className="flex items-start justify-between">
+                                        <div className="flex items-start gap-3 overflow-hidden">
+                                            <input
+                                                type="checkbox"
+                                                checked={selectedLeads.includes(lead.id)}
+                                                onChange={() => onToggleLeadSelection(lead.id)}
+                                                className="mt-1 h-4 w-4 rounded border-border bg-secondary/50 text-primary focus:ring-primary shrink-0"
+                                            />
+                                            <div className="min-w-0">
+                                                <h3 className="font-bold text-sm sm:text-base truncate leading-tight">{lead.name}</h3>
+                                                <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5">
+                                                    <Building2 className="h-3 w-3 shrink-0" />
+                                                    <span className="truncate font-medium">{lead.company}</span>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <Badge variant={getScoreVariant(lead.score)} className="shrink-0">
-                                        {lead.score}
-                                    </Badge>
-                                </div>
-
-                                <div className="space-y-2 mb-4">
-                                    <div className="flex items-center gap-2 text-xs sm:text-sm">
-                                        <Mail className="h-3 w-3 text-muted-foreground" />
-                                        <span className="truncate">{lead.email}</span>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-xs sm:text-sm">
-                                        <Phone className="h-3 w-3 text-muted-foreground" />
-                                        <span>{lead.phone}</span>
-                                    </div>
-                                    <div className="flex flex-wrap gap-2 mt-2">
-                                        <Badge variant="outline" className="text-[10px]">
-                                            {lead.source}
-                                        </Badge>
-                                        <Badge variant="outline" className="text-[10px] capitalize">
-                                            {kanbanColumnLabels[lead.status || 'new']}
-                                        </Badge>
-                                        {lead.whatsapp && (
-                                            <Badge variant="secondary" className="text-[10px] flex items-center gap-1">
-                                                <MessageCircle className="h-2 w-2 fill-green-500 text-green-500" />
-                                                WhatsApp
+                                        <div className="flex flex-col items-end gap-1 shrink-0">
+                                            <Badge variant={getScoreVariant(lead.score)} className="text-[10px] h-5 px-1.5">
+                                                Score {lead.score}
                                             </Badge>
-                                        )}
-                                        {lead.website && (
-                                            <a href={lead.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-[10px] hover:text-primary transition-colors text-muted-foreground">
-                                                <Globe className="h-3 w-3" />
-                                                Site
-                                            </a>
-                                        )}
+                                            <Badge variant="outline" className="text-[10px] capitalize h-5 px-1.5">
+                                                {kanbanColumnLabels[lead.status || 'new']}
+                                            </Badge>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div className="flex gap-2 pt-3 border-t border-border/50">
-                                    <Button variant="ghost" size="sm" className="flex-1 h-8 text-xs" onClick={() => onViewLead(lead)}>
-                                        <Eye className="h-3 w-3 mr-1" />
-                                        Ver
-                                    </Button>
-                                    <Button variant="ghost" size="sm" className="flex-1 h-8 text-xs" onClick={() => onEditLead(lead)}>
-                                        <Edit className="h-3 w-3 mr-1" />
-                                        Editar
-                                    </Button>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </motion.div>
-                ))}
+                                    {/* CONTACT */}
+                                    <div className="flex flex-col gap-3 text-xs border-y border-border/40 py-3">
+                                        {/* Email */}
+                                        <div className="flex flex-col gap-1">
+                                            {lead.email ? (
+                                                <>
+                                                    <a
+                                                        href={`mailto:${lead.email}`}
+                                                        className="flex items-center gap-1.5 text-foreground font-medium hover:underline w-fit"
+                                                    >
+                                                        <Mail className="h-3 w-3 shrink-0" />
+                                                        <span>Contato Individual Email</span>
+                                                    </a>
+                                                    <span className="text-muted-foreground pl-0.5">{lead.email}</span>
+                                                </>
+                                            ) : (
+                                                <div className="flex items-center gap-1.5 text-muted-foreground/50">
+                                                    <Mail className="h-3 w-3 shrink-0" />
+                                                    <span>Email não selecionado</span>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* WhatsApp */}
+                                        <div className="flex flex-col gap-1">
+                                            {lead.whatsapp ? (
+                                                <>
+                                                    <a
+                                                        href={`https://wa.me/${lead.phone.replace(/\D/g, '')}`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="flex items-center gap-1.5 text-emerald-500 font-medium hover:underline w-fit"
+                                                    >
+                                                        <MessageCircle className="h-3 w-3 fill-emerald-500 shrink-0" />
+                                                        <span>Contato Individual WhatsApp</span>
+                                                    </a>
+                                                    <span className="text-muted-foreground pl-0.5">{lead.phone}</span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <div className="flex items-center gap-1.5 text-foreground">
+                                                        <Phone className="h-3 w-3 shrink-0" />
+                                                        <span>Não verificado para WhatsApp</span>
+                                                    </div>
+                                                    <span className="text-muted-foreground pl-0.5">{lead.phone}</span>
+                                                </>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* DETAILS */}
+                                    <div className="space-y-1.5 text-xs flex-1">
+                                        <div className="flex items-start gap-1.5">
+                                            <span className="font-bold text-muted-foreground min-w-[60px]">Perfil:</span>
+                                            <span className="text-foreground truncate">{profileLabel}</span>
+                                        </div>
+                                        <div className="flex items-start gap-1.5">
+                                            <span className="font-bold text-muted-foreground min-w-[60px]">Intel:</span>
+                                            <span className="text-foreground truncate">{displaySources.join(', ')}</span>
+                                        </div>
+                                        <div className="flex items-start gap-1.5">
+                                            <span className="font-bold text-muted-foreground min-w-[60px]">Nichos:</span>
+                                            <span className="text-foreground truncate">{niche}</span>
+                                        </div>
+                                        {(stack.length > 0) && (
+                                            <div className="flex items-start gap-1.5">
+                                                <span className="font-bold text-muted-foreground min-w-[60px]">Stack:</span>
+                                                <span className="text-foreground truncate">{stack.join(', ')}</span>
+                                            </div>
+                                        )}
+                                        <div className="flex items-start gap-1.5">
+                                            <span className="font-bold text-muted-foreground min-w-[60px]">Time:</span>
+                                            <span className="text-foreground truncate">{teamSize}</span>
+                                        </div>
+                                        <div className="flex items-start gap-1.5">
+                                            <span className="font-bold text-muted-foreground min-w-[60px]">Cidade:</span>
+                                            <span className="text-foreground truncate">{city}</span>
+                                        </div>
+                                        <div className="flex items-start gap-1.5">
+                                            <span className="font-bold text-muted-foreground min-w-[60px]">Fat:</span>
+                                            <span className="text-foreground truncate">{revenue}</span>
+                                        </div>
+                                        <div className="flex items-start gap-1.5">
+                                            <span className="font-bold text-muted-foreground min-w-[60px]">Status:</span>
+                                            <span className="text-foreground truncate">{statusRF}</span>
+                                        </div>
+                                        <div className="flex items-start gap-1.5">
+                                            <span className="font-bold text-muted-foreground min-w-[60px]">Decisor:</span>
+                                            <span className={isDecisionMaker ? "text-emerald-500 font-medium" : "text-muted-foreground"}>
+                                                {isDecisionMaker ? 'Sim' : 'Empresa'}
+                                            </span>
+                                        </div>
+                                        <div className="flex items-start gap-1.5 mt-2 pt-2 border-t border-border/40">
+                                            <span className="font-bold text-muted-foreground min-w-[60px]">Campanha:</span>
+                                            <span className="text-foreground truncate">{campaign?.name || "Desconhecida"}</span>
+                                        </div>
+                                        <div className="flex items-start gap-1.5">
+                                            <Calendar className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                                            <span className="font-bold text-muted-foreground min-w-[50px]">Captura:</span>
+                                            <span className="text-foreground truncate">
+                                                {new Date(lead.createdAt).toLocaleDateString('pt-BR')} {new Date(lead.createdAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    {/* FOOTER */}
+                                    <div className="pt-3 mt-auto border-t border-border/50">
+                                        <Button variant="ghost" size="sm" className="w-full h-8 text-xs font-medium" onClick={() => onEditLead(lead)}>
+                                            <Edit className="h-3 w-3 mr-1.5" />
+                                            Editar
+                                        </Button>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </motion.div>
+                    );
+                })}
             </div>
 
             {/* Pagination */}
