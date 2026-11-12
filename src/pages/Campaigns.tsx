@@ -732,8 +732,8 @@ export const CampaignsPage = () => {
                 {/* Single View Form */}
                 <div className="flex-1 flex flex-col overflow-hidden">
                   <DialogHeader className="p-3 sm:p-4 pb-1 shrink-0 border-b border-border/50">
-                    <DialogTitle className="text-xl sm:text-2xl font-black bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent uppercase tracking-tighter flex items-center gap-3">
-                      <Target className="h-6 w-6 text-primary" /> {editingCampaign ? `Editar Míssil: ${editingCampaign.name}` : 'Lançar Míssil de Prospecção'}
+                    <DialogTitle className="text-xl sm:text-2xl font-black bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent uppercase tracking-tighter flex items-center gap-3">
+                      <Target className="h-6 w-6 text-accent" /> {editingCampaign ? `Editar Míssil: ${editingCampaign.name}` : 'Lançar Míssil de Prospecção'}
                     </DialogTitle>
                     <DialogDescription className="text-sm font-medium text-muted-foreground/80">
                       Configure o radar, os sensores de inteligência e o payload da sua nova missão operacional.
@@ -746,7 +746,7 @@ export const CampaignsPage = () => {
                       {/* STEP 1: CALIBRATION & SENSORS */}
                       <div className="space-y-8 min-h-[450px]">
                         <div className="flex flex-col gap-1.5 border-b pb-3">
-                          <div className="flex items-center gap-3 text-primary font-semibold">
+                          <div className="flex items-center gap-3 text-accent font-semibold">
                             <Settings className="h-6 w-6" />
                             <span className="text-xl font-black">Passo 1: Calibração de Perfil & Sensores</span>
                           </div>
@@ -766,7 +766,7 @@ export const CampaignsPage = () => {
                       {/* STEP 2: INTELLIGENCE & DATA SOURCES */}
                       <div className="space-y-8 min-h-[350px]" ref={step3Ref}>
                         <div className="flex flex-col gap-1.5 border-b pb-3">
-                          <div className="flex items-center gap-3 text-primary font-semibold">
+                          <div className="flex items-center gap-3 text-accent font-semibold">
                             <Database className="h-6 w-6" />
                             <span className="text-xl font-black">Passo 2: Inteligência de Dados</span>
                           </div>
@@ -778,7 +778,7 @@ export const CampaignsPage = () => {
                         {/* DATA SOURCES CARD */}
                         <div className="space-y-6 p-6 border rounded-2xl bg-secondary/10">
                           <Label className="flex items-center gap-3 mb-4 text-base font-black uppercase tracking-tight">
-                            <Database className="h-5 w-5 text-primary" />
+                            <Database className="h-5 w-5 text-accent" />
                             Fontes de Dados Estratégicas
                           </Label>
                           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -788,13 +788,13 @@ export const CampaignsPage = () => {
                                 type="button"
                                 onClick={() => toggleSource(source.name)}
                                 className={`flex flex-col items-start gap-2 p-3 rounded-lg border text-left transition-all h-full relative overflow-hidden ${campaignData.sources.includes(source.name)
-                                  ? "border-primary bg-primary/10 ring-1 ring-primary"
+                                  ? "border-accent bg-accent/10 ring-1 ring-accent"
                                   : "border-border hover:bg-secondary/50"
-                                  } ${highlightedSources.includes(source.name) ? 'ring-2 ring-primary ring-offset-2 ring-offset-background animate-pulse shadow-[0_0_15px_rgba(var(--primary-rgb),0.5)]' : ''}`}
+                                  } ${highlightedSources.includes(source.name) ? 'ring-2 ring-accent ring-offset-2 ring-offset-background animate-pulse shadow-[0_0_15px_rgba(var(--accent-rgb),0.5)]' : ''}`}
                               >
                                 {highlightedSources.includes(source.name) && (
                                   <div className="absolute top-0 right-0 p-1">
-                                    <Sparkles className="h-3 w-3 text-primary animate-bounce" />
+                                    <Sparkles className="h-3 w-3 text-accent animate-bounce" />
                                   </div>
                                 )}
                                 <div className="flex items-center gap-2 mb-1">
@@ -807,7 +807,7 @@ export const CampaignsPage = () => {
                                 <div className="space-y-1 w-full">
                                   {source.details.map((detail, idx) => (
                                     <div key={idx} className="flex items-center gap-1.5">
-                                      <CheckCircle className={`h-4 w-4 ${campaignData.sources.includes(source.name) ? 'text-primary/70' : 'text-muted-foreground'}`} />
+                                      <CheckCircle className={`h-4 w-4 ${campaignData.sources.includes(source.name) ? 'text-accent/70' : 'text-muted-foreground'}`} />
                                       <span className="text-xs text-muted-foreground font-bold">{detail}</span>
                                     </div>
                                   ))}
@@ -821,7 +821,7 @@ export const CampaignsPage = () => {
                       {/* STEP 3: RADAR (ALVO) - MOVED BELOW INTELLIGENCE */}
                       <div className="space-y-8 min-h-[450px]">
                         <div className="flex flex-col gap-1.5 border-b pb-3">
-                          <div className="flex items-center gap-3 text-primary font-semibold">
+                          <div className="flex items-center gap-3 text-accent font-semibold">
                             <Target className="h-6 w-6" />
                             <span className="text-xl font-black">Passo 3: Radar (Alvo)</span>
                           </div>
@@ -844,18 +844,18 @@ export const CampaignsPage = () => {
                           </div>
                           <div className="flex items-center justify-between">
                             <Label className="flex items-center gap-3 text-base font-black">
-                              <MapPin className="h-5 w-5 text-primary" />
+                              <MapPin className="h-5 w-5 text-accent" />
                               Localização do Alvo
                             </Label>
                             <div className="flex bg-secondary/30 p-1 rounded-lg">
                               <button
-                                className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${locationScope === 'local' ? 'bg-background shadow text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+                                className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${locationScope === 'local' ? 'bg-background shadow text-accent border border-accent/50' : 'text-muted-foreground hover:text-foreground'}`}
                                 onClick={() => setLocationScope('local')}
                               >
                                 Local/Regional
                               </button>
                               <button
-                                className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${locationScope === 'national' ? 'bg-background shadow text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+                                className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${locationScope === 'national' ? 'bg-background shadow text-accent border border-accent/50' : 'text-muted-foreground hover:text-foreground'}`}
                                 onClick={() => setLocationScope('national')}
                               >
                                 Brasil (Todo País)
@@ -926,7 +926,7 @@ export const CampaignsPage = () => {
                               <div className="space-y-2">
                                 <div className="flex justify-between text-sm text-muted-foreground">
                                   <span className="font-bold">Precisão de Localização</span>
-                                  <span className="font-bold text-primary">{locationRadius[0] === 0 ? 'Exato' : `+${locationRadius[0]}km`}</span>
+                                  <span className="font-bold text-accent">{locationRadius[0] === 0 ? 'Exato' : `+${locationRadius[0]}km`}</span>
                                 </div>
                                 <Slider
                                   defaultValue={[0]}
@@ -941,8 +941,8 @@ export const CampaignsPage = () => {
                               {/* FILTROS DE PODER (OPCIONAIS) - INSIDE RADAR CARD */}
                               <div className="pt-4 border-t border-border/50 space-y-4">
                                 <div className="flex items-center gap-2 mb-1">
-                                  <Shield className="h-3.5 w-3.5 text-primary" />
-                                  <span className="text-xs font-black text-primary uppercase tracking-wider">Filtros de Poder (Opcionais)</span>
+                                  <Shield className="h-3.5 w-3.5 text-accent" />
+                                  <span className="text-xs font-black text-accent uppercase tracking-wider">Filtros de Poder (Opcionais)</span>
                                 </div>
 
                                 <div className="space-y-4">
@@ -958,13 +958,13 @@ export const CampaignsPage = () => {
                                       onValueChange={(val) => setCampaignData(prev => ({ ...prev, employeeCategories: val as any }))}
                                       className="justify-start gap-2"
                                     >
-                                      <ToggleGroupItem value="1-10" className="text-xs h-8 px-3 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground font-bold">
+                                      <ToggleGroupItem value="1-10" className="text-xs h-8 px-3 data-[state=on]:bg-transparent data-[state=on]:border-2 data-[state=on]:border-accent data-[state=on]:text-accent font-bold">
                                         1-10 (MEI/Pequena)
                                       </ToggleGroupItem>
-                                      <ToggleGroupItem value="11-50" className="text-xs h-8 px-3 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground font-bold">
+                                      <ToggleGroupItem value="11-50" className="text-xs h-8 px-3 data-[state=on]:bg-transparent data-[state=on]:border-2 data-[state=on]:border-accent data-[state=on]:text-accent font-bold">
                                         11-50 (Média)
                                       </ToggleGroupItem>
-                                      <ToggleGroupItem value="50+" className="text-xs h-8 px-3 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground font-bold">
+                                      <ToggleGroupItem value="50+" className="text-xs h-8 px-3 data-[state=on]:bg-transparent data-[state=on]:border-2 data-[state=on]:border-accent data-[state=on]:text-accent font-bold">
                                         50+ (Enterprise)
                                       </ToggleGroupItem>
                                     </ToggleGroup>
@@ -982,13 +982,13 @@ export const CampaignsPage = () => {
                                       onValueChange={(val) => setCampaignData(prev => ({ ...prev, revenueCategories: val as any }))}
                                       className="justify-start gap-2"
                                     >
-                                      <ToggleGroupItem value="<100k" className="text-xs h-8 px-3 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground font-bold">
+                                      <ToggleGroupItem value="<100k" className="text-xs h-8 px-3 data-[state=on]:bg-transparent data-[state=on]:border-2 data-[state=on]:border-accent data-[state=on]:text-accent font-bold">
                                         Até 100k
                                       </ToggleGroupItem>
-                                      <ToggleGroupItem value="100k-500k" className="text-xs h-8 px-3 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground font-bold">
+                                      <ToggleGroupItem value="100k-500k" className="text-xs h-8 px-3 data-[state=on]:bg-transparent data-[state=on]:border-2 data-[state=on]:border-accent data-[state=on]:text-accent font-bold">
                                         100k a 500k
                                       </ToggleGroupItem>
-                                      <ToggleGroupItem value=">500k" className="text-xs h-8 px-3 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground font-bold">
+                                      <ToggleGroupItem value=">500k" className="text-xs h-8 px-3 data-[state=on]:bg-transparent data-[state=on]:border-2 data-[state=on]:border-accent data-[state=on]:text-accent font-bold">
                                         +500k
                                       </ToggleGroupItem>
                                     </ToggleGroup>
@@ -998,11 +998,11 @@ export const CampaignsPage = () => {
                             </div>
                           )}
                           {locationScope === 'national' && (
-                            <div className="p-3 bg-primary/10 border border-primary/20 rounded-lg flex items-center gap-3 animate-in slide-in-from-top-2 fade-in">
-                              <Globe2 className="h-8 w-8 text-primary/50" />
+                            <div className="p-3 bg-accent/10 border border-accent/20 rounded-lg flex items-center gap-3 animate-in slide-in-from-top-2 fade-in">
+                              <Globe2 className="h-8 w-8 text-accent/50" />
                               <div>
-                                <p className="font-bold text-sm text-primary">Busca Nacional Ativada</p>
-                                <p className="text-xs text-primary/80">O sistema irá buscar leads em todo o território brasileiro sem restrição de raio.</p>
+                                <p className="font-bold text-sm text-accent">Busca Nacional Ativada</p>
+                                <p className="text-xs text-accent/80">O sistema irá buscar leads em todo o território brasileiro sem restrição de raio.</p>
                               </div>
                             </div>
                           )}
@@ -1011,7 +1011,7 @@ export const CampaignsPage = () => {
                         {/* SMART NICHE SELECTION CARD */}
                         <div className="space-y-4 p-4 border rounded-xl bg-secondary/10">
                           <Label className="flex items-center gap-2 mb-2">
-                            <Briefcase className="h-4 w-4 text-primary" />
+                            <Briefcase className="h-4 w-4 text-accent" />
                             Seleção de Público (Nichos)
                           </Label>
 
@@ -1074,7 +1074,7 @@ export const CampaignsPage = () => {
                                   ) : (
                                     !allNiches.some(n => normalizeText(n) === normalizeText(nicheInput)) && (
                                       <div className="p-4 text-center text-sm text-muted-foreground">
-                                        Nenhum nicho encontrado. <span className="text-primary cursor-pointer hover:underline" onMouseDown={(e) => { e.preventDefault(); addNicheTag(nicheInput.trim()); }}>Clique para adicionar personalizado.</span>
+                                        Nenhum nicho encontrado. <span className="text-accent cursor-pointer hover:underline" onMouseDown={(e) => { e.preventDefault(); addNicheTag(nicheInput.trim()); }}>Clique para adicionar personalizado.</span>
                                       </div>
                                     )
                                   )}
@@ -1096,15 +1096,15 @@ export const CampaignsPage = () => {
                                           className="flex items-center gap-2 group/header cursor-pointer"
                                           onClick={() => toggleEcosystem(group)}
                                         >
-                                          <div className={`p-2 rounded-lg bg-primary/10 text-primary group-hover/header:bg-primary group-hover/header:text-primary-foreground transition-colors`}>
+                                          <div className={`p-2 rounded-lg bg-accent/10 text-accent group-hover/header:bg-accent group-hover/header:text-accent-foreground transition-colors`}>
                                             <group.icon className="h-5 w-5" />
                                           </div>
                                           <div>
                                             <h4 className="font-extrabold text-base flex items-center gap-2">
                                               {group.label}
-                                              {group.niches.every(n => nicheTags.includes(n)) && <CheckCircle className="h-3 w-3 text-primary" />}
+                                              {group.niches.every(n => nicheTags.includes(n)) && <CheckCircle className="h-3 w-3 text-accent" />}
                                             </h4>
-                                            <p className="text-xs font-bold text-muted-foreground group-hover/header:text-primary decoration-primary/50 underline-offset-2 group-hover/header:underline">
+                                            <p className="text-xs font-bold text-muted-foreground group-hover/header:text-accent decoration-accent/50 underline-offset-2 group-hover/header:underline">
                                               {group.niches.every(n => nicheTags.includes(n)) ? 'Desmarcar Todos' : 'Selecionar Todos'}
                                             </p>
                                           </div>
@@ -1114,10 +1114,10 @@ export const CampaignsPage = () => {
                                           {group.niches.map(item => (
                                             <div
                                               key={item}
-                                              className={`cursor-pointer text-xs p-1.5 rounded-md transition-all flex items-center gap-2 ${nicheTags.includes(item) ? 'bg-primary/20 text-primary font-bold' : 'hover:bg-secondary/50 text-muted-foreground hover:text-foreground'}`}
+                                              className={`cursor-pointer text-xs p-1.5 rounded-md transition-all flex items-center gap-2 ${nicheTags.includes(item) ? 'bg-accent/20 text-accent font-bold' : 'hover:bg-secondary/50 text-muted-foreground hover:text-foreground'}`}
                                               onMouseDown={(e) => { e.preventDefault(); if (nicheTags.includes(item)) removeNicheTag(item); else addNicheTag(item); }}
                                             >
-                                              <span className={`w-1.5 h-1.5 rounded-full ${nicheTags.includes(item) ? 'bg-primary' : 'bg-muted-foreground/30'}`} />
+                                              <span className={`w-1.5 h-1.5 rounded-full ${nicheTags.includes(item) ? 'bg-accent' : 'bg-muted-foreground/30'}`} />
                                               {item}
                                             </div>
                                           ))}
@@ -1135,7 +1135,7 @@ export const CampaignsPage = () => {
                       {/* STEP 4: FINAL PAYLOAD & SWEEP SETTINGS */}
                       <div className="space-y-8 min-h-[350px]">
                         <div className="flex flex-col gap-1.5 border-b pb-3">
-                          <div className="flex items-center gap-3 text-primary font-semibold">
+                          <div className="flex items-center gap-3 text-accent font-semibold">
                             <Settings className="h-6 w-6" />
                             <span className="text-xl font-black">Passo 4: Protocolos de Varredura</span>
                           </div>
@@ -1157,7 +1157,7 @@ export const CampaignsPage = () => {
                       {/* STEP 5: CREDIT USAGE & LIMITS */}
                       <div className="space-y-8 min-h-[250px]">
                         <div className="flex flex-col gap-1.5 border-b pb-3">
-                          <div className="flex items-center gap-3 text-primary font-semibold">
+                          <div className="flex items-center gap-3 text-accent font-semibold">
                             <Wallet className="h-6 w-6" />
                             <span className="text-xl font-black">Passo 5: Escopo & Munição</span>
                           </div>
@@ -1168,18 +1168,18 @@ export const CampaignsPage = () => {
 
                         <div className="space-y-6 p-6 border rounded-2xl bg-secondary/10 relative overflow-hidden">
                           {/* BG Effect */}
-                          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+                          <div className="absolute top-0 right-0 w-64 h-64 bg-accent/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
 
                           <div className="flex items-center justify-between">
                             <div className="space-y-1">
                               <Label className="text-base font-black flex items-center gap-2">
-                                <Target className="h-4 w-4 text-primary" />
+                                <Target className="h-4 w-4 text-accent" />
                                 Quantidade de Alvos
                               </Label>
                               <p className="text-xs text-muted-foreground">Quantos contatos novos extrair?</p>
                             </div>
                             <div className="text-right">
-                              <span className="text-2xl font-black text-primary">{targetLeads[0]}</span>
+                              <span className="text-2xl font-black text-accent">{targetLeads[0]}</span>
                               <span className="text-xs text-muted-foreground font-bold uppercase ml-1">Alvos</span>
                             </div>
                           </div>
@@ -1196,7 +1196,7 @@ export const CampaignsPage = () => {
                             <div className="p-3 rounded-xl bg-background/50 border border-border flex flex-col items-center justify-center text-center">
                               <span className="text-xs text-muted-foreground font-bold uppercase">Custo da Missão</span>
                               <div className="flex items-center gap-1 mt-1 text-foreground">
-                                <Wallet className="h-4 w-4 text-primary" />
+                                <Wallet className="h-4 w-4 text-accent" />
                                 <span className="text-xl font-black">{calculateCost(targetLeads[0])}</span>
                                 <span className="text-[10px] font-bold text-muted-foreground">Créditos</span>
                               </div>
@@ -1212,7 +1212,7 @@ export const CampaignsPage = () => {
 
                             <div className="p-3 rounded-xl bg-background/50 border border-border flex flex-col items-center justify-center text-center col-span-2 sm:col-span-1">
                               <span className="text-xs text-muted-foreground font-bold uppercase">Munição Restante</span>
-                              <div className={`flex items-center gap-1 mt-1 ${userCredits - calculateCost(targetLeads[0]) < 0 ? 'text-destructive' : 'text-primary'}`}>
+                              <div className={`flex items-center gap-1 mt-1 ${userCredits - calculateCost(targetLeads[0]) < 0 ? 'text-destructive' : 'text-accent'}`}>
                                 <span className="text-xl font-black">{userCredits - calculateCost(targetLeads[0])}</span>
                               </div>
                             </div>

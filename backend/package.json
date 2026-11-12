@@ -1,7 +1,7 @@
 {
-  "name": "leadscan365-backend",
+  "name": "sniperflow-backend",
   "version": "1.0.0",
-  "description": "LeadScan365 Backend with SQLite",
+  "description": "SniperFlow Backend with SQLite",
   "main": "src/server.js",
   "type": "module",
   "scripts": {

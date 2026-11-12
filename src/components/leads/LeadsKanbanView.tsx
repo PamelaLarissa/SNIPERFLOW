@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import {
     GripVertical,
@@ -60,6 +60,43 @@ export const LeadsKanbanView = ({
     const [aiInput, setAiInput] = useState("");
     const [selectedForAi, setSelectedForAi] = useState<string | null>(null);
     const { toast } = useToast();
+
+    // Drag and Drop Logic
+    const [draggingId, setDraggingId] = useState<string | null>(null);
+    // Refs for columns to detect drop zones
+    const columnRefs = {
+        new: useRef<HTMLDivElement>(null),
+        qualified: useRef<HTMLDivElement>(null),
+        proposal: useRef<HTMLDivElement>(null),
+        won: useRef<HTMLDivElement>(null),
+        lost: useRef<HTMLDivElement>(null),
+    };
+
+    const handleDragEnd = (event: any, info: any, leadId: string, currentStatus: KanbanColumn) => {
+        setDraggingId(null);
+        const dropPoint = {
+            x: info.point.x,
+            y: info.point.y
+        };
+
+        // Check which column contains the drop point
+        for (const [colId, ref] of Object.entries(columnRefs)) {
+            if (ref.current) {
+                const rect = ref.current.getBoundingClientRect();
+                if (
+                    dropPoint.x >= rect.left &&
+                    dropPoint.x <= rect.right &&
+                    dropPoint.y >= rect.top &&
+                    dropPoint.y <= rect.bottom
+                ) {
+                    if (colId !== currentStatus) {
+                        onMoveLead(leadId, colId as KanbanColumn);
+                    }
+                    return;
+                }
+            }
+        }
+    };
 
     const getLeadsByColumn = (column: KanbanColumn) =>
         leads.filter(l => (l.status || 'new') === column);
@@ -148,12 +185,13 @@ export const LeadsKanbanView = ({
                     {kanbanColumns.map((column, colIndex) => (
                         <motion.div
                             key={column}
+                            ref={columnRefs[column]}
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: colIndex * 0.1 }}
-                            className="w-72 sm:w-auto shrink-0 sm:shrink"
+                            className="w-72 sm:w-80 shrink-0 sm:shrink flex flex-col"
                         >
-                            <Card variant="glass" className={`${kanbanColumnColors[column]} h-full`}>
+                            <Card variant="glass" className={`h-full flex flex-col border-t-4 ${kanbanColumnColors[column]}`}>
                                 <CardHeader className="pb-3">
                                     <div className="flex items-center justify-between">
                                         <CardTitle className="text-sm sm:text-base">{kanbanColumnLabels[column]}</CardTitle>
@@ -166,25 +204,45 @@ export const LeadsKanbanView = ({
                                     {getLeadsByColumn(column).map((lead, index) => (
                                         <motion.div
                                             key={lead.id}
+                                            layoutId={lead.id}
+                                            drag
+                                            dragSnapToOrigin
+                                            dragElastic={0.1}
+                                            onDragStart={() => setDraggingId(lead.id)}
+                                            onDragEnd={(e, info) => handleDragEnd(e, info, lead.id, column)}
+                                            whileDrag={{ scale: 1.05, zIndex: 100, cursor: 'grabbing' }}
                                             initial={{ opacity: 0, scale: 0.9 }}
-                                            animate={{ opacity: 1, scale: 1 }}
+                                            animate={{ opacity: 1, scale: 1, zIndex: draggingId === lead.id ? 100 : 0 }}
                                             transition={{ delay: index * 0.05 }}
-                                            layout
-                                            className="bg-card/80 rounded-lg p-3 border border-border/50 cursor-grab active:cursor-grabbing hover:shadow-md transition-all"
+                                            className="bg-card/80 rounded-lg p-3 border border-border/50 cursor-grab active:cursor-grabbing hover:shadow-md hover:border-primary/40 transition-all group relative overflow-hidden"
                                         >
                                             <div className="flex items-start justify-between mb-2">
                                                 <div className="flex items-center gap-2">
-                                                    <GripVertical className="h-4 w-4 text-muted-foreground shrink-0" />
-                                                    <div>
-                                                        <p className="font-medium text-sm line-clamp-1">{lead.name}</p>
-                                                        <p className="text-xs text-muted-foreground line-clamp-1">{lead.company}</p>
+                                                    <GripVertical className="h-4 w-4 text-muted-foreground/30 group-hover:text-muted-foreground transition-colors shrink-0" />
+                                                    <div className="min-w-0">
+                                                        <p className="font-bold text-sm truncate leading-tight">{lead.name}</p>
+                                                        <p className="text-xs text-muted-foreground truncate">{lead.company}</p>
                                                     </div>
                                                 </div>
-                                                <Badge variant={getScoreVariant(lead.score)} className="text-xs shrink-0">
+                                                <Badge variant={getScoreVariant(lead.score)} className="text-[10px] px-1.5 h-5 shrink-0">
                                                     {lead.score}
                                                 </Badge>
                                             </div>
-                                            <div className="flex items-center justify-between mt-3">
+
+                                            {/* Extra Info Fields */}
+                                            <div className="space-y-1 mb-3">
+                                                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                                    <span className="font-semibold text-primary/70 text-[10px] uppercase tracking-wider">Local:</span>
+                                                    <span className="truncate text-foreground/90">{lead.cityState || lead.address || "Brasil"}</span>
+                                                </div>
+                                                {lead.notes && (
+                                                    <div className="bg-secondary/30 p-1.5 rounded text-[10px] text-muted-foreground italic truncate border border-white/5">
+                                                        "{lead.notes.length > 40 ? lead.notes.substring(0, 40) + '...' : lead.notes}"
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/30">
                                                 <div className="flex gap-1">
                                                     <Button variant="ghost" size="icon" className="h-6 w-6">
                                                         <Phone className="h-3 w-3" />

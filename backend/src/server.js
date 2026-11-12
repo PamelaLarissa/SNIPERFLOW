@@ -478,7 +478,7 @@ async function startServer() {
 
       const response = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cleanCNPJ}`, {
         headers: {
-          'User-Agent': 'LeadScan365/1.0.0 (https://github.com/your-repo/prospect-engine)'
+          'User-Agent': 'SniperFlow/1.0.0 (https://github.com/your-repo/prospect-engine)'
         }
       });
 
@@ -585,7 +585,7 @@ async function startServer() {
 
   // Start server
   app.listen(PORT, () => {
-    console.log(`🚀 LeadScan365 Backend running on http://localhost:${PORT}`);
+    console.log(`🚀 SniperFlow Backend running on http://localhost:${PORT}`);
     console.log(`📊 Health check: http://localhost:${PORT}/health`);
     console.log(`📥 Webhook: POST http://localhost:${PORT}/api/webhooks/leads`);
     console.log(`💾 Database: SQLite (local, free, unlimited)`);

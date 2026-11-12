@@ -484,17 +484,17 @@ export const AdvancedFilters = ({
                       type="button"
                       onClick={() => onProfileToggle?.(opp.id)}
                       className={`flex flex-col items-start gap-2 p-3 rounded-lg border text-left transition-all relative overflow-hidden ${isProfileSelected
-                        ? "border-primary bg-primary/10 ring-1 ring-primary shadow-sm"
+                        ? "border-accent bg-accent/10 ring-1 ring-accent shadow-sm"
                         : "border-border hover:bg-secondary/50"
                         }`}
                     >
                       <div className="flex items-center gap-2 mb-1 w-full">
-                        <profile.icon className={`h-5 w-5 ${isProfileSelected ? 'text-primary' : profile.color}`} />
+                        <profile.icon className={`h-5 w-5 ${isProfileSelected ? 'text-accent' : profile.color}`} />
                         <div className="flex flex-col gap-1">
                           <span className="font-extrabold text-base leading-snug">{profile.label}</span>
                           <span className="text-xs text-muted-foreground font-semibold">{profile.sub}</span>
                         </div>
-                        {isProfileSelected && <CheckCircle className="h-4 w-4 text-primary ml-auto flex-shrink-0" />}
+                        {isProfileSelected && <CheckCircle className="h-4 w-4 text-accent ml-auto flex-shrink-0" />}
                       </div>
                       <div className="space-y-1.5 w-full pl-0.5">
                         {profileNiches[opp.id]?.slice(0, 4).map((ex, idx) => (
@@ -512,32 +512,32 @@ export const AdvancedFilters = ({
                   <div
                     onClick={() => applyEliteFilter(opp)}
                     className={`flex flex-col items-start gap-3 p-4 rounded-xl border text-left transition-all flex-1 h-full cursor-pointer relative overflow-hidden ${active
-                      ? "border-primary bg-primary/15 ring-2 ring-primary/20 shadow-lg shadow-primary/5 scale-[1.02] z-20"
+                      ? "border-accent bg-accent/15 ring-2 ring-accent/20 shadow-lg shadow-accent/5 scale-[1.02] z-20"
                       : "border-border hover:bg-secondary/50"
                       }`}
                   >
                     {/* Status Indicator at the very bottom/edge */}
-                    <div className={`absolute top-0 right-0 px-4 py-1.5 text-xs font-black uppercase tracking-widest rounded-bl-lg transition-colors ${active ? 'bg-primary text-primary-foreground animate-pulse' : 'bg-secondary text-muted-foreground'}`}>
+                    <div className={`absolute top-0 right-0 px-4 py-1.5 text-xs font-black uppercase tracking-widest rounded-bl-lg transition-colors ${active ? 'bg-accent text-accent-foreground animate-pulse' : 'bg-secondary text-muted-foreground'}`}>
                       {active ? 'Sensor Ativo' : 'Offline'}
                     </div>
 
                     <div className="space-y-3 w-full flex-1">
                       <div className="space-y-1">
-                        <span className={`text-xs font-black uppercase tracking-wider block ${active ? 'text-primary' : 'text-muted-foreground'}`}>Filtro de Dor:</span>
+                        <span className={`text-xs font-black uppercase tracking-wider block ${active ? 'text-accent' : 'text-muted-foreground'}`}>Filtro de Dor:</span>
                         <p className="text-sm text-foreground font-extrabold leading-relaxed italic">“{opp.description}”</p>
                       </div>
 
                       <div className="space-y-1.5">
-                        <span className={`text-xs font-black uppercase tracking-wider block ${active ? 'text-primary' : 'text-muted-foreground'}`}>Stack Alvo:</span>
+                        <span className={`text-xs font-black uppercase tracking-wider block ${active ? 'text-accent' : 'text-muted-foreground'}`}>Stack Alvo:</span>
                         <div className="flex flex-wrap gap-1.5">
                           {opp.filters.technologies?.map(t => (
-                            <span key={t} className={`text-[10px] border px-2 py-1 rounded font-black transition-colors ${active ? 'bg-primary/10 border-primary/30 text-primary' : 'bg-secondary/80 text-secondary-foreground border-border/50'}`}>{t}</span>
+                            <span key={t} className={`text-[10px] border px-2 py-1 rounded font-black transition-colors ${active ? 'bg-accent/10 border-accent/30 text-accent' : 'bg-secondary/80 text-secondary-foreground border-border/50'}`}>{t}</span>
                           ))}
                         </div>
                       </div>
 
-                      <div className={`pt-3 border-t space-y-1.5 ${active ? 'border-primary/20' : 'border-primary/5'}`}>
-                        <span className={`text-xs font-black uppercase tracking-wider block ${active ? 'text-primary' : 'text-muted-foreground'}`}>Inteligência:</span>
+                      <div className={`pt-3 border-t space-y-1.5 ${active ? 'border-accent/20' : 'border-accent/5'}`}>
+                        <span className={`text-xs font-black uppercase tracking-wider block ${active ? 'text-accent' : 'text-muted-foreground'}`}>Inteligência:</span>
                         <p className="text-sm leading-tight text-muted-foreground font-semibold">{opp.explanation}</p>
                       </div>
                     </div>
@@ -564,7 +564,7 @@ export const AdvancedFilters = ({
               {/* Decisores (Switch) */}
               <div className="flex items-center justify-between p-4 rounded-lg border bg-background/50 hover:bg-secondary/20 transition-all cursor-pointer" onClick={() => updateField('decisionMakerContact', !data.decisionMakerContact)}>
                 <div className="flex items-center gap-4">
-                  <div className={`p-2.5 rounded-lg bg-primary/10 text-primary`}>
+                  <div className={`p-2.5 rounded-lg bg-accent/10 text-accent`}>
                     <Users className="h-5 w-5" />
                   </div>
                   <div>
@@ -600,9 +600,9 @@ export const AdvancedFilters = ({
                   onValueChange={(value) => value && updateField('updateFrequency', value as any)}
                   className="bg-secondary/30 p-1.5 rounded-lg w-full"
                 >
-                  <ToggleGroupItem value="daily" className="text-sm font-bold flex-1">Diária</ToggleGroupItem>
-                  <ToggleGroupItem value="thrice_weekly" className="text-sm font-bold flex-1">3x/Sem</ToggleGroupItem>
-                  <ToggleGroupItem value="weekly" className="text-sm font-bold flex-1">Semanal</ToggleGroupItem>
+                  <ToggleGroupItem value="daily" className="text-sm font-bold flex-1 data-[state=on]:bg-transparent data-[state=on]:border-2 data-[state=on]:border-accent data-[state=on]:text-accent">Diária</ToggleGroupItem>
+                  <ToggleGroupItem value="thrice_weekly" className="text-sm font-bold flex-1 data-[state=on]:bg-transparent data-[state=on]:border-2 data-[state=on]:border-accent data-[state=on]:text-accent">3x/Sem</ToggleGroupItem>
+                  <ToggleGroupItem value="weekly" className="text-sm font-bold flex-1 data-[state=on]:bg-transparent data-[state=on]:border-2 data-[state=on]:border-accent data-[state=on]:text-accent">Semanal</ToggleGroupItem>
                 </ToggleGroup>
               </div>
             </div>

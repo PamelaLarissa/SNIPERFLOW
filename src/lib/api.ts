@@ -50,6 +50,7 @@ export interface Lead {
   lat?: number;
   lng?: number;
   assignedTo?: string;
+  role?: string;
   status?: 'new' | 'qualified' | 'proposal' | 'won' | 'lost';
   invoiceDue?: string;
   avgTicket?: number;
@@ -69,6 +70,7 @@ export interface Lead {
   neighborhood?: string;
   zipCode?: string;
   cityState?: string;
+  notes?: string;
 }
 
 export interface LeadFilters {

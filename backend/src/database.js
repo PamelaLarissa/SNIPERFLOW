@@ -151,8 +151,21 @@ export async function initDatabase() {
     CREATE INDEX IF NOT EXISTS idx_leads_campaign ON leads(campaign_id);
     CREATE INDEX IF NOT EXISTS idx_leads_status ON leads(status);
     CREATE INDEX IF NOT EXISTS idx_leads_score ON leads(score);
+    CREATE INDEX IF NOT EXISTS idx_leads_score ON leads(score);
     CREATE INDEX IF NOT EXISTS idx_campaigns_status ON campaigns(status);
   `);
+
+  // Migration: Add notes column if it doesn't exist (safe migration for SQLite)
+  try {
+    const tableInfo = await db.all("PRAGMA table_info(leads)");
+    const hasNotes = tableInfo.some(col => col.name === 'notes');
+    if (!hasNotes) {
+      console.log('Migrating: Adding notes column to leads table...');
+      await db.run("ALTER TABLE leads ADD COLUMN notes TEXT");
+    }
+  } catch (error) {
+    console.error('Migration error (notes column):', error);
+  }
 
   console.log('✅ Database initialized successfully');
 }
@@ -162,8 +175,8 @@ export async function initDatabase() {
 export async function createLead(lead) {
   const id = lead.id || uuidv4();
   await db.run(`
-    INSERT INTO leads (id, name, company, email, phone, whatsapp, score, is_verified, source, website, employee_count, revenue_range, tech_stack, social_profiles, lat, lng, assigned_to, status, invoice_due, avg_ticket, rating, campaign_id, capital_social, natureza_juridica, partners, inicio_atividade, situacao, address, whatsapp_number, street, number_complement, neighborhood, zip_code, city_state, created_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO leads (id, name, company, email, phone, whatsapp, score, is_verified, source, website, employee_count, revenue_range, tech_stack, social_profiles, lat, lng, assigned_to, status, invoice_due, avg_ticket, rating, campaign_id, capital_social, natureza_juridica, partners, inicio_atividade, situacao, address, whatsapp_number, street, number_complement, neighborhood, zip_code, city_state, notes, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `, [
     id,
     lead.name,
@@ -199,6 +212,7 @@ export async function createLead(lead) {
     lead.neighborhood || null,
     lead.zipCode || null,
     lead.cityState || null,
+    lead.notes || null,
     lead.createdAt || new Date().toISOString()
   ]);
 
@@ -273,7 +287,9 @@ export async function updateLead(id, updates) {
   if (updates.numberComplement !== undefined) { fields.push('number_complement = ?'); values.push(updates.numberComplement); }
   if (updates.neighborhood !== undefined) { fields.push('neighborhood = ?'); values.push(updates.neighborhood); }
   if (updates.zipCode !== undefined) { fields.push('zip_code = ?'); values.push(updates.zipCode); }
+  if (updates.zipCode !== undefined) { fields.push('zip_code = ?'); values.push(updates.zipCode); }
   if (updates.cityState !== undefined) { fields.push('city_state = ?'); values.push(updates.cityState); }
+  if (updates.notes !== undefined) { fields.push('notes = ?'); values.push(updates.notes); }
 
   if (fields.length === 0) return getLead(id);
 
@@ -323,7 +339,9 @@ function mapLeadFromDb(row) {
     numberComplement: row.number_complement,
     neighborhood: row.neighborhood,
     zipCode: row.zip_code,
+    zipCode: row.zip_code,
     cityState: row.city_state,
+    notes: row.notes,
     createdAt: row.created_at
   };
 }

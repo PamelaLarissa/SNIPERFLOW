@@ -416,52 +416,52 @@ export const LeadsListView = ({
                                     {/* DETAILS */}
                                     <div className="space-y-1.5 text-xs flex-1">
                                         <div className="flex items-start gap-1.5">
-                                            <span className="font-bold text-muted-foreground min-w-[60px]">Perfil:</span>
+                                            <span className="font-bold text-muted-foreground min-w-[70px]">Perfil:</span>
                                             <span className="text-foreground truncate">{profileLabel}</span>
                                         </div>
                                         <div className="flex items-start gap-1.5">
-                                            <span className="font-bold text-muted-foreground min-w-[60px]">Intel:</span>
+                                            <span className="font-bold text-muted-foreground min-w-[70px]">Intel:</span>
                                             <span className="text-foreground truncate">{displaySources.join(', ')}</span>
                                         </div>
                                         <div className="flex items-start gap-1.5">
-                                            <span className="font-bold text-muted-foreground min-w-[60px]">Nichos:</span>
+                                            <span className="font-bold text-muted-foreground min-w-[70px]">Nichos:</span>
                                             <span className="text-foreground truncate">{niche}</span>
                                         </div>
                                         {(stack.length > 0) && (
                                             <div className="flex items-start gap-1.5">
-                                                <span className="font-bold text-muted-foreground min-w-[60px]">Stack:</span>
+                                                <span className="font-bold text-muted-foreground min-w-[70px]">Stack:</span>
                                                 <span className="text-foreground truncate">{stack.join(', ')}</span>
                                             </div>
                                         )}
                                         <div className="flex items-start gap-1.5">
-                                            <span className="font-bold text-muted-foreground min-w-[60px]">Time:</span>
+                                            <span className="font-bold text-muted-foreground min-w-[70px]">Time:</span>
                                             <span className="text-foreground truncate">{teamSize}</span>
                                         </div>
                                         <div className="flex items-start gap-1.5">
-                                            <span className="font-bold text-muted-foreground min-w-[60px]">Cidade:</span>
+                                            <span className="font-bold text-muted-foreground min-w-[70px]">Local:</span>
                                             <span className="text-foreground truncate">{city}</span>
                                         </div>
                                         <div className="flex items-start gap-1.5">
-                                            <span className="font-bold text-muted-foreground min-w-[60px]">Fat:</span>
+                                            <span className="font-bold text-muted-foreground min-w-[70px]">Fat:</span>
                                             <span className="text-foreground truncate">{revenue}</span>
                                         </div>
                                         <div className="flex items-start gap-1.5">
-                                            <span className="font-bold text-muted-foreground min-w-[60px]">Status:</span>
+                                            <span className="font-bold text-muted-foreground min-w-[70px]">Status:</span>
                                             <span className="text-foreground truncate">{statusRF}</span>
                                         </div>
                                         <div className="flex items-start gap-1.5">
-                                            <span className="font-bold text-muted-foreground min-w-[60px]">Decisor:</span>
+                                            <span className="font-bold text-muted-foreground min-w-[70px]">Decisor:</span>
                                             <span className={isDecisionMaker ? "text-emerald-500 font-medium" : "text-muted-foreground"}>
                                                 {isDecisionMaker ? 'Sim' : 'Empresa'}
                                             </span>
                                         </div>
                                         <div className="flex items-start gap-1.5 mt-2 pt-2 border-t border-border/40">
-                                            <span className="font-bold text-muted-foreground min-w-[60px]">Campanha:</span>
+                                            <span className="font-bold text-muted-foreground min-w-[70px]">Campanha:</span>
                                             <span className="text-foreground truncate">{campaign?.name || "Desconhecida"}</span>
                                         </div>
                                         <div className="flex items-start gap-1.5">
                                             <Calendar className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                                            <span className="font-bold text-muted-foreground min-w-[50px]">Captura:</span>
+                                            <span className="font-bold text-muted-foreground min-w-[55px]">Captura:</span>
                                             <span className="text-foreground truncate">
                                                 {new Date(lead.createdAt).toLocaleDateString('pt-BR')} {new Date(lead.createdAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
                                             </span>

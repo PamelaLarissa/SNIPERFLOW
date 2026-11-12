@@ -81,6 +81,7 @@ export const LeadsPage = () => {
     employeeCount: '',
     revenueRange: '',
     techStack: [] as string[],
+    notes: '',
   });
 
   const handleExportCSV = () => {
@@ -119,6 +120,7 @@ export const LeadsPage = () => {
       employeeCount: lead.employeeCount || '',
       revenueRange: lead.revenueRange || '',
       techStack: lead.techStack || [],
+      notes: lead.notes || '',
     });
     setEditingLead(lead);
   };
@@ -148,7 +150,8 @@ export const LeadsPage = () => {
       whatsapp: false, score: 0, status: 'new',
       website: '', address: '', niche: '', whatsappNumber: '',
       street: '', numberComplement: '', neighborhood: '',
-      zipCode: '', cityState: '',
+      zipCode: '', cityState: '', notes: '',
+      role: '', employeeCount: '', revenueRange: '', techStack: [],
     });
     setCnpjSearch("");
     setEnrichedData(null);
@@ -382,11 +385,11 @@ export const LeadsPage = () => {
       {
         editingLead && (
           <Dialog open={!!editingLead} onOpenChange={open => !open && setEditingLead(null)}>
-            <DialogContent className="max-w-2xl">
+            <DialogContent className="max-w-3xl">
               <DialogHeader>
                 <DialogTitle>Editar Intel do Alvo</DialogTitle>
               </DialogHeader>
-              <div className="grid grid-cols-2 gap-4 py-4 max-h-[60vh] overflow-y-auto">
+              <div className="grid grid-cols-2 gap-4 py-4 px-1 max-h-[60vh] overflow-y-auto">
                 <div className="space-y-2">
                   <Label>Nome</Label>
                   <Input value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
@@ -408,7 +411,7 @@ export const LeadsPage = () => {
                   <Input value={formData.niche} onChange={e => setFormData({ ...formData, niche: e.target.value })} />
                 </div>
                 <div className="space-y-2">
-                  <Label>Cidade/UF</Label>
+                  <Label>Localização</Label>
                   <Input value={formData.cityState} onChange={e => setFormData({ ...formData, cityState: e.target.value })} />
                 </div>
                 <div className="space-y-2">
@@ -443,6 +446,19 @@ export const LeadsPage = () => {
                     onChange={e => setFormData({ ...formData, techStack: e.target.value.split(',').map(s => s.trim()).filter(Boolean) })}
                     placeholder="Ex: React, Node, AWS"
                   />
+                </div>
+                <div className="col-span-2 space-y-2">
+                  <Label>Observações</Label>
+                  <textarea
+                    className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    value={formData.notes}
+                    onChange={e => setFormData({ ...formData, notes: e.target.value })}
+                    placeholder="Adicione observações importantes sobre o alvo..."
+                    maxLength={500}
+                  />
+                  <div className="text-xs text-muted-foreground text-right w-full">
+                    {formData.notes?.length || 0}/500
+                  </div>
                 </div>
               </div>
               <DialogFooter>

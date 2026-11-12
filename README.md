@@ -1,8 +1,8 @@
-# LeadScan365
+# SniperFlow
 
 ## SQLite Local - 100% Gratuito e Ilimitado
 
-Sistema completo de prospecção de leads com banco de dados SQLite local.
+Sistema completo de prospecção de leads (SniperFlow) com banco de dados SQLite local.
 
 ## 🚀 Iniciar com Docker
 

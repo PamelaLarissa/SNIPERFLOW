@@ -24,7 +24,7 @@ export const WhatsAppPage = () => {
                         </CardHeader>
                         <CardContent className="flex flex-col items-center py-10 text-center">
                             <div className="w-48 h-48 bg-white p-4 rounded-xl mb-6 shadow-glow border-4 border-primary/20">
-                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=LeadScan365" alt="QR Code" className="w-full h-full grayscale opacity-50" />
+                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=SniperFlow" alt="QR Code" className="w-full h-full grayscale opacity-50" />
                             </div>
                             <h3 className="text-xl font-bold mb-2">Escanear Código de Acesso</h3>
                             <p className="text-muted-foreground max-w-md mb-6">
